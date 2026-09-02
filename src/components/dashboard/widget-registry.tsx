@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { api, getToken } from "@/services/spine/api";
 import type { ModuleWidget } from "@/services/spine/module-extensions";
 import { StatusBadge } from "@/components/spine/status-badge";
+import { CalendarWidget } from "./widgets/calendar-widget";
+import { TodosWidget } from "./widgets/todos-widget";
 
 /**
  * Registry widget DASHBOARD — infrastruktur.
@@ -120,14 +122,16 @@ function WidgetFallback({ widget }: { widget: ModuleWidget }) {
   );
 }
 
-const REGISTRY: Record<string, ComponentType> = {
+const REGISTRY: Record<string, ComponentType<{ apiPath: string }>> = {
   "sample-items": SampleItemsWidget,
   "sample-tasks": SampleTasksWidget,
+  calendar: CalendarWidget,
+  todos: TodosWidget,
 };
 
 /** Body widget dari registry; fallback bila belum terdaftar komponennya. */
 export function WidgetBody({ widget }: { widget: ModuleWidget }) {
   const Component = REGISTRY[widget.id];
   if (!Component) return <WidgetFallback widget={widget} />;
-  return <Component />;
+  return <Component apiPath={widget.api} />;
 }
