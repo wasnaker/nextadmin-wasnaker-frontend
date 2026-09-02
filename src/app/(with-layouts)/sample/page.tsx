@@ -10,14 +10,8 @@ import {
   type SmallTableColumn,
 } from "@/components/spine/small-table";
 import { StatusBadge } from "@/components/spine/status-badge";
+import { LoginCard } from "@/components/spine/login-card";
 import { Button } from "@/components/tailgrids/core/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/tailgrids/core/card";
 import {
   Dialog,
   DialogBody,
@@ -128,25 +122,6 @@ export default function SamplePage() {
     window.location.hash = String(n);
   }, []);
 
-  async function onLogin(e: React.FormEvent) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget as HTMLFormElement);
-    const res = await api<{ token: string }>("/api/v1/auth/login", {
-      method: "POST",
-      body: JSON.stringify({
-        email: fd.get("email"),
-        password: fd.get("password"),
-      }),
-    });
-    if (!res.ok) {
-      setError(res.error ?? "Login gagal");
-      return;
-    }
-    setToken(res.data.token);
-    setTokenState(res.data.token);
-    setError(null);
-  }
-
   function onLogout() {
     setToken(null);
     setTokenState(null);
@@ -227,30 +202,7 @@ export default function SamplePage() {
   }
 
   if (!token) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Card className="w-full max-w-sm">
-          <CardHeader className="mb-4">
-            <CardTitle>Masuk</CardTitle>
-            <CardDescription>Login ke Spine untuk mengakses data.</CardDescription>
-          </CardHeader>
-          <form onSubmit={onLogin}>
-            <CardContent className="space-y-4">
-              <div>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input id="email" name="email" type="email" required defaultValue="demo@spine.test" className="mt-1.5 w-full" />
-              </div>
-              <div>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input id="password" name="password" type="password" required defaultValue="password" className="mt-1.5 w-full" />
-              </div>
-              {error && <p className="text-sm text-text-tertiary">{error}</p>}
-              <Button type="submit" className="w-full">Masuk</Button>
-            </CardContent>
-          </form>
-        </Card>
-      </div>
-    );
+    return <LoginCard onSuccess={(t) => setTokenState(t)} />;
   }
 
   return (
