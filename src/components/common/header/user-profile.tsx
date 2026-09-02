@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  BillingIcon,
-  GearIcon,
-  LogoutIcon,
-  UserCircleIcon,
-} from "@/components/common/header/icons";
+import { GearIcon, LogoutIcon } from "@/components/common/header/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/tailgrids/core/avatar";
 import {
   DropdownMenu,
@@ -16,7 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/tailgrids/core/dropdown";
+import { useAuth } from "@/services/spine/auth-context";
 import { AltArrowDownIcon } from "@/utils/icon";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface UserProfileMenuItem {
@@ -25,34 +22,27 @@ interface UserProfileMenuItem {
   label: string;
 }
 
-interface UserProfile {
-  name: string;
-  email: string;
-  avatarUrl?: string;
-}
-
-const user: UserProfile = {
-  name: "Jhon Smith",
-  email: "jhonsmith@example.com",
-  avatarUrl: "/images/user/jhon-smith.png",
-};
-
 export function UserProfileButton() {
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  // Belum login: trigger jadi link ke halaman login.
+  if (!user) {
+    return (
+      <Link
+        href="/login"
+        className="flex items-center gap-2.5 rounded-lg border border-card-border bg-card-background px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary-300"
+      >
+        Masuk
+      </Link>
+    );
+  }
+
   const menuItems: UserProfileMenuItem[] = [
     {
-      href: "/profile",
-      icon: <UserCircleIcon />,
-      label: "View profile",
-    },
-    {
-      href: "#",
+      href: "/settings",
       icon: <GearIcon />,
-      label: "Account Settings",
-    },
-    {
-      href: "#",
-      icon: <BillingIcon />,
-      label: "Billing and Plan",
+      label: "Settings",
     },
   ];
 
@@ -60,7 +50,6 @@ export function UserProfileButton() {
     <DropdownMenu>
       <DropdownMenuTrigger className="group flex items-center gap-2.5 rounded-lg border-0 p-0 transition-all outline-none focus-visible:ring-4 focus-visible:ring-input-primary-focus-border/20 focus-visible:ring-offset-1">
         <Avatar>
-          <AvatarImage src={user.avatarUrl!} alt={user.name} className="size-10 rounded-lg" />
           <AvatarFallback className="rounded-lg border border-border-secondary-alt bg-background-gray-secondary_alt">
             {user.name.charAt(0)}
           </AvatarFallback>
@@ -74,7 +63,6 @@ export function UserProfileButton() {
       <DropdownMenuContent placement="bottom end" className="w-70 overflow-hidden p-0 shadow-3xl">
         <DropdownMenuHeader className="flex w-full items-center justify-start gap-2 border-b border-border-secondary-alt px-4 py-3">
           <Avatar size="md">
-            <AvatarImage src={user.avatarUrl!} alt={user.name} />
             <AvatarFallback className="border border-border-secondary-alt bg-background-gray-secondary_alt">
               {user.name.charAt(0)}
             </AvatarFallback>
@@ -106,8 +94,9 @@ export function UserProfileButton() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          onAction={() => {
-            // logout handler
+          onAction={async () => {
+            await logout();
+            router.push("/login");
           }}
           className="m-1.5 w-auto cursor-pointer px-3 py-2.5"
         >

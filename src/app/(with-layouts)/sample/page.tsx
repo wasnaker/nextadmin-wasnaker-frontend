@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, API_URL, getToken, setToken } from "@/services/spine/api";
+import { api, API_URL } from "@/services/spine/api";
+import { useAuth } from "@/services/spine/auth-context";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import {
@@ -10,7 +11,6 @@ import {
   type SmallTableColumn,
 } from "@/components/spine/small-table";
 import { StatusBadge } from "@/components/spine/status-badge";
-import { LoginCard } from "@/components/spine/login-card";
 import { Button } from "@/components/tailgrids/core/button";
 import {
   Dialog,
@@ -21,6 +21,7 @@ import {
 } from "@/components/tailgrids/core/dialog";
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
+import { useRouter } from "next/navigation";
 
 interface SampleItem {
   id: number;
@@ -83,7 +84,8 @@ const columns: SmallTableColumn<SampleItem>[] = [
 ];
 
 export default function SamplePage() {
-  const [token, setTokenState] = useState<string | null>(() => getToken());
+  const router = useRouter();
+  const { token, ready, logout } = useAuth();
   const [smallView, setSmallView] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [open, setOpen] = useState(false);
@@ -123,9 +125,9 @@ export default function SamplePage() {
   }, []);
 
   function onLogout() {
-    setToken(null);
-    setTokenState(null);
+    logout();
     window.location.hash = "";
+    router.replace("/login");
   }
 
   function openCreate() {
@@ -201,9 +203,12 @@ export default function SamplePage() {
     window.open(`${API_URL}/api/v1/pdf/from-html?html=${html}`, "_blank");
   }
 
-  if (!token) {
-    return <LoginCard onSuccess={(t) => setTokenState(t)} />;
-  }
+  // Belum login / validasi mount belum selesai -> ke halaman login.
+  useEffect(() => {
+    if (ready && !token) router.replace("/login");
+  }, [ready, token, router]);
+
+  if (!ready || !token) return null;
 
   return (
     <div className="space-y-6">

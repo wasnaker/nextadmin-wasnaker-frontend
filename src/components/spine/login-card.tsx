@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { api, setToken } from "@/services/spine/api";
+import { api } from "@/services/spine/api";
 import { Button } from "@/components/tailgrids/core/button";
 import {
   Card,
@@ -36,8 +36,7 @@ export function LoginCard({
       setError(res.error ?? "Login gagal");
       return;
     }
-    setToken(res.data.token);
-    onSuccess(res.data.token);
+    onSuccess(res.data.token); // AuthProvider.signIn yang set token + validasi
   }
 
   return (

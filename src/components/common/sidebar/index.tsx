@@ -13,6 +13,8 @@ import { NAV_DATA } from './data';
 import { CloseIcon, SidebarExpandedIcon, ThreeDots } from './icon';
 import NavItem from './nav-item';
 import { findActiveGroupKey } from './utils';
+import { useAuth } from '@/services/spine/auth-context';
+import { useModuleExtensions } from '@/services/spine/module-extensions';
 
 export default function Sidebar({
     isSidebarOpen,
@@ -27,6 +29,11 @@ export default function Sidebar({
 }) {
     const pathname = usePathname();
     const { theme } = useTheme();
+    const { token } = useAuth();
+    const { data: ext } = useModuleExtensions();
+    const modules = [...(ext?.menu ?? [])].sort(
+        (a, b) => (a.position ?? 999) - (b.position ?? 999),
+    );
 
     // Compute which group should be open based on the current route
     const activeGroupKey = useMemo(
@@ -126,6 +133,48 @@ export default function Sidebar({
                             </div>
                         </div>
                     ))}
+
+                    {/* Modul Spine (extensions) — muncul saat login */}
+                    {token && modules.length > 0 && (
+                        <div>
+                            {isSidebarOpen ? (
+                                <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
+                                    MODULES
+                                </p>
+                            ) : (
+                                <span className='flex items-center justify-center pt-6 pb-4 text-icon-secondary'>
+                                    <ThreeDots />
+                                </span>
+                            )}
+                            <div className={cn('space-y-1', !isSidebarOpen && 'space-y-1.5')}>
+                                {modules.map((m) => (
+                                    <NavItem
+                                        key={m.slug}
+                                        id={m.label}
+                                        icon={
+                                            m.icon ? (
+                                                <span className='text-base'>{m.icon}</span>
+                                            ) : undefined
+                                        }
+                                        label={m.label}
+                                        href={m.href}
+                                        items={[]}
+                                        collapsed={!isSidebarOpen}
+                                        onItemClick={onItemClick}
+                                    />
+                                ))}
+                                <NavItem
+                                    key='settings'
+                                    id='Settings'
+                                    label='Settings'
+                                    href='/settings'
+                                    items={[]}
+                                    collapsed={!isSidebarOpen}
+                                    onItemClick={onItemClick}
+                                />
+                            </div>
+                        </div>
+                    )}
                 </CollapsibleGroup>
             </nav>
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, getToken } from "@/services/spine/api";
-import { LoginCard } from "@/components/spine/login-card";
+import { api } from "@/services/spine/api";
+import { useAuth } from "@/services/spine/auth-context";
 import { Button } from "@/components/tailgrids/core/button";
 import { Card, CardContent } from "@/components/tailgrids/core/card";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";
@@ -11,6 +11,7 @@ import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
 import { TextArea } from "@/components/tailgrids/core/text-area";
 import { cn } from "@/utils/cn";
+import { useRouter } from "next/navigation";
 
 /**
  * Settings — halaman generik schema-driven (padanan nextjs-spine settings page):
@@ -80,7 +81,8 @@ function ActionField({
 }
 
 export default function SettingsPage() {
-  const [token, setTokenState] = useState<string | null>(() => getToken());
+  const router = useRouter();
+  const { token, ready } = useAuth();
   const [active, setActive] = useState<string | null>(null);
   const [busySave, setBusySave] = useState(false);
   const [notice, setNotice] = useState<{ msg: string; ok: boolean } | null>(null);
@@ -162,9 +164,12 @@ export default function SettingsPage() {
     }
   }
 
-  if (!token) {
-    return <LoginCard onSuccess={(t) => setTokenState(t)} />;
-  }
+  // Belum login / validasi mount belum selesai -> ke halaman login.
+  useEffect(() => {
+    if (ready && !token) router.replace("/login");
+  }, [ready, token, router]);
+
+  if (!ready || !token) return null;
 
   return (
     <div className="space-y-6">
