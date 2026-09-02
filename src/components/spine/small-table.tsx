@@ -132,10 +132,14 @@ export function SmallTable<T>({
   const smallMode = selected !== null && showDetail;
 
   // Kolom yang tampil: mode kecil = hanya primary (padanan hidden_columns legacy).
-  const visibleCols =
-    smallMode && columns.some((c) => c.primary)
-      ? columns.filter((c) => c.primary)
-      : columns;
+  // WAJIB useMemo: filter() tanpa memo = array baru tiap render -> colDefs baru
+  // tiap render -> TanStack rebuild kolom tiap render (freeze saat ketik).
+  const visibleCols = useMemo(() => {
+    if (smallMode && columns.some((c) => c.primary)) {
+      return columns.filter((c) => c.primary);
+    }
+    return columns;
+  }, [columns, smallMode]);
 
   const colDefs = useMemo<ColumnDef<T>[]>(
     () =>
@@ -158,19 +162,32 @@ export function SmallTable<T>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getRowId: (row) => String(getItemId(row)),
+    // autoResetPageIndex OFF: dengan pagination controlled, reset otomatis tiap
+    // data berubah = ping-pong onPaginationChange -> render -> reset (freeze saat
+    // ketik search). Reset manual via clamp pageIndex di bawah.
+    autoResetPageIndex: false,
     state: { pagination },
     onPaginationChange: setPagination,
   });
 
-  // Reset ke halaman 1 saat search berubah.
+  // Reset ke halaman 1 saat search berubah — hanya kalau memang bukan halaman 1
+  // (hindari objek state baru tiap ketik -> re-render tak perlu).
   useEffect(() => {
-    setPagination((p) => ({ ...p, pageIndex: 0 }));
+    setPagination((p) => (p.pageIndex === 0 ? p : { ...p, pageIndex: 0 }));
   }, [q]);
 
   // Sync pageSize kalau setting tables_pagination_limit berubah setelah mount.
   useEffect(() => {
-    setPagination((p) => ({ ...p, pageSize: perPage }));
+    setPagination((p) => (p.pageSize === perPage ? p : { ...p, pageSize: perPage }));
   }, [perPage]);
+
+  // Clamp pageIndex kalau data menyusut (search) sampai di bawah halaman aktif.
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage));
+    setPagination((p) =>
+      p.pageIndex >= totalPages ? { ...p, pageIndex: totalPages - 1 } : p
+    );
+  }, [filteredItems.length, perPage]);
 
   return (
     <div className="small-table flex flex-col gap-4 lg:flex-row">
