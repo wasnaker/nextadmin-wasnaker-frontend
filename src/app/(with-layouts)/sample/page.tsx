@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, API_URL, getToken, setToken } from "@/services/spine/api";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
@@ -90,7 +90,6 @@ const columns: SmallTableColumn<SampleItem>[] = [
 
 export default function SamplePage() {
   const [token, setTokenState] = useState<string | null>(() => getToken());
-  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [smallView, setSmallView] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [open, setOpen] = useState(false);
@@ -99,16 +98,18 @@ export default function SamplePage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", quantity: "", price: "" });
 
+  // Hash #id (padanan do_hash_helper): pilih record dari URL saat load.
+  // useState initializer — bukan effect (hindari set-state-in-effect).
+  const [selectedId, setSelectedId] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const h = Number(window.location.hash.replace("#", ""));
+    return h || null;
+  });
+
   const qc = useQueryClient();
   const { data: ext } = useModuleExtensions();
   const tabs = ext?.detail_tabs["sample"] ?? [];
   const perPage = usePaginationLimit();
-
-  // Hash #id (padanan do_hash_helper): pilih record dari URL saat load.
-  useEffect(() => {
-    const h = Number(window.location.hash.replace("#", ""));
-    if (h) setSelectedId(h);
-  }, []);
 
   const { data: items = [], isPending } = useQuery({
     queryKey: ["spine", "sample", token],
