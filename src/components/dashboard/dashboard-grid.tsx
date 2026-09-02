@@ -14,12 +14,12 @@ import {
   useSaveDashboardLayout,
   useSaveDashboardVisibility,
   useResetDashboard,
-  type DashboardState,
 } from "@/services/spine/dashboard-state";
 import {
-  DASHBOARD_AREAS,
-  AREA_LABELS,
+  resolveAreas,
   resolveDashboardLayout,
+  areaSpan,
+  areaLabel,
   isWidgetVisible,
 } from "./dashboard-merge";
 import { DashboardWidgetCard } from "./dashboard-widget-card";
@@ -27,15 +27,24 @@ import { cn } from "@/utils/cn";
 
 type LayoutMap = Record<string, string[]>;
 
+/** Class kolom Tailwind per lebar (map eksplisit — JIT tidak baca string dinamis). */
+const SPAN_CLASS: Record<number, string> = {
+  12: "lg:col-span-12",
+  8: "lg:col-span-8",
+  6: "lg:col-span-6",
+  4: "lg:col-span-4",
+  3: "lg:col-span-3",
+  2: "lg:col-span-2",
+};
+
 /** Id per area dari state saat ini (default bila layout null). */
 function idsByArea(
   layout: Record<string, string[]> | null | undefined,
-  widgets: ModuleWidget[]
+  widgets: ModuleWidget[],
+  areas: string[]
 ): LayoutMap {
-  const resolved = resolveDashboardLayout(layout ?? null, widgets);
-  return Object.fromEntries(
-    DASHBOARD_AREAS.map((a) => [a, resolved[a].map((w) => w.id)])
-  );
+  const resolved = resolveDashboardLayout(layout ?? null, widgets, areas);
+  return Object.fromEntries(areas.map((a) => [a, resolved[a].map((w) => w.id)]));
 }
 
 /** Pindahkan 1 item antar/dalam area -> LayoutMap baru (immutable). */
@@ -45,10 +54,11 @@ function moveItem(
   fromArea: string,
   fromIndex: number,
   toArea: string,
-  toIndex: number
+  toIndex: number,
+  areas: string[]
 ): LayoutMap {
   const next: LayoutMap = {};
-  for (const a of DASHBOARD_AREAS) next[a] = [...(map[a] ?? [])];
+  for (const a of areas) next[a] = [...(map[a] ?? [])];
   const from = next[fromArea];
   const i = Math.min(Math.max(fromIndex, 0), from.length - 1);
   const [removed] = from.splice(i, 1);
@@ -80,7 +90,7 @@ function AreaColumn({
   return (
     <div className="flex flex-col">
       <p className="px-1 pb-1.5 text-xs font-medium uppercase tracking-wide text-text-tertiary">
-        {AREA_LABELS[area] ?? area}
+        {areaLabel(area)}
       </p>
       <div
         ref={ref}
@@ -119,7 +129,10 @@ export function DashboardGrid() {
 
   const widgets = ext?.widgets ?? [];
   const visibility = dash?.visibility ?? null;
-  const resolved = resolveDashboardLayout(dash?.layout ?? null, widgets);
+  // Area efektif: 8 base legacy + area tambahan dari katalog widget/layout user
+  // (modul menambah area cukup dengan default-area widget di manifest-nya).
+  const areas = resolveAreas(widgets, dash?.layout);
+  const resolved = resolveDashboardLayout(dash?.layout ?? null, widgets, areas);
 
   if (!ext) return null; // masih loading extensions / belum login
 
@@ -138,7 +151,7 @@ export function DashboardGrid() {
     const { source, target } = event.operation;
     if (!source || !isSortable(source)) return;
 
-    const cur = idsByArea(dash?.layout, widgets);
+    const cur = idsByArea(dash?.layout, widgets, areas);
     const { initialIndex, index, initialGroup, group } = source;
 
     let next: LayoutMap | null = null;
@@ -156,7 +169,8 @@ export function DashboardGrid() {
             String(group),
             initialIndex,
             String(group),
-            index
+            index,
+            areas
           );
         }
       } else {
@@ -166,7 +180,8 @@ export function DashboardGrid() {
           String(initialGroup),
           initialIndex,
           String(group),
-          index
+          index,
+          areas
         );
       }
     } else if (target && target.type === "column") {
@@ -176,7 +191,7 @@ export function DashboardGrid() {
       if (!fromArea) return;
       const toIndex =
         fromArea === toArea ? (cur[toArea]?.length ?? 0) - 1 : cur[toArea]?.length ?? 0;
-      next = moveItem(cur, String(source.id), fromArea, initialIndex, toArea, toIndex);
+      next = moveItem(cur, String(source.id), fromArea, initialIndex, toArea, toIndex, areas);
     }
 
     if (next) {
@@ -185,7 +200,6 @@ export function DashboardGrid() {
       });
     }
   }
-
 
   function toggleVisibility(widgetId: string) {
     const vis = visibility ?? {};
@@ -266,16 +280,14 @@ export function DashboardGrid() {
 
       <DragDropProvider onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="grid grid-cols-12 gap-4">
-          {DASHBOARD_AREAS.map((area) => {
-            const items = resolved[area];
+          {areas.map((area) => {
+            const items = resolved[area] ?? [];
             return (
               <section
                 key={area}
                 className={cn(
                   "col-span-12",
-                  area === "top-12" && "lg:col-span-12",
-                  area === "left-8" && "lg:col-span-8",
-                  area === "right-4" && "lg:col-span-4"
+                  SPAN_CLASS[areaSpan(area)] ?? "lg:col-span-12"
                 )}
               >
                 <AreaColumn area={area} dragging={dragging} isPreview={preview}>
