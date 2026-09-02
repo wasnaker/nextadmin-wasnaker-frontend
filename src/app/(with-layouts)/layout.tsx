@@ -3,16 +3,27 @@
 import Header from "@/components/common/header";
 import Sidebar from "@/components/common/sidebar";
 import { SheetContent, SheetOverlay, SheetTitle } from "@/components/tailgrids/core/sheet";
+import { useAuth } from "@/services/spine/auth-context";
 import { cn } from "@/utils/cn";
-import { ReactNode, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
 
 export default function WithLayout({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const { token, ready } = useAuth();
   // XL+ sidebar expand/collapse state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // Mobile sheet open state (< xl breakpoint)
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
+  // Belum login: shell admin (sidebar/header) TIDAK boleh tampil.
+  useEffect(() => {
+    if (ready && !token) router.replace("/login");
+  }, [ready, token, router]);
+
+  if (!ready || !token) return null;
 
   return (
     <div className="flex h-full">
