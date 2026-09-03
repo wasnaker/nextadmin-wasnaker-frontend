@@ -184,7 +184,7 @@ export default function RegionPage() {
           showDetail={smallView}
           refreshKey={refreshKey}
           getSearchText={(it) => `${it.code} ${it.name}`}
-          tabHideKeys={["ulid"]}
+          tabHideKeys={["ulid", "province_id", "created_at", "updated_at", "deleted_at"]}
           tabCustomValue={{
             regencies: (val: unknown) => {
               const list = val as RegencyRow[] | undefined;

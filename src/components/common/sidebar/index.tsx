@@ -34,23 +34,18 @@ export default function Sidebar({
     const modules = [...(ext?.menu ?? [])].sort(
         (a, b) => (a.position ?? 999) - (b.position ?? 999),
     );
-    // Item menu modul yang butuh permission (key `permission`) hanya utk
-    // user yang punya — kebijakan permission murni, bukan role.
     const visibleModules = modules.filter(
         (m) => !m.permission || can(user, m.permission),
     );
 
-    // Section ADMIN (non-modul): Users & Roles — tampil sesuai permission.
     const canViewUsers = can(user, 'users:view');
     const canViewRoles = can(user, 'roles:view');
-    // Settings (konfigurasi sistem, schema-driven) — permission murni.
     const canViewSettings = can(user, 'settings:view');
     const adminItems = [
         canViewUsers && { key: 'users', label: 'Users', href: '/users' },
         canViewRoles && { key: 'roles', label: 'Roles & Permission', href: '/roles' },
     ].filter(Boolean) as { key: string; label: string; href: string }[];
 
-    // Compute which group should be open based on the current route
     const activeGroupKey = useMemo(
         () => findActiveGroupKey(pathname),
         [pathname],
@@ -114,7 +109,6 @@ export default function Sidebar({
                 >
                     {NAV_DATA.map((section) => (
                         <div key={section.label}>
-                            {/* Expanded: show section label | Collapsed: show divider between sections */}
                             {isSidebarOpen ? (
                                 <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
                                     {section.label}
@@ -149,7 +143,6 @@ export default function Sidebar({
                         </div>
                     ))}
 
-                    {/* Admin (Users/Roles) — non-modul, tampil sesuai permission */}
                     {token && adminItems.length > 0 && (
                         <div>
                             {isSidebarOpen ? (
@@ -177,7 +170,6 @@ export default function Sidebar({
                         </div>
                     )}
 
-                    {/* Modul Spine (extensions) — muncul saat login */}
                     {token && (
                         <div>
                             {visibleModules.length > 0 && (
@@ -226,31 +218,6 @@ export default function Sidebar({
                     )}
                 </CollapsibleGroup>
             </nav>
-
-            {/* Footer — only visible when expanded */}
-            {isSidebarOpen && (
-                <div className='px-4 py-4'>
-                    <div className='rounded-2xl bg-background-gray-primary px-4 py-5 text-center'>
-                        <p className='mb-2 leading-6 font-semibold text-text-primary'>
-                            Upgrade to Pro
-                        </p>
-                        <small className='text-sm leading-5 tracking-[-0.15px] text-text-tertiary'>
-                            Get all dashboard and 200+ essential UI elements
-                        </small>
-                        <Link
-                            href='https://nextadmin.co/pricing'
-                            className={buttonStyles({
-                                size: 'lg',
-                                className: 'mt-4 h-10 w-full bg-brand-500',
-                            })}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                        >
-                            Upgrade to Pro
-                        </Link>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
