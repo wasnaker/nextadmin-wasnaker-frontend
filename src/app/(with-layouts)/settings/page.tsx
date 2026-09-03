@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
+import { useAuth, can } from "@/services/spine/auth-context";
 import { Button } from "@/components/tailgrids/core/button";
 import { Card, CardContent } from "@/components/tailgrids/core/card";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";
@@ -82,7 +82,8 @@ function ActionField({
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { token, ready } = useAuth();
+  const { token, ready, user } = useAuth();
+  const canView = can(user, "settings:view");
   const [active, setActive] = useState<string | null>(null);
   const [busySave, setBusySave] = useState(false);
   const [notice, setNotice] = useState<{ msg: string; ok: boolean } | null>(null);
@@ -97,7 +98,7 @@ export default function SettingsPage() {
       if (!res.ok) throw new Error(res.error ?? "Gagal memuat schema");
       return res.data?.tabs ?? [];
     },
-    enabled: Boolean(token),
+    enabled: Boolean(token) && canView,
   });
 
   const tabs = [...(schemaQ.data ?? [])].sort(
@@ -116,7 +117,7 @@ export default function SettingsPage() {
       );
       return res.data?.data ?? {};
     },
-    enabled: Boolean(token && tab),
+    enabled: Boolean(token && tab && canView),
   });
 
   // Input UNCONTROLLED: defaultValue + remount (key) saat tab/ganti data —
@@ -170,6 +171,14 @@ export default function SettingsPage() {
   }, [ready, token, router]);
 
   if (!ready || !token) return null;
+
+  if (!canView) {
+    return (
+      <p className="text-sm text-text-tertiary">
+        Anda tidak memiliki akses ke pengaturan.
+      </p>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/tailgrids/core/dropdown";
 import { useAuth } from "@/services/spine/auth-context";
+import { API_URL } from "@/services/spine/api";
 import { AltArrowDownIcon } from "@/utils/icon";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -46,10 +47,13 @@ export function UserProfileButton() {
     },
   ];
 
+  const avatarSrc = user.avatar ? `${API_URL}/storage/${user.avatar}` : null;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="group flex items-center gap-2.5 rounded-lg border-0 p-0 transition-all outline-none focus-visible:ring-4 focus-visible:ring-input-primary-focus-border/20 focus-visible:ring-offset-1">
         <Avatar>
+          {avatarSrc && <AvatarImage src={avatarSrc} alt={user.name} />}
           <AvatarFallback className="rounded-lg border border-border-secondary-alt bg-background-gray-secondary_alt">
             {user.name.charAt(0)}
           </AvatarFallback>
@@ -63,6 +67,7 @@ export function UserProfileButton() {
       <DropdownMenuContent placement="bottom end" className="w-70 overflow-hidden p-0 shadow-3xl">
         <DropdownMenuHeader className="flex w-full items-center justify-start gap-2 border-b border-border-secondary-alt px-4 py-3">
           <Avatar size="md">
+            {avatarSrc && <AvatarImage src={avatarSrc} alt={user.name} />}
             <AvatarFallback className="border border-border-secondary-alt bg-background-gray-secondary_alt">
               {user.name.charAt(0)}
             </AvatarFallback>

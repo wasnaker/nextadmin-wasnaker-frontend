@@ -13,6 +13,20 @@ export interface AuthUser {
   id: number;
   name: string;
   email: string;
+  is_active?: boolean;
+  /** Path relatif di disk public, mis. 'avatars/1_abc.jpg' → /storage/<path>. */
+  avatar?: string | null;
+  /** roles + permissions (dari endpoint konsumen /api/v1/user). */
+  access?: {
+    roles: string[];
+    permissions: string[];
+  };
+}
+
+/** Helper: user punya permission (super-admin "admin" = semua via backend). */
+export function can(user: AuthUser | null, permission: string): boolean {
+  if (user?.access?.roles.includes("admin")) return true;
+  return Boolean(user?.access?.permissions.includes(permission));
 }
 
 interface AuthCtx {
@@ -22,6 +36,8 @@ interface AuthCtx {
   ready: boolean;
   signIn: (token: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Update data user di state (dipakai setelah self-update profil). */
+  updateUser: (user: AuthUser) => void;
 }
 
 const Ctx = createContext<AuthCtx>({
@@ -30,6 +46,7 @@ const Ctx = createContext<AuthCtx>({
   ready: false,
   signIn: async () => {},
   logout: async () => {},
+  updateUser: () => {},
 });
 
 /**
@@ -54,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!t) {
       Promise.resolve().then(() => settle(() => setReady(true)));
     } else {
-      api<AuthUser>("/api/v1/auth/me")
+      api<AuthUser>("/api/v1/user")
         .then((res) => {
           settle(() => {
             if (res.ok) setUser(res.data);
@@ -72,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = useCallback(async (t: string) => {
     setToken(t); // localStorage dulu -> hook lain (getToken) langsung konsisten
     setTokenState(t);
-    const res = await api<AuthUser>("/api/v1/auth/me");
+    const res = await api<AuthUser>("/api/v1/user");
     if (res.ok) setUser(res.data);
   }, []);
 
@@ -83,8 +100,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((u: AuthUser) => setUser(u), []);
+
   return (
-    <Ctx.Provider value={{ token, user, ready, signIn, logout }}>
+    <Ctx.Provider value={{ token, user, ready, signIn, logout, updateUser }}>
       {children}
     </Ctx.Provider>
   );

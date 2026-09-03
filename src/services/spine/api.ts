@@ -29,7 +29,11 @@ export async function api<T = unknown>(
 ): Promise<ApiResult<T>> {
   const headers: Record<string, string> = {
     Accept: "application/json",
-    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    // Hanya JSON body (string) yang butuh Content-Type; FormData (multipart)
+    // dibiarkan — browser mengisi boundary sendiri.
+    ...(typeof options.body === "string"
+      ? { "Content-Type": "application/json" }
+      : {}),
   };
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
