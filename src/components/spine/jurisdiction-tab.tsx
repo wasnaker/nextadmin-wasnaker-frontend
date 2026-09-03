@@ -195,9 +195,15 @@ export function JurisdictionTab({ item }: { item: AgencyRow }) {
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-52 flex-1">
             <FieldLabel>Kabupaten/Kota</FieldLabel>
-            <Select value={addSel} onChange={(v) => setAddSel(String(v ?? ""))}>
+            <Select
+              value={addSel}
+              onChange={(v) => setAddSel(String(v ?? ""))}
+            >
               <SelectLabel>Kabupaten/Kota</SelectLabel>
-              <SelectTrigger className="mt-1 w-full border-border-secondary bg-input-background py-2.5">
+              <SelectTrigger
+                className="mt-1 w-full border-border-secondary bg-input-background py-2.5"
+                isDisabled={addOptions.length === 0}
+              >
                 <SelectValue />
                 <SelectIndicator />
               </SelectTrigger>
