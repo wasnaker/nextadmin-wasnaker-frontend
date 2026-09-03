@@ -89,6 +89,16 @@ export default function ConnectionsPage() {
           <span>{partyLabel(v as ConnectionParty | null)}</span>
         ),
         status: (v) => <StatusBadge status={String(v)} />,
+        created_by: (v, row) => (
+          <span>
+            {(row.creator as { name?: string } | null)?.name ?? "—"}
+          </span>
+        ),
+        approved_by: (v, row) => (
+          <span>
+            {(row.approver as { name?: string } | null)?.name ?? "—"}
+          </span>
+        ),
         token: (v) => (
           <span className="break-all font-mono text-xs">{String(v)}</span>
         ),
@@ -246,7 +256,13 @@ export default function ConnectionsPage() {
           getSearchText={(it) =>
             `${it.customer?.code ?? ""} ${it.customer?.name ?? ""} ${it.surveyor?.code ?? ""} ${it.surveyor?.name ?? ""}`
           }
-          tabHideKeys={["id"]}
+          tabHideKeys={[
+            "id",
+            "customer_id",
+            "surveyor_id",
+            "creator",
+            "approver",
+          ]}
           tabCustomValue={tabCustomValue}
           renderHeader={(it) => (
             <span className="flex items-center gap-2">
