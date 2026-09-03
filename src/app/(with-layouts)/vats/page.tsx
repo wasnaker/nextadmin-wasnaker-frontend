@@ -213,7 +213,7 @@ export default function VatsPage() {
       ) : (
         <SmallTable
           items={items}
-          tabs={[{ slug: "overview", label: "Overview", api: "", position: 0 }]}
+          tabs={tabs}
           columns={columns}
           selectedId={selectedId}
           onSelectId={selectItem}
