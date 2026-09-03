@@ -112,6 +112,24 @@ export default function ConnectApprovePage() {
             <StatusBadge status={info.status} />
           </div>
           <div className="text-sm text-text-secondary">
+            {info.customer && (
+              <p>
+                Mengajak koneksi dari sisi Customer:{" "}
+                <span className="font-medium text-text-primary">
+                  {partyLabel(info.customer)}
+                </span>
+              </p>
+            )}
+            {info.surveyor && (
+              <p>
+                Mengajak koneksi dari sisi Surveyor:{" "}
+                <span className="font-medium text-text-primary">
+                  {partyLabel(info.surveyor)}
+                </span>
+              </p>
+            )}
+          </div>
+          <div className="text-sm text-text-secondary">
             Dibuat oleh {info.created_by ?? "—"} pada{" "}
             {info.created_at
               ? new Date(info.created_at).toLocaleString("id-ID")
