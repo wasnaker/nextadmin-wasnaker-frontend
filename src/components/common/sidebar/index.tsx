@@ -34,6 +34,11 @@ export default function Sidebar({
     const modules = [...(ext?.menu ?? [])].sort(
         (a, b) => (a.position ?? 999) - (b.position ?? 999),
     );
+    // Item menu modul yang butuh permission (key `permission`) hanya utk
+    // user yang punya — kebijakan permission murni, bukan role.
+    const visibleModules = modules.filter(
+        (m) => !m.permission || can(user, m.permission),
+    );
 
     // Section ADMIN (non-modul): Users & Roles — tampil sesuai permission.
     const canViewUsers = can(user, 'users:view');
@@ -175,7 +180,7 @@ export default function Sidebar({
                     {/* Modul Spine (extensions) — muncul saat login */}
                     {token && (
                         <div>
-                            {modules.length > 0 && (
+                            {visibleModules.length > 0 && (
                                 <>
                                     {isSidebarOpen ? (
                                         <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
@@ -189,7 +194,7 @@ export default function Sidebar({
                                 </>
                             )}
                             <div className={cn('space-y-1', !isSidebarOpen && 'space-y-1.5')}>
-                                {modules.map((m) => (
+                                {visibleModules.map((m) => (
                                     <NavItem
                                         key={m.slug}
                                         id={m.label}

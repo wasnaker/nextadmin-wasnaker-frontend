@@ -10,7 +10,6 @@ import {
   type PaginationState,
 } from "@tanstack/react-table";
 import { cn } from "@/utils/cn";
-import { Button } from "@/components/tailgrids/core/button";
 import { SearchIcon } from "@/components/common/header/icons";
 import {
   InputGroup,
@@ -25,12 +24,18 @@ import {
   TableRoot,
   TableRow,
 } from "@/components/tailgrids/core/table";
+import { Button } from "@/components/tailgrids/core/button";
 import { TabContent } from "./tab-content";
 import type { DetailTab } from "@/services/spine/module-extensions";
 
 /**
  * SmallTable — list + panel detail bertab (padanan nextjs-spine SmallTable,
  * diimplementasi ulang dengan TanStack Table + primitives/tokens NextAdmin).
+ *
+ * POLA: visibility panel detail dikontrol oleh PROP `showDetail` dari parent,
+ * bukan state internal. Klik row di parent handler harus `setShowDetail(true)`
+ * agar auto-expand. Tombol toggle ◀/▶ juga ada di parent (di toolbar prop atau
+ * samping SmallTable), bukan di dalam SmallTable.
  *
  * SEMANTIC CLASS NAMES (bahasa diskusi UI):
  *   small-table / small-table-list / small-table-detail
@@ -55,9 +60,12 @@ export interface SmallTableProps<T> {
   selectedId: number | string | null;
   onSelectId: (id: number | string) => void;
   getItemId: (item: T) => number | string;
+  /** URL untuk tab konten (default: ganti {id} dengan id row). */
   getTabUrl?: (item: T, tab: DetailTab) => string;
   getItemTitle?: (item: T) => string;
+  /** Tombol aksi di header detail panel (Edit, Delete, dll). */
   toolbar?: (item: T) => React.ReactNode;
+  /** Kontrol visibilitas panel detail dari parent — KUNCI POLA. */
   showDetail?: boolean;
   refreshKey?: number;
   tabHideKeys?: string[];
@@ -127,13 +135,12 @@ export function SmallTable<T>({
     });
   }, [items, q, getSearchText, searchableKeys]);
 
-  const selected =
-    filteredItems.find((it) => getItemId(it) === selectedId) ?? null;
-  const smallMode = selected !== null && showDetail;
-
   // Kolom yang tampil: mode kecil = hanya primary (padanan hidden_columns legacy).
   // WAJIB useMemo: filter() tanpa memo = array baru tiap render -> colDefs baru
   // tiap render -> TanStack rebuild kolom tiap render (freeze saat ketik).
+  const selected = filteredItems.find((it) => getItemId(it) === selectedId) ?? null;
+  const smallMode = selected !== null && showDetail;
+
   const visibleCols = useMemo(() => {
     if (smallMode && columns.some((c) => c.primary)) {
       return columns.filter((c) => c.primary);
@@ -178,21 +185,34 @@ export function SmallTable<T>({
 
   // Sync pageSize kalau setting tables_pagination_limit berubah setelah mount.
   useEffect(() => {
-    setPagination((p) => (p.pageSize === perPage ? p : { ...p, pageSize: perPage }));
+    setPagination((p) =>
+      p.pageSize === perPage ? p : { ...p, pageSize: perPage }
+    );
   }, [perPage]);
 
   // Clamp pageIndex kalau data menyusut (search) sampai di bawah halaman aktif.
   useEffect(() => {
     const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage));
     setPagination((p) =>
-      p.pageIndex >= totalPages ? { ...p, pageIndex: totalPages - 1 } : p
+      p.pageIndex >= totalPages
+        ? { ...p, pageIndex: totalPages - 1 }
+        : p
     );
   }, [filteredItems.length, perPage]);
+
+  // Panel detail muncul hanya saat selected record TIDAK null DAN parent
+  // mengizinkan (showDetail=true). Visibility dikontrol sepenuhnya oleh parent.
+  const showDetailPanel = selected !== null && showDetail;
 
   return (
     <div className="small-table flex flex-col gap-4 lg:flex-row">
       {/* Kolom kiri: tabel */}
-      <div className={cn("small-table-list min-w-0", smallMode ? "lg:w-5/12" : "lg:w-full")}>
+      <div
+        className={cn(
+          "small-table-list min-w-0",
+          smallMode ? "lg:w-5/12" : "lg:w-full"
+        )}
+      >
         {(getSearchText || searchableKeys.length > 0) && (
           <InputGroup className="small-table-search mb-3 h-9">
             <InputGroupAddon align="inline-start" className="pr-0 text-icon-tertiary">
@@ -299,8 +319,8 @@ export function SmallTable<T>({
         </div>
       </div>
 
-      {/* Kolom kanan: panel detail — hanya saat showDetail ON */}
-      {selected && showDetail && (
+      {/* Kolom kanan: panel detail — dikontrol sepenuhnya oleh showDetail prop + selected */}
+      {showDetailPanel && (
         <div className="small-table-detail min-w-0 flex-1 lg:w-7/12">
           <div className="overflow-hidden rounded-xl border border-card-border bg-card-background">
             <div className="small-table-detail-header flex flex-wrap items-center justify-between gap-2 border-b border-border-primary px-5 py-4">

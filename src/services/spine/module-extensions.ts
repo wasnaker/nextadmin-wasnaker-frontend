@@ -19,6 +19,8 @@ export interface ModuleMenuItem {
   icon?: string;
   href: string;
   position?: number;
+  /** Permission yang dibutuhkan utk melihat item (opsional; tanpa = semua login). */
+  permission?: string;
   module: string;
 }
 
