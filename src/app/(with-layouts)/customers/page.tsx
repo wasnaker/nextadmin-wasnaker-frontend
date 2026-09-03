@@ -91,7 +91,7 @@ export default function CustomersPage() {
   const { data: ext } = useModuleExtensions();
   const tabs = useMemo(
     () =>
-      (ext?.detail_tabs["customers"] ?? []).sort(
+      (ext?.detail_tabs["customer"] ?? []).sort(
         (a, b) => (a.position ?? 999) - (b.position ?? 999)
       ),
     [ext]
