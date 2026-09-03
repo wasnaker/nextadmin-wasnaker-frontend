@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
@@ -21,6 +21,7 @@ import {
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
+import { useModuleExtensions } from "@/services/spine/module-extensions";
 
 interface Customer {
   id: number;
@@ -86,6 +87,15 @@ export default function CustomersPage() {
     },
     enabled: Boolean(token) && canView,
   });
+
+  const { data: ext } = useModuleExtensions();
+  const tabs = useMemo(
+    () =>
+      (ext?.detail_tabs["customers"] ?? []).sort(
+        (a, b) => (a.position ?? 999) - (b.position ?? 999)
+      ),
+    [ext]
+  );
 
   const columns: SmallTableColumn<Customer>[] = [
     {
@@ -264,7 +274,7 @@ export default function CustomersPage() {
       ) : (
         <SmallTable
           items={items}
-          tabs={[{ slug: "overview", label: "Overview", api: "", position: 0 }]}
+          tabs={tabs}
           columns={columns}
           selectedId={selectedId}
           onSelectId={selectItem}
