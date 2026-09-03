@@ -258,6 +258,8 @@ export default function ConnectionsPage() {
           }
           tabHideKeys={[
             "id",
+            "ulid",
+            "token",
             "customer_id",
             "surveyor_id",
             "creator",
