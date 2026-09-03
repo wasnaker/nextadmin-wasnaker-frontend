@@ -81,6 +81,8 @@ export interface SmallTableProps<T> {
   perPage?: number;
   emptyText?: string;
   tabEmptyText?: string;
+  /** Renderer khusus per-tab (slug tab → komponen). Default: TabContent generik. */
+  customTabBody?: Record<string, (item: T, tab: DetailTab) => React.ReactNode>;
 }
 
 export function SmallTable<T>({
@@ -106,6 +108,7 @@ export function SmallTable<T>({
   perPage = 10,
   emptyText = "Tidak ada item.",
   tabEmptyText = "Tidak ada data.",
+  customTabBody,
 }: SmallTableProps<T>) {
   const sortedTabs = useMemo(
     () => [...tabs].sort((a, b) => (a.position ?? 999) - (b.position ?? 999)),
@@ -366,14 +369,18 @@ export function SmallTable<T>({
 
             <div className="small-table-detail-body p-5">
               {tab ? (
-                <TabContent
-                  url={getTabUrl(selected, tab)}
-                  emptyText={tabEmptyText}
-                  refreshKey={refreshKey}
-                  hideKeys={tabHideKeys}
-                  customValue={tabCustomValue}
-                  inlineData={isOverviewTab ? selected : undefined}
-                />
+                customTabBody?.[tab.slug] ? (
+                  customTabBody[tab.slug](selected, tab)
+                ) : (
+                  <TabContent
+                    url={getTabUrl(selected, tab)}
+                    emptyText={tabEmptyText}
+                    refreshKey={refreshKey}
+                    hideKeys={tabHideKeys}
+                    customValue={tabCustomValue}
+                    inlineData={isOverviewTab ? selected : undefined}
+                  />
+                )
               ) : (
                 <p className="text-sm text-text-tertiary">{tabEmptyText}</p>
               )}

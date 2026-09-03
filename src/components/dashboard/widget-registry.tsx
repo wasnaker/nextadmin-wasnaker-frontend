@@ -72,6 +72,11 @@ function SampleTasksWidget() {
   return <WidgetListBody label="tasks" data={data} isPending={isPending} />;
 }
 
+function AgenciesWidget() {
+  const { data, isPending } = useWidgetData("/api/v1/agencies");
+  return <WidgetListBody label="agencies" data={data} isPending={isPending} />;
+}
+
 function WidgetListBody({
   label,
   data,
@@ -125,6 +130,7 @@ function WidgetFallback({ widget }: { widget: ModuleWidget }) {
 const REGISTRY: Record<string, ComponentType<{ apiPath: string }>> = {
   "sample-items": SampleItemsWidget,
   "sample-tasks": SampleTasksWidget,
+  agencies: AgenciesWidget,
   calendar: CalendarWidget,
   todos: TodosWidget,
 };
