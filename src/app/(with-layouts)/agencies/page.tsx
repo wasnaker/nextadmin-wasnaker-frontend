@@ -31,6 +31,7 @@ import {
 import { usePaginationLimit } from '@/services/spine/use-pagination-limit';
 import { useModuleExtensions } from '@/services/spine/module-extensions';
 import { JurisdictionTab } from '@/components/spine/jurisdiction-tab';
+import { CompaniesTab } from '@/components/spine/companies-tab';
 
 interface Agency {
   id: number;
@@ -342,6 +343,7 @@ export default function AgenciesPage() {
           tabCustomValue={detailCustom}
           customTabBody={{
             jurisdictions: (item) => <JurisdictionTab item={item} />,
+            companies: (item, t) => <CompaniesTab item={item} tab={t} />,
           }}
           getSearchText={(it) =>
             `${it.code} ${it.name} ${it.email ?? ''}`
