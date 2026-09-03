@@ -4,7 +4,12 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
-import { SmallTable, type SmallTableColumn } from "@/components/spine/small-table";
+import {
+  SmallTable,
+  type SmallTableColumn,
+  type SmallTableProps,
+} from "@/components/spine/small-table";
+import type { DetailTab } from "@/services/spine/module-extensions";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
 import {
@@ -58,8 +63,42 @@ export default function ConnectionsPage() {
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
-  const [smallView] = useState(false);
+  const [smallView, setSmallView] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  // POLA: klik row → select + auto-expand panel detail.
+  function selectItem(id: number | string) {
+    const n = Number(id);
+    setSelectedId(n);
+    window.location.hash = String(n);
+    setSmallView(true);
+  }
+
+  const detailTabs: DetailTab[] = useMemo(
+    () => [
+      { slug: "overview", label: "Detail", icon: "ℹ️", position: 0, api: "" },
+    ],
+    []
+  );
+
+  const tabCustomValue: SmallTableProps<ConnectionRow>["tabCustomValue"] =
+    useMemo(
+      () => ({
+        customer: (v) => <span>{partyLabel(v as ConnectionParty | null)}</span>,
+        surveyor: (v) => (
+          <span>{partyLabel(v as ConnectionParty | null)}</span>
+        ),
+        status: (v) => <StatusBadge status={String(v)} />,
+        token: (v) => (
+          <span className="break-all font-mono text-xs">{String(v)}</span>
+        ),
+        created_at: (v) =>
+          v ? new Date(String(v)).toLocaleString("id-ID") : null,
+        approved_at: (v) =>
+          v ? new Date(String(v)).toLocaleString("id-ID") : null,
+      }),
+      []
+    );
 
   const canView = can(me, "connection:view");
   const canCreate = can(me, "connection:create");
@@ -157,18 +196,8 @@ export default function ConnectionsPage() {
           </span>
         ),
       },
-      {
-        key: "actions",
-        label: "",
-        render: (it) =>
-          it.status === "pending" && canCancel ? (
-            <Button appearance="outline" onClick={() => onCancel(it)}>
-              Batalkan
-            </Button>
-          ) : null,
-      },
     ],
-    [canCancel]
+    []
   );
 
   if (!canView) {
@@ -205,17 +234,43 @@ export default function ConnectionsPage() {
       ) : (
         <SmallTable
           items={items}
-          tabs={[]}
+          tabs={detailTabs}
           columns={columns}
           selectedId={selectedId}
-          onSelectId={(id) => setSelectedId(Number(id))}
+          onSelectId={selectItem}
           getItemId={(it) => it.id}
+          // POLA: showDetail dikontrol dari parent state.
           showDetail={smallView}
           refreshKey={refreshKey}
           perPage={perPage}
           getSearchText={(it) =>
             `${it.customer?.code ?? ""} ${it.customer?.name ?? ""} ${it.surveyor?.code ?? ""} ${it.surveyor?.name ?? ""}`
           }
+          tabHideKeys={["id"]}
+          tabCustomValue={tabCustomValue}
+          renderHeader={(it) => (
+            <span className="flex items-center gap-2">
+              <StatusBadge status={it.status} />
+              <span className="font-mono text-xs text-text-tertiary">
+                #{it.id}
+              </span>
+            </span>
+          )}
+          toolbar={(item) => (
+            <>
+              {item.status === "pending" && canCancel && (
+                <Button appearance="outline" onClick={() => onCancel(item)}>
+                  Batalkan
+                </Button>
+              )}
+              <Button
+                appearance="outline"
+                onClick={() => setSmallView((v) => !v)}
+              >
+                {smallView ? "◀" : "▶"}
+              </Button>
+            </>
+          )}
           emptyText="Belum ada connection."
         />
       )}
