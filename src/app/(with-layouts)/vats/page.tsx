@@ -213,7 +213,7 @@ export default function VatsPage() {
           refreshKey={refreshKey}
           perPage={perPage}
           getSearchText={(it) => `${it.npwp} ${it.name ?? ""}`}
-          tabHideKeys={["id", "npwp"]}
+          tabHideKeys={["ulid", "id", "npwp"]}
           renderHeader={(it) => (
             <span className="flex items-center gap-2">
               <span className="font-mono text-text-primary">{it.npwp}</span>

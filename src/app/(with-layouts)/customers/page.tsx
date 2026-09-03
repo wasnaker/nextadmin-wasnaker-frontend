@@ -277,7 +277,7 @@ export default function CustomersPage() {
           getSearchText={(it) =>
             `${it.code} ${it.name} ${it.email ?? ""} ${it.vat?.npwp ?? ""}`
           }
-          tabHideKeys={["id", "name", "vat_id"]}
+          tabHideKeys={["ulid", "id", "name", "vat_id"]}
           renderHeader={(it) => (
             <span className="flex items-center gap-2">
               <StatusBadge status={it.is_active ? "active" : "inactive"} />
