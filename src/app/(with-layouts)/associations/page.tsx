@@ -19,6 +19,15 @@ import {
 } from '@/components/tailgrids/core/dialog';
 import { FieldLabel } from '@/components/tailgrids/core/field';
 import { Input } from '@/components/tailgrids/core/input';
+import {
+  Select,
+  SelectContent,
+  SelectIndicator,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/tailgrids/core/select';
 import { usePaginationLimit } from '@/services/spine/use-pagination-limit';
 import { useModuleExtensions } from '@/services/spine/module-extensions';
 
@@ -27,6 +36,7 @@ interface Association {
   ulid?: string;
   code: string;
   name: string;
+  address?: string | null;
   province?: { id: number; code: string; name: string } | null;
   regency?: { id: number; name: string } | null;
   admin?: { id: number; name: string } | null;
@@ -34,9 +44,24 @@ interface Association {
   created_at?: string;
 }
 
+interface ProvinceOption {
+  id: number;
+  code: string;
+  name: string;
+}
+
+interface RegencyOption {
+  id: number;
+  code: string;
+  name: string;
+}
+
 const EMPTY_FORM = {
   code: '',
   name: '',
+  address: '',
+  province_id: '',
+  regency_id: '',
   is_active: true,
 };
 
@@ -82,6 +107,29 @@ export default function AssociationsPage() {
       ),
     [ext],
   );
+
+  // Data referensi region (cascading: kabupaten mengikuti provinsi)
+  const { data: provinces = [] } = useQuery({
+    queryKey: ['region', 'provinces', token],
+    queryFn: async () => {
+      const res = await api<{ data: ProvinceOption[] }>('/api/v1/provinces');
+      if (!res.ok) throw new Error(res.error ?? 'Gagal memuat provinsi');
+      return res.data?.data ?? [];
+    },
+    enabled: Boolean(token) && (open || smallView),
+  });
+
+  const { data: regencies = [] } = useQuery({
+    queryKey: ['region', 'regencies', form.province_id, token],
+    queryFn: async () => {
+      const res = await api<{ data: RegencyOption[] }>(
+        `/api/v1/regencies?province_id=${form.province_id}`,
+      );
+      if (!res.ok) throw new Error(res.error ?? 'Gagal memuat kabupaten');
+      return res.data?.data ?? [];
+    },
+    enabled: Boolean(token) && Boolean(form.province_id),
+  });
 
   const columns: SmallTableColumn<Association>[] = [
     {
@@ -178,6 +226,9 @@ export default function AssociationsPage() {
     setForm({
       code: item.code,
       name: item.name,
+      address: item.address ?? '',
+      province_id: String(item.province?.id ?? ''),
+      regency_id: String(item.regency?.id ?? ''),
       is_active: item.is_active,
     });
     setError(null);
@@ -185,8 +236,8 @@ export default function AssociationsPage() {
   }
 
   async function onSave() {
-    if (!form.code.trim() || !form.name.trim()) {
-      setError('Code dan Name wajib diisi');
+    if (!form.code.trim() || !form.name.trim() || !form.province_id) {
+      setError('Code, Name, dan Provinsi wajib diisi');
       return;
     }
     setSaving(true);
@@ -195,6 +246,9 @@ export default function AssociationsPage() {
       const payload: Record<string, unknown> = {
         code: form.code.trim(),
         name: form.name.trim(),
+        address: form.address.trim() || null,
+        province_id: Number(form.province_id),
+        regency_id: form.regency_id ? Number(form.regency_id) : null,
         is_active: form.is_active,
       };
       const res = await api(
@@ -355,6 +409,68 @@ export default function AssociationsPage() {
                 placeholder='DPW RUI DKI Jakarta'
                 className='mt-1.5 w-full'
               />
+            </div>
+            <div>
+              <FieldLabel htmlFor='f-address'>Alamat</FieldLabel>
+              <Input
+                id='f-address'
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                placeholder='Jl. Sekretariat DPW …'
+                className='mt-1.5 w-full'
+              />
+            </div>
+            <div className='grid grid-cols-2 gap-3'>
+              <div>
+                <Select
+                  value={form.province_id}
+                  onChange={(v) =>
+                    setForm({
+                      ...form,
+                      province_id: String(v ?? ''),
+                      regency_id: '',
+                    })
+                  }
+                  className='w-full'
+                  aria-label='Provinsi'
+                >
+                  <SelectLabel>Provinsi</SelectLabel>
+                  <SelectTrigger className='w-full border-border-secondary bg-input-background py-2.5'>
+                    <SelectValue />
+                    <SelectIndicator />
+                  </SelectTrigger>
+                  <SelectContent className='min-w-(--trigger-width)'>
+                    {provinces.map((p) => (
+                      <SelectItem key={p.id} id={String(p.id)} textValue={p.name}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Select
+                  value={form.regency_id}
+                  onChange={(v) =>
+                    setForm({ ...form, regency_id: String(v ?? '') })
+                  }
+                  className='w-full'
+                  aria-label='Kabupaten/Kota'
+                >
+                  <SelectLabel>Kabupaten/Kota</SelectLabel>
+                  <SelectTrigger className='w-full border-border-secondary bg-input-background py-2.5'>
+                    <SelectValue />
+                    <SelectIndicator />
+                  </SelectTrigger>
+                  <SelectContent className='min-w-(--trigger-width)'>
+                    {regencies.map((r) => (
+                      <SelectItem key={r.id} id={String(r.id)} textValue={r.name}>
+                        {r.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div>
               <label className='flex items-center gap-2 text-sm text-text-secondary'>
