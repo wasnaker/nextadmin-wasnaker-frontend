@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
+import { startImpersonate } from "@/components/common/impersonate-banner";
 import {
   SmallTable,
   type SmallTableColumn,
@@ -39,7 +41,8 @@ interface SpineRole {
 const EMPTY_FORM = { name: "", email: "", password: "", is_active: true, roles: [] as string[] };
 
 export default function UsersPage() {
-  const { token, user: me } = useAuth();
+  const router = useRouter();
+  const { token, user: me, signIn } = useAuth();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -59,6 +62,22 @@ export default function UsersPage() {
   const canCreate = can(me, "users:create");
   const canEdit = can(me, "users:edit");
   const canDelete = can(me, "users:delete");
+  const canImpersonate = can(me, "impersonate:use");
+
+  const [impBusy, setImpBusy] = useState<number | null>(null);
+
+  async function onImpersonate(item: SpineUser) {
+    setImpBusy(item.id);
+    setError(null);
+    try {
+      const r = await startImpersonate(item.id, signIn, router.push);
+      if (!r.ok) setError(r.error ?? "Gagal impersonate");
+    } catch {
+      setError("Gagal impersonate");
+    } finally {
+      setImpBusy(null);
+    }
+  }
 
   const { data: items = [], isPending } = useQuery({
     queryKey: ["spine", "users", token],
@@ -122,6 +141,26 @@ export default function UsersPage() {
       label: "Status",
       render: (it) => <StatusBadge status={it.is_active ? "active" : "inactive"} />,
     },
+    ...(canImpersonate
+      ? [
+          {
+            key: "impersonate",
+            label: "",
+            render: (it: SpineUser) =>
+              it.id !== me?.id && !it.roles.includes("admin") ? (
+                <Button
+                  appearance="outline"
+                  size="sm"
+                  isDisabled={impBusy !== null}
+                  onPress={() => onImpersonate(it)}
+                  className="h-7 px-2.5 text-xs"
+                >
+                  {impBusy === it.id ? "Masuk..." : "Masuk sbg"}
+                </Button>
+              ) : null,
+          },
+        ]
+      : []),
   ];
 
   // Panel detail tanpa modul: tab "overview" render data dari client (inline),
