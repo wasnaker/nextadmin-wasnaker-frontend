@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/spine/api';
 import { can, useAuth } from '@/services/spine/auth-context';
+import SurveyorRegisterView from './surveyor-view';
+import { SurveyorRegistrationsTab } from './registrations-tab';
 import {
   SmallTable,
   type SmallTableColumn,
@@ -304,6 +306,10 @@ export default function AgenciesPage() {
   }
 
   if (!canView) {
+    // Role surveyor (agency:surveyor-register): halaman = daftar Disnaker utk registrasi lintas dinas.
+    if (can(me, 'agency:surveyor-register')) {
+      return <SurveyorRegisterView />;
+    }
     return (
       <p className='text-sm text-text-tertiary'>
         Anda tidak memiliki akses ke manajemen agency.
@@ -344,6 +350,9 @@ export default function AgenciesPage() {
           customTabBody={{
             jurisdictions: (item) => <JurisdictionTab item={item} />,
             companies: (item, t) => <CompaniesTab item={item} tab={t} />,
+            registrations: (item) => (
+              <SurveyorRegistrationsTab agencyId={item.id} />
+            ),
           }}
           getSearchText={(it) =>
             `${it.code} ${it.name} ${it.email ?? ''}`
