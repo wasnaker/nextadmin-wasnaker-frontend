@@ -404,9 +404,6 @@ export default function AgenciesPage() {
           renderHeader={(it) => (
             <span className='flex items-center gap-2'>
               <StatusBadge status={it.is_active ? 'active' : 'inactive'} />
-              {it.registration_status && (
-                <StatusBadge status={it.registration_status} />
-              )}
               <span className='text-text-primary'>{it.name}</span>
               <span className='font-mono text-xs text-text-tertiary'>
                 {it.code}

@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
+import { can, useAuth } from "@/services/spine/auth-context";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
 
 /**
  * SurveyorRegistrationsTab — tab "Surveyor Regs" di detail Disnaker.
  * Agency-admin memeriksa data surveyor lalu approve / review / reject.
+ * Surveyor (register lintas dinas) melihat baris miliknya sendiri saja
+ * (diffilter di backend) tanpa tombol keputusan.
  * Guard kepemilikan ada di backend (hanya admin agency pemilik / super-admin).
  */
 
@@ -39,10 +41,12 @@ const ACTION_LABEL: Record<string, string> = {
 };
 
 export function SurveyorRegistrationsTab({ agencyId }: { agencyId: number }) {
-  const { token } = useAuth();
+  const { token, user: me } = useAuth();
   const qc = useQueryClient();
   const [busy, setBusy] = useState<{ id: number; action: string } | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  // Surveyor (register lintas dinas) → read-only; agency-admin → bisa decide.
+  const canDecide = can(me, "agency:approve-surveyor-registration");
 
   const { data: rows = [], isPending } = useQuery({
     queryKey: ["spine", "agency-registrations", agencyId, token],
@@ -54,6 +58,9 @@ export function SurveyorRegistrationsTab({ agencyId }: { agencyId: number }) {
       return res.data?.data ?? [];
     },
     enabled: Boolean(token),
+    // Denyut fix (sama dgn TabContent): ganti agency -> data sebelumnya tetap
+    // tampil sebagai placeholder selama fetch (tanpa fase "Memuat...").
+    placeholderData: (prev) => prev,
   });
 
   async function decide(row: SurveyorRegRow, action: string) {
@@ -126,7 +133,8 @@ export function SurveyorRegistrationsTab({ agencyId }: { agencyId: number }) {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <StatusBadge status={r.status} />
-                  {pending &&
+                  {canDecide &&
+                    pending &&
                     (["approved", "review", "rejected"] as const).map((a) => (
                       <Button
                         key={a}
