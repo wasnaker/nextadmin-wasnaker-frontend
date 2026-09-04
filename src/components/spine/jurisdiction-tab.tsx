@@ -56,6 +56,9 @@ export function JurisdictionTab({ item }: { item: AgencyRow }) {
       return res.data?.data ?? [];
     },
     enabled: Boolean(isUnit),
+    // Denyut fix (pola sama TabContent): data unit sebelumnya tetap tampil
+    // saat ganti unit, sampai data baru tiba.
+    placeholderData: (prev) => prev,
   });
 
   const { data: available = [] } = useQuery({
@@ -68,6 +71,7 @@ export function JurisdictionTab({ item }: { item: AgencyRow }) {
       return res.data?.data ?? [];
     },
     enabled: Boolean(isUnit),
+    placeholderData: (prev) => prev,
   });
 
   const { data: siblingUnits = [] } = useQuery({
@@ -80,6 +84,7 @@ export function JurisdictionTab({ item }: { item: AgencyRow }) {
       return res.data?.data ?? [];
     },
     enabled: Boolean(isUnit) && Boolean(item.parent_id),
+    placeholderData: (prev) => prev,
   });
 
   const [addSel, setAddSel] = useState<string>("");
