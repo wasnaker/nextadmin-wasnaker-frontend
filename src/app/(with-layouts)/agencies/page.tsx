@@ -223,6 +223,17 @@ export default function AgenciesPage() {
       ) : (
         <span className='text-text-tertiary'>—</span>
       ),
+    admin: (v: unknown) =>
+      v && typeof v === 'object' ? (
+        <span className='text-text-secondary'>
+          {(v as { agency_staff?: { realname?: string }; name?: string })
+            .agency_staff?.realname ??
+            (v as { name?: string }).name ??
+            '—'}
+        </span>
+      ) : (
+        <span className='text-text-tertiary'>—</span>
+      ),
     province: (v: unknown) =>
       v && typeof v === 'object' ? (
         <span className='text-text-secondary'>
@@ -235,6 +246,23 @@ export default function AgenciesPage() {
       v && typeof v === 'object' ? (
         <span className='text-text-secondary'>
           {(v as { name?: string }).name ?? '—'}
+        </span>
+      ) : (
+        <span className='text-text-tertiary'>—</span>
+      ),
+    unit: (v: unknown) =>
+      v && typeof v === 'object' ? (
+        <span className='text-text-secondary'>
+          {(v as { code?: string; name?: string }).code}{' '}
+          {(v as { name?: string }).name}
+        </span>
+      ) : (
+        <span className='text-text-tertiary'>Pusat</span>
+      ),
+    user: (v: unknown) =>
+      v && typeof v === 'object' ? (
+        <span className='text-text-secondary'>
+          {(v as { email?: string }).email ?? '—'}
         </span>
       ) : (
         <span className='text-text-tertiary'>—</span>
@@ -400,6 +428,10 @@ export default function AgenciesPage() {
             'parent_id',
             'admin_id',
             'type',
+            'user_id',
+            'agency_id',
+            'unit_id',
+            'is_active',
           ]}
           renderHeader={(it) => (
             <span className='flex items-center gap-2'>
