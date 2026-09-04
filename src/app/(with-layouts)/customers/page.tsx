@@ -101,7 +101,7 @@ export default function CustomersPage() {
     return h || null;
   });
 
-  const canView = can(me, "customer:view");
+  const canView = can(me, "customer:view|customer:view-connected");
   const canCreate = can(me, "customer:create");
   const canEdit = can(me, "customer:edit");
   const canDelete = can(me, "customer:delete");
