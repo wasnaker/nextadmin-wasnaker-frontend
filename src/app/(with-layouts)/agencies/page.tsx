@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/spine/api';
 import { can, useAuth } from '@/services/spine/auth-context';
-import SurveyorRegisterView from './surveyor-view';
 import { SurveyorRegistrationsTab } from './registrations-tab';
 import {
   SmallTable,
@@ -50,6 +49,8 @@ interface Agency {
   regency?: { id: number; name: string } | null;
   is_active: boolean;
   created_at?: string;
+  /** Hanya diisi utk caller surveyor (status registrasi HO ke Disnaker ini). */
+  registration_status?: string | null;
 }
 
 interface ProvinceOption {
@@ -94,10 +95,35 @@ export default function AgenciesPage() {
     return h || null;
   });
 
-  const canView = can(me, 'agency:view');
+  const canView = can(me, 'agency:view|agency:surveyor-register');
   const canCreate = can(me, 'agency:create');
   const canEdit = can(me, 'agency:edit');
   const canDelete = can(me, 'agency:delete');
+  // Surveyor (register lintas dinas) = punya register, TANPA akses penuh agency.
+  const canRegister = can(me, 'agency:surveyor-register') && !can(me, 'agency:view');
+
+  const [regBusy, setRegBusy] = useState<number | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function onRegister(item: Agency) {
+    setRegBusy(item.id);
+    setNotice(null);
+    try {
+      const res = await api(`/api/v1/agencies/${item.id}/surveyor-registration`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        setNotice(res.error ?? 'Gagal mendaftar');
+        return;
+      }
+      setNotice(`Registrasi ke ${item.name} terkirim — menunggu review Disnaker.`);
+      await qc.invalidateQueries({ queryKey: ['spine', 'agencies'] });
+    } catch {
+      setNotice('Gagal mendaftar');
+    } finally {
+      setRegBusy(null);
+    }
+  }
 
   const { data: items = [], isPending } = useQuery({
     queryKey: ['spine', 'agencies', token],
@@ -306,10 +332,6 @@ export default function AgenciesPage() {
   }
 
   if (!canView) {
-    // Role surveyor (agency:surveyor-register): halaman = daftar Disnaker utk registrasi lintas dinas.
-    if (can(me, 'agency:surveyor-register')) {
-      return <SurveyorRegisterView />;
-    }
     return (
       <p className='text-sm text-text-tertiary'>
         Anda tidak memiliki akses ke manajemen agency.
@@ -332,6 +354,14 @@ export default function AgenciesPage() {
       </div>
 
       {error && <p className='text-sm text-text-tertiary'>{error}</p>}
+      {notice && <p className='text-sm text-text-secondary'>{notice}</p>}
+
+      {canRegister && (
+        <p className='text-sm text-text-tertiary'>
+          Klik baris Disnaker untuk melihat detail, lalu Register Here di panel
+          kanan untuk mendaftar (kerja lintas dinas).
+        </p>
+      )}
 
       {isPending ? (
         <p className='text-sm text-text-tertiary'>Memuat...</p>
@@ -374,6 +404,9 @@ export default function AgenciesPage() {
           renderHeader={(it) => (
             <span className='flex items-center gap-2'>
               <StatusBadge status={it.is_active ? 'active' : 'inactive'} />
+              {it.registration_status && (
+                <StatusBadge status={it.registration_status} />
+              )}
               <span className='text-text-primary'>{it.name}</span>
               <span className='font-mono text-xs text-text-tertiary'>
                 {it.code}
@@ -382,6 +415,15 @@ export default function AgenciesPage() {
           )}
           toolbar={(item) => (
             <>
+              {canRegister && !item.registration_status && (
+                <Button
+                  appearance='outline'
+                  isDisabled={regBusy !== null}
+                  onClick={() => onRegister(item)}
+                >
+                  {regBusy === item.id ? 'Mendaftar...' : 'Register Here'}
+                </Button>
+              )}
               {canEdit && (
                 <Button appearance='outline' onClick={() => openEdit(item)}>
                   Edit
