@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { useAuth } from "@/services/spine/auth-context";
+import {
+  SmallTable,
+  type SmallTableColumn,
+} from "@/components/spine/small-table";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
+import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 
 /**
  * SurveyorRegisterView — halaman Agency utk role surveyor (lintas dinas).
- * Daftar Disnaker (type=agency) + tombol "Register Here" + status registrasi
- * HO milik user. Dipilih otomatis oleh halaman /agencies saat caller
- * surveyor (punya agency:surveyor-register, tanpa agency:view).
+ * Daftar Disnaker (type=agency) memakai SmallTable standar; aksi "Register
+ * Here" per baris (kolom aksi, pola Users). Status registrasi HO user tampil
+ * sebagai badge. Dipilih otomatis oleh /agencies saat caller surveyor.
  */
 
 interface DisnakerRow {
@@ -34,8 +39,10 @@ const STATUS_LABEL: Record<string, string> = {
 export default function SurveyorRegisterView() {
   const { token } = useAuth();
   const qc = useQueryClient();
+  const perPage = usePaginationLimit();
   const [busyId, setBusyId] = useState<number | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const { data: items = [], isPending } = useQuery({
     queryKey: ["spine", "agencies", token],
@@ -47,21 +54,18 @@ export default function SurveyorRegisterView() {
     enabled: Boolean(token),
   });
 
-  async function onRegister(agency: DisnakerRow) {
-    setBusyId(agency.id);
+  async function onRegister(item: DisnakerRow) {
+    setBusyId(item.id);
     setNotice(null);
     try {
-      const res = await api(`/api/v1/agencies/${agency.id}/surveyor-registration`, {
+      const res = await api(`/api/v1/agencies/${item.id}/surveyor-registration`, {
         method: "POST",
       });
       if (!res.ok) {
-        setNotice(
-          (res.error ?? "Gagal mendaftar") +
-            (agency.code ? ` (${agency.code})` : "")
-        );
+        setNotice(res.error ?? "Gagal mendaftar");
         return;
       }
-      setNotice(`Registrasi ke ${agency.name} terkirim — menunggu review Disnaker.`);
+      setNotice(`Registrasi ke ${item.name} terkirim — menunggu review Disnaker.`);
       await qc.invalidateQueries({ queryKey: ["spine", "agencies"] });
     } catch {
       setNotice("Gagal mendaftar");
@@ -70,69 +74,105 @@ export default function SurveyorRegisterView() {
     }
   }
 
+  const columns: SmallTableColumn<DisnakerRow>[] = useMemo(
+    () => [
+      {
+        key: "code",
+        label: "Code",
+        primary: true,
+        render: (it) => (
+          <span className="font-mono text-sm text-text-primary">{it.code}</span>
+        ),
+      },
+      {
+        key: "name",
+        label: "Disnaker",
+        primary: true,
+        render: (it) => <span className="font-medium text-text-primary">{it.name}</span>,
+      },
+      {
+        key: "province",
+        label: "Provinsi",
+        render: (it) => (
+          <span className="text-text-secondary">{it.province?.name ?? "—"}</span>
+        ),
+      },
+      {
+        key: "phone",
+        label: "Kontak",
+        render: (it) => (
+          <span className="text-text-tertiary">{it.phone ?? it.email ?? "—"}</span>
+        ),
+      },
+      {
+        key: "status",
+        label: "Status",
+        render: (it) =>
+          it.registration_status ? (
+            <span className="flex items-center gap-2">
+              <StatusBadge status={it.registration_status} />
+              <span className="text-xs text-text-tertiary">
+                {STATUS_LABEL[it.registration_status] ??
+                  it.registration_status}
+              </span>
+            </span>
+          ) : (
+            <span className="text-xs text-text-tertiary">Belum terdaftar</span>
+          ),
+      },
+      {
+        key: "action",
+        label: "",
+        render: (it) =>
+          !it.registration_status ? (
+            <Button
+              appearance="outline"
+              size="sm"
+              isDisabled={busyId !== null}
+              onPress={() => onRegister(it)}
+              className="h-7 px-2.5 text-xs"
+            >
+              {busyId === it.id ? "Mendaftar..." : "Register Here"}
+            </Button>
+          ) : null,
+      },
+    ],
+    [busyId]
+  );
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text-primary">
-          Daftar Disnaker
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          Surveyor dapat bekerja lintas dinas — daftarkan perusahaan Anda ke
-          Disnaker untuk mendapatkan kewenangan resmi di wilayahnya.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+            Daftar Disnaker
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Surveyor dapat bekerja lintas dinas — daftarkan perusahaan Anda ke
+            Disnaker untuk mendapatkan kewenangan resmi di wilayahnya.
+          </p>
+        </div>
       </div>
 
       {notice && <p className="text-sm text-text-secondary">{notice}</p>}
 
       {isPending ? (
         <p className="text-sm text-text-tertiary">Memuat...</p>
-      ) : items.length === 0 ? (
-        <p className="text-sm text-text-tertiary">Belum ada Disnaker.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-card-border bg-card-background">
-          {items.map((a, i) => (
-            <div
-              key={a.id}
-              className={
-                "flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 " +
-                (i > 0 ? "border-t border-border-primary" : "")
-              }
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-text-primary">
-                  <span className="mr-2 font-mono text-xs text-text-tertiary">
-                    {a.code}
-                  </span>
-                  {a.name}
-                </p>
-                <p className="mt-0.5 text-xs text-text-tertiary">
-                  {a.province?.name ?? "—"}
-                  {a.phone ? ` · ${a.phone}` : ""}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {a.registration_status ? (
-                  <>
-                    <StatusBadge status={a.registration_status} />
-                    <span className="text-xs text-text-tertiary">
-                      {STATUS_LABEL[a.registration_status] ?? a.registration_status}
-                    </span>
-                  </>
-                ) : (
-                  <Button
-                    appearance="outline"
-                    size="sm"
-                    isDisabled={busyId !== null}
-                    onPress={() => onRegister(a)}
-                    className="h-8 px-3 text-xs"
-                  >
-                    {busyId === a.id ? "Mendaftar..." : "Register Here"}
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <SmallTable
+          items={items}
+          tabs={[]}
+          columns={columns}
+          selectedId={selectedId}
+          onSelectId={(id) => setSelectedId(Number(id))}
+          getItemId={(it) => it.id}
+          showDetail={false}
+          perPage={perPage}
+          getSearchText={(it) =>
+            `${it.code} ${it.name} ${it.province?.name ?? ""}`
+          }
+          emptyText="Belum ada Disnaker."
+        />
       )}
     </div>
   );
