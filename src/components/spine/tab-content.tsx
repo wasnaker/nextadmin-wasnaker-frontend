@@ -58,6 +58,10 @@ export function TabContent({
       return res.data?.data ?? res.data;
     },
     enabled: inlineData === undefined,
+    // Denyut fix: ganti record (key baru/cache miss) -> data query sebelumnya
+    // tetap tampil sebagai placeholder selama fetch. Tidak ada fase skeleton.
+    // (React Query v5: pengganti keepPreviousData v4.)
+    placeholderData: (prev) => prev,
   });
 
   if (inlineData !== undefined) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
@@ -260,6 +260,30 @@ export default function CustomersPage() {
     window.location.hash = String(n);
     setSmallView(true);
   }
+
+  // AJAX proaktif: panaskan cache tab branches record lain di daftar.
+  // Record tetangga (sebelum/sesudah yg dipilih) — hemat & tepat sasaran.
+  useEffect(() => {
+    if (selectedId == null || items.length === 0) return;
+    const branchTab = tabs.find((t) => t.api?.includes("/branches"));
+    if (!branchTab?.api) return;
+    const idx = items.findIndex((it) => it.id === Number(selectedId));
+    if (idx < 0) return;
+    for (const offset of [-1, 1]) {
+      const neighbour = items[idx + offset];
+      if (!neighbour) continue;
+      const url = branchTab.api.replace("{id}", String(neighbour.id));
+      void qc.prefetchQuery({
+        queryKey: ["spine", "tab", url, refreshKey],
+        queryFn: async () => {
+          const res = await api<{ data?: unknown }>(url);
+          if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+          return res.data?.data ?? res.data;
+        },
+        staleTime: 30_000,
+      });
+    }
+  }, [qc, items, tabs, selectedId, refreshKey]);
 
   function openCreate() {
     setEditing(null);
