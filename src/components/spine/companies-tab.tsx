@@ -40,6 +40,9 @@ export function CompaniesTab({ item, tab }: { item: { id: number }; tab?: Tab | 
       if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
       return res.data?.data ?? [];
     },
+    // Denyut fix (sama dgn TabContent): ganti agency/record -> data sebelumnya
+    // tetap tampil sebagai placeholder selama fetch. Tidak ada fase skeleton.
+    placeholderData: (prev) => prev,
   });
 
   if (isPending) {
