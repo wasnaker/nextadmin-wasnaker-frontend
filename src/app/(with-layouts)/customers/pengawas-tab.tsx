@@ -142,8 +142,8 @@ export function PengawasTab({ customerId }: { customerId: number }) {
                 </SelectItem>
               ) : (
                 available.map((o) => (
-                  <SelectItem key={o.id} id={String(o.id)} textValue={`${o.name} · ${o.email}`}>
-                    {o.name} · {o.email}
+                  <SelectItem key={o.id} id={String(o.id)} textValue={o.name}>
+                    {o.name}
                   </SelectItem>
                 ))
               )}
