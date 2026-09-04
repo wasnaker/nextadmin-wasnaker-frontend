@@ -9,6 +9,7 @@ import {
   type SmallTableColumn,
 } from "@/components/spine/small-table";
 import { StatusBadge } from "@/components/spine/status-badge";
+import { PengawasTab } from "./pengawas-tab";
 import { Button } from "@/components/tailgrids/core/button";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";
 import {
@@ -410,6 +411,9 @@ export default function CustomersPage() {
           refreshKey={refreshKey}
           perPage={perPage}
           tabCustomValue={detailCustom}
+          customTabBody={{
+            pengawas: (item) => <PengawasTab customerId={item.id} />,
+          }}
           getSearchText={(it) =>
             `${it.code} ${it.name} ${it.email ?? ""} ${it.vat?.npwp ?? ""}`
           }
