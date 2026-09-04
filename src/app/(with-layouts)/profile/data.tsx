@@ -1,4 +1,4 @@
-import { BellIcon, ShieldCheckIcon, UserIcon } from "./icons";
+import { BellIcon, BranchIcon, CompanyIcon, ShieldCheckIcon, UserIcon } from "./icons";
 
 export const tabsItems = [
   {
@@ -6,6 +6,18 @@ export const tabsItems = [
     icon: <UserIcon />,
     title: "Account",
     description: "Manage your personal data",
+  },
+  {
+    href: "/profile/company",
+    icon: <CompanyIcon />,
+    title: "My Company",
+    description: "Company (HO) your account belongs to",
+  },
+  {
+    href: "/profile/branch",
+    icon: <BranchIcon />,
+    title: "My Branch",
+    description: "Branches of your company",
   },
   {
     href: "/profile/security",

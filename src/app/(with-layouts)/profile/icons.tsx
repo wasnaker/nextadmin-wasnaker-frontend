@@ -1,3 +1,5 @@
+"use client";
+
 export const UserIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -33,17 +35,48 @@ export const ShieldCheckIcon = () => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
       <path
-        d="M2.5 8.68087C2.5 6.01622 2.5 4.68389 2.8146 4.23567C3.12919 3.78744 4.38194 3.35862 6.88743 2.50099L7.36477 2.33759C8.67082 1.89052 9.32384 1.66699 10 1.66699C10.6762 1.66699 11.3292 1.89052 12.6352 2.33759L13.1126 2.50099C15.6181 3.35862 16.8708 3.78744 17.1854 4.23567C17.5 4.68389 17.5 6.01622 17.5 8.68087C17.5 9.08337 17.5 9.51984 17.5 9.99312C17.5 14.6915 13.9675 16.9716 11.7512 17.9397C11.15 18.2023 10.8494 18.3337 10 18.3337C9.15062 18.3337 8.85001 18.2023 8.2488 17.9397C6.03247 16.9716 2.5 14.6915 2.5 9.99312C2.5 9.51984 2.5 9.08337 2.5 8.68087Z"
+        d="M10 1.6665L16.6667 4.1665V9.1665C16.6667 13.7432 13.7136 17.3835 10 18.3332C6.2864 17.3835 3.33337 13.7432 3.33337 9.1665V4.1665L10 1.6665Z"
         stroke="currentColor"
         strokeWidth="1.5"
+        strokeLinejoin="round"
       />
       <path
-        d="M7.9165 10.333L9.10698 11.6663L12.0832 8.33301"
+        d="M7.5 10L9.16667 11.6667L12.9167 7.9165"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+};
+
+/** Gedung — My Company. */
+export const CompanyIcon = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
+      <path
+        d="M3.33337 17.5H16.6667M5.83337 17.5V6.66667C5.83337 5.19391 7.02728 4 8.50004 4H11.5C12.9728 4 14.1667 5.19391 14.1667 6.66667V17.5M8.33337 7.5H11.6667M8.33337 10.8333H11.6667M8.33337 14.1667H11.6667M3.33337 17.5V9.16667C3.33337 8.61438 3.78109 8.16667 4.33337 8.16667H5.83337"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+/** Titik cabang (map pin) — My Branch. */
+export const BranchIcon = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 20 20" fill="none">
+      <path
+        d="M10 18.3335C10 18.3335 16.25 13.416 16.25 8.75016C16.25 5.29842 13.4518 2.50016 10 2.50016C6.54822 2.50016 3.75 5.29842 3.75 8.75016C3.75 13.416 10 18.3335 10 18.3335Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="8.75" r="2.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 };
