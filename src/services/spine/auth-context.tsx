@@ -23,10 +23,13 @@ export interface AuthUser {
   };
 }
 
-/** Helper: user punya permission (super-admin "admin" = semua via backend). */
+/** Helper: user punya permission (super-admin "admin" = semua via backend).
+ *  Dukung pipe OR ("a|b") — sama dgn konvensi middleware Laravel. */
 export function can(user: AuthUser | null, permission: string): boolean {
   if (user?.access?.roles.includes("admin")) return true;
-  return Boolean(user?.access?.permissions.includes(permission));
+  return permission
+    .split("|")
+    .some((p) => user?.access?.permissions.includes(p));
 }
 
 interface AuthCtx {

@@ -90,7 +90,7 @@ export default function SurveyorsPage() {
     return h || null;
   });
 
-  const canView = can(me, 'surveyor:view');
+  const canView = can(me, 'surveyor:view|surveyor:view-connected');
   const canCreate = can(me, 'surveyor:create');
   const canEdit = can(me, 'surveyor:edit');
   const canDelete = can(me, 'surveyor:delete');
