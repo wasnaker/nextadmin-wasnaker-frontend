@@ -54,10 +54,10 @@ export function PengawasTab({ customerId }: { customerId: number }) {
   });
 
   const { data: options = [] } = useQuery({
-    queryKey: ["spine", "pengawas-options", token],
+    queryKey: ["spine", "pengawas-options", customerId, token],
     queryFn: async () => {
       const res = await api<{ data: PengawasOption[] }>(
-        "/api/v1/agencies/pengawas/options"
+        `/api/v1/agencies/pengawas/options?customer_id=${customerId}`
       );
       if (!res.ok) throw new Error(res.error ?? "Gagal memuat opsi");
       return res.data?.data ?? [];
