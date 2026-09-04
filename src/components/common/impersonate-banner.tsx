@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/tailgrids/core/button";
 import { useAuth } from "@/services/spine/auth-context";
@@ -47,12 +47,10 @@ function entityLabel(e: MyEntity | undefined): string {
 export function ImpersonateBanner() {
   const { token, user, logout, signIn } = useAuth();
   const router = useRouter();
-  const [active, setActive] = useState(false);
+  // Derived langsung dari localStorage — sinkron dengan re-render saat
+  // login/impersonate berubah (tanpa setState-in-effect).
+  const active = isImpersonating();
   const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    setActive(isImpersonating());
-  }, [user]);
 
   // Entity tempat user (hasil impersonasi) bernaung — utk banner.
   const { data: myEntity } = useQuery({
