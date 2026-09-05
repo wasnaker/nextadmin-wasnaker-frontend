@@ -347,6 +347,9 @@ export default function AssociationsPage() {
             'province_id',
             'regency_id',
             'admin_id',
+            'user_id',
+            'association_id',
+            'is_active',
           ]}
           renderHeader={(it) => (
             <span className='flex items-center gap-2'>
