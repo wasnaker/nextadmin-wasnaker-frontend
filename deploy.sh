@@ -58,8 +58,9 @@ fi
 
 # --- 2. salin static ke standalone ---
 echo ">> Menyalin static -> standalone/.next/static ..."
-rm -rf "$STANDALONE_DIR/.next/static"
+rm -rf "$STANDALONE_DIR/.next/static" "$STANDALONE_DIR/_next"
 cp -R "$NEXT_DIR/static" "$STANDALONE_DIR/.next/static"
+ln -sf .next/static "$STANDALONE_DIR/_next/static"
 
 # --- 3. normalkan kepemilikan: grup www + setgid + group-write ---
 # Owner tetap user build; grup www agar service (www) bisa baca, dan setgid
