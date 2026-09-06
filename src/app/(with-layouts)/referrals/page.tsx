@@ -45,13 +45,6 @@ interface ReferralRow {
   code?: { id: number; code: string } | null;
 }
 
-interface CommissionRule {
-  id: number;
-  name: string;
-  type: string;
-  value: string | number;
-  is_active: boolean;
-}
 
 const EMPTY_TERMS = { accept_terms: false };
 
@@ -97,16 +90,6 @@ export default function ReferralsPage() {
     queryKey: ["spine", "referrals", token],
     queryFn: async () => {
       const res = await api<{ data: ReferralRow[] }>("/api/v1/referrals");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
-      return res.data?.data ?? [];
-    },
-    enabled: Boolean(token) && canView,
-  });
-
-  const { data: rules = [] } = useQuery({
-    queryKey: ["spine", "commission-rules", token],
-    queryFn: async () => {
-      const res = await api<{ data: CommissionRule[] }>("/api/v1/commission-rules");
       if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
       return res.data?.data ?? [];
     },
@@ -317,29 +300,6 @@ export default function ReferralsPage() {
           }}
         />
       )}
-
-      <div className="rounded-xl border border-card-border bg-card-background p-4">
-        <h2 className="text-sm font-semibold text-text-primary">
-          Aturan Komisi
-        </h2>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {rules.map((r) => (
-            <div
-              key={r.id}
-              className="flex items-center justify-between rounded-lg border border-card-border px-3 py-2 text-sm"
-            >
-              <span className="text-text-secondary">{r.name}</span>
-              <span className="font-mono text-text-primary">
-                {r.type === "percentage" ? `${r.value}%` : `Rp ${Number(r.value).toLocaleString("id-ID")}`}
-              </span>
-            </div>
-          ))}
-          {rules.length === 0 && (
-            <p className="text-sm text-text-tertiary">Belum ada aturan komisi.</p>
-          )}
-        </div>
-      </div>
-
       {open && (
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
