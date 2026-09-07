@@ -206,14 +206,16 @@ export default function SurveyorsPage() {
       ) : (
         <span className='text-text-tertiary'>—</span>
       ),
-    admin: (v: unknown) =>
-      v && typeof v === 'object' ? (
-        <span className='text-text-primary'>
-          {(v as { name?: string }).name ?? '—'}
-        </span>
+    // Admin tampilkan realname (staff profile) — users.name hanya utk login.
+    admin: (v: unknown, row?: Record<string, unknown>) => {
+      const staff = row?.staff as { realname?: string } | null | undefined;
+      const name = staff?.realname ?? (v as { name?: string } | null)?.name;
+      return name ? (
+        <span className='text-text-primary'>{name}</span>
       ) : (
         <span className='text-text-tertiary'>—</span>
-      ),
+      );
+    },
     province: (v: unknown) =>
       v && typeof v === 'object' ? (
         <span className='text-text-secondary'>
@@ -375,7 +377,7 @@ export default function SurveyorsPage() {
           getSearchText={(it) =>
             `${it.code} ${it.name} ${it.email ?? ''} ${it.vat?.npwp ?? ''}`
           }
-          tabHideKeys={['ulid', 'id', 'name', 'vat_id', 'properties', 'created_at', 'updated_at', 'deleted_at', 'province_id', 'regency_id', 'parent_id', 'admin_id', 'type', 'user_id', 'surveyor_id', 'is_active']}
+          tabHideKeys={['ulid', 'id', 'name', 'vat_id', 'properties', 'created_at', 'updated_at', 'deleted_at', 'province_id', 'regency_id', 'parent_id', 'admin_id', 'type', 'user_id', 'surveyor_id', 'is_active', 'staff']}
           renderHeader={(it) => (
             <span className='flex items-center gap-2'>
               <StatusBadge status={it.is_active ? 'active' : 'inactive'} />
