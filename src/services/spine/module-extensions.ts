@@ -36,6 +36,20 @@ export interface ModuleExtensions {
   menu: ModuleMenuItem[];
   widgets: ModuleWidget[];
   detail_tabs: Record<string, DetailTab[]>;
+  profile_tabs: ProfileTab[];
+}
+
+/** Kontrak tab Profile dari manifest modul (profile_tabs[]). */
+export interface ProfileTab {
+  slug: string;
+  label: string;
+  icon?: string;
+  /** Route halaman tab, mis. /profile/my-referral */
+  href: string;
+  position?: number;
+  /** Permission yang dibutuhkan utk melihat tab (opsional). */
+  permission?: string;
+  module: string;
 }
 
 /**
@@ -53,6 +67,7 @@ export function useModuleExtensions() {
         menu: res.data?.menu ?? [],
         widgets: res.data?.widgets ?? [],
         detail_tabs: res.data?.detail_tabs ?? {},
+        profile_tabs: res.data?.profile_tabs ?? [],
       };
     },
     enabled: Boolean(token),

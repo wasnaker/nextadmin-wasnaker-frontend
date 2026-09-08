@@ -1,12 +1,28 @@
 "use client";
 
 import { Breadcrumbs } from "@/components/tailgrids/core/breadcrumbs";
+import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { can, useAuth } from "@/services/spine/auth-context";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tabsItems } from "./data";
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const { data: ext } = useModuleExtensions();
+
+  // Tab dari manifest modul aktif (profile_tabs) — filter permission.
+  const moduleTabs = (ext?.profile_tabs ?? [])
+    .filter((t) => !t.permission || can(user, t.permission))
+    .map((t) => ({
+      href: t.href,
+      icon: <span>{t.icon ?? "📄"}</span>,
+      title: t.label,
+      description: "",
+    }));
+
+  const allTabs = [...tabsItems, ...moduleTabs];
 
   return (
     <div className="mt-6 space-y-5">
@@ -29,7 +45,7 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
         <div className="flex max-w-full flex-col gap-x-0 gap-y-6 rounded-xl border-[0.5px] border-card-border bg-card-background p-0 md:flex-row md:gap-y-8 lg:min-h-150">
           {/* Sidebar Navigation */}
           <nav className="flex w-full shrink-0 grow flex-col gap-2 self-stretch border-card-border px-3 py-6 lg:max-w-84.5 lg:border-r">
-            {tabsItems.map((item) => {
+            {allTabs.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link

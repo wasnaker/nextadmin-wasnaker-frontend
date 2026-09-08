@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/spine/api';
 import { can, useAuth } from '@/services/spine/auth-context';
@@ -94,6 +94,16 @@ export default function AgenciesPage() {
     const h = Number(window.location.hash.replace('#', ''));
     return h || null;
   });
+
+  // Klik link unit (href=#id) langsung memilih baris tanpa reload.
+  useEffect(() => {
+    const onHash = () => {
+      const h = Number(window.location.hash.replace('#', ''));
+      if (h) setSelectedId(h);
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
   const canView = can(me, 'agency:view|agency:surveyor-register');
   const canCreate = can(me, 'agency:create');
@@ -211,6 +221,14 @@ export default function AgenciesPage() {
   ];
 
   const detailCustom = {
+    name: (v: unknown, row: Record<string, unknown>) =>
+      row.type === 'unit' ? (
+        <a href={`#${String(row.id)}`} className='font-medium text-text-primary hover:underline'>
+          {String(v)}
+        </a>
+      ) : (
+        <span className='font-medium text-text-primary'>{String(v)}</span>
+      ),
     is_active: (v: unknown) => (
       <StatusBadge status={v ? 'active' : 'inactive'} />
     ),
@@ -418,7 +436,7 @@ export default function AgenciesPage() {
           tabHideKeys={[
             'ulid',
             'id',
-            'name',
+            'code',
             'properties',
             'created_at',
             'updated_at',
@@ -426,6 +444,7 @@ export default function AgenciesPage() {
             'province_id',
             'regency_id',
             'parent_id',
+            'parent',
             'admin_id',
             'type',
             'user_id',
