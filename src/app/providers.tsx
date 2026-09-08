@@ -9,6 +9,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { useState } from "react";
+import { MantineProvider } from "@mantine/core";
 import { AuthProvider } from "@/services/spine/auth-context";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -52,9 +53,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <MantineProvider defaultColorScheme="light">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>{children}</AuthProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </MantineProvider>
   );
 }

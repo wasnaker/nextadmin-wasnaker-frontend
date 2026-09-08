@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import "@mantine/core/styles.css";
 import "./globals.css";
 
 const geistInter = Inter({
