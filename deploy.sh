@@ -44,6 +44,12 @@ echo ">> Workdir : $ROOT"
 if [[ "$SKIP_BUILD" -eq 1 ]]; then
   echo ">> --skip-build: melewati build."
 elif [[ -d "$ROOT/node_modules" ]]; then
+  # Bersihkan .next dari kepemilikan service www (EACCES unlink saat build,
+  # kasus nyata 9 Sep 2026). Setgid fallback dipakai kalau sudo -n tidak ada.
+  if [[ -d "$NEXT_DIR" ]] && command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
+    echo ">> Membersihkan .next (kepemilikan service www)..."
+    sudo -n rm -rf "$NEXT_DIR"
+  fi
   echo ">> Menjalankan build..."
   npm run build
 else
