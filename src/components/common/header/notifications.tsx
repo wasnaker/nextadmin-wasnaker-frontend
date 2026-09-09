@@ -19,6 +19,7 @@ interface NotificationData {
     title: string;
     body: string;
     module?: string;
+    url?: string;
     data?: Record<string, unknown>;
   };
   read_at: string | null;
@@ -44,6 +45,33 @@ function formatTime(iso?: string | null): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function NotificationBody({ notification }: { notification: NotificationData }) {
+  return (
+    <>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border-secondary bg-background-gray-primary text-xs font-semibold text-icon-secondary uppercase transition-all duration-300 group-hover:bg-brand-500 group-hover:text-base-white">
+        {(notification.data.module ?? "i").slice(0, 1)}
+      </span>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm leading-5 font-semibold text-text-primary">
+            {notification.data.title}
+          </p>
+          {!notification.read_at && (
+            <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+          )}
+        </div>
+        <p className="mt-1 line-clamp-2 text-xs leading-4 text-text-secondary">
+          {notification.data.body}
+        </p>
+        <p className="mt-2 text-xs leading-4 text-text-tertiary">
+          {formatTime(notification.created_at)}
+        </p>
+      </div>
+    </>
+  );
 }
 
 export function NotificationsButton() {
@@ -117,31 +145,25 @@ export function NotificationsButton() {
               <ul className="flex-1 overflow-y-auto px-3 py-2">
                 {items.map((notification) => (
                   <li key={notification.id}>
-                    <button
-                      className="group flex w-full cursor-pointer gap-3.5 rounded-lg px-3 py-3 text-start transition-colors duration-300 hover:bg-background-gray-secondary_alt"
-                      onClick={() => markAsRead(notification.id)}
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border-secondary bg-background-gray-primary text-xs font-semibold text-icon-secondary uppercase transition-all duration-300 group-hover:bg-brand-500 group-hover:text-base-white">
-                        {(notification.data.module ?? "i").slice(0, 1)}
-                      </span>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm leading-5 font-semibold text-text-primary">
-                            {notification.data.title}
-                          </p>
-                          {!notification.read_at && (
-                            <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                          )}
-                        </div>
-                        <p className="mt-1 line-clamp-2 text-xs leading-4 text-text-secondary">
-                          {notification.data.body}
-                        </p>
-                        <p className="mt-2 text-xs leading-4 text-text-tertiary">
-                          {formatTime(notification.created_at)}
-                        </p>
-                      </div>
-                    </button>
+                    {notification.data.url ? (
+                      <Link
+                        href={notification.data.url}
+                        className="group flex w-full cursor-pointer gap-3.5 rounded-lg px-3 py-3 text-start transition-colors duration-300 hover:bg-background-gray-secondary_alt"
+                        onClick={() => {
+                          setIsOpen(false);
+                          markAsRead(notification.id);
+                        }}
+                      >
+                        <NotificationBody notification={notification} />
+                      </Link>
+                    ) : (
+                      <button
+                        className="group flex w-full cursor-pointer gap-3.5 rounded-lg px-3 py-3 text-start transition-colors duration-300 hover:bg-background-gray-secondary_alt"
+                        onClick={() => markAsRead(notification.id)}
+                      >
+                        <NotificationBody notification={notification} />
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
