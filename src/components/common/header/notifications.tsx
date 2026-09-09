@@ -1,12 +1,8 @@
 "use client";
 
-import {
-  BellIcon,
-  CreditCardIcon,
-  LetterIcon,
-  PrinterIcon,
-  SettingIcon,
-} from "@/components/common/header/icons";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/services/spine/api";
+import { BellIcon, SettingIcon } from "@/components/common/header/icons";
 import { Button } from "@/components/tailgrids/core/button";
 import { OverlayWrapper } from "@/components/tailgrids/core/overlay";
 import { Popover } from "@/components/tailgrids/core/popover";
@@ -16,97 +12,65 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Header, Heading } from "react-aria-components";
 
-interface Notification {
+interface NotificationData {
   id: string;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  timestamp: string;
-  isUnread?: boolean;
+  type: string;
+  data: {
+    title: string;
+    body: string;
+    module?: string;
+    data?: Record<string, unknown>;
+  };
+  read_at: string | null;
+  created_at: string;
 }
 
-const defaultNotifications: { title: string; items: Notification[] }[] = [
-  {
-    title: "Today",
-    items: [
-      {
-        id: "1",
-        icon: <LetterIcon />,
-        title: "New Message Arrived",
-        description: "Elsie McElroy sent you new message",
-        timestamp: "5h ago",
-        isUnread: true,
-      },
-      {
-        id: "2",
-        icon: <CreditCardIcon />,
-        title: "Transaction Approved",
-        description: "Your payment of $75.00 to Chad Hurley was successful.",
-        timestamp: "10h ago",
-        isUnread: true,
-      },
-      {
-        id: "3",
-        icon: <PrinterIcon />,
-        title: "Upcoming Bill",
-        description: "Reminder: Invoice EST-INV012 is due in 3 days. Please submit payment.",
-        timestamp: "12h ago",
-        isUnread: false,
-      },
-    ],
-  },
-  {
-    title: "Yesterday",
-    items: [
-      {
-        id: "4",
-        icon: <CreditCardIcon />,
-        title: "Transaction Approved",
-        description: "Your payment of $75.00 to Chad Hurley was successful.",
-        timestamp: "10h ago",
-        isUnread: true,
-      },
-      {
-        id: "5",
-        icon: <LetterIcon />,
-        title: "New Message Arrived",
-        description: "Elsie McElroy sent you new message",
-        timestamp: "5h ago",
-        isUnread: true,
-      },
-      {
-        id: "6",
-        icon: <PrinterIcon />,
-        title: "Upcoming Bill",
-        description: "Reminder: Invoice EST-INV012 is due in 3 days. Please submit payment.",
-        timestamp: "12h ago",
-        isUnread: false,
-      },
-    ],
-  },
-];
+interface NotificationsResponse {
+  data: NotificationData[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    unread_count: number;
+  };
+}
+
+function formatTime(iso?: string | null): string {
+  if (!iso) return "";
+  return new Date(iso).toLocaleString("id-ID", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export function NotificationsButton() {
-  const [notifications, setNotifications] = useState(defaultNotifications);
+  const qc = useQueryClient();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const unreadCount = notifications.flatMap((n) => n.items).filter((n) => n.isUnread).length;
+  const { data, isPending } = useQuery({
+    queryKey: ["spine", "notifications"],
+    queryFn: async () => {
+      const res = await api<NotificationsResponse>("/api/v1/notifications?per_page=10");
+      if (!res.ok) throw new Error(res.error ?? "Gagal memuat notifikasi");
+      return res.data;
+    },
+    refetchInterval: 30_000,
+  });
 
-  const handleMarkAsRead = (notificationId: string) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((group) => ({
-        ...group,
-        items: group.items.map((item) =>
-          item.id === notificationId ? { ...item, isUnread: false } : item,
-        ),
-      })),
-    );
+  const items = data?.data ?? [];
+  const unreadCount = data?.meta.unread_count ?? 0;
+
+  const markAsRead = async (id: string) => {
+    await api(`/api/v1/notifications/${id}/read`, { method: "POST" });
+    qc.invalidateQueries({ queryKey: ["spine", "notifications"] });
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((n) => ({ ...n, items: n.items.map((i) => ({ ...i, isUnread: false })) })),
-    );
+  const markAllAsRead = async () => {
+    await api("/api/v1/notifications/read-all", { method: "POST" });
+    qc.invalidateQueries({ queryKey: ["spine", "notifications"] });
   };
 
   return (
@@ -145,50 +109,43 @@ export function NotificationsButton() {
 
         <ScrollArea className="h-100 max-h-100">
           <ScrollAreaViewport>
-            {notifications.map((group) => (
-              <section key={group.title}>
-                {/* Group Header */}
-                <div className="border-t border-b border-border-primary bg-background-gray-secondary px-5 py-2">
-                  <p className="text-xs leading-4 text-text-tertiary uppercase">{group.title}</p>
-                </div>
-                {/* Notifications List */}
-                <ul className="flex-1 overflow-y-auto px-3 py-2">
-                  {group.items.map((notification) => (
-                    <li key={notification.id}>
-                      <button
-                        className="group flex w-full cursor-pointer gap-3.5 rounded-lg px-3 py-3 transition-colors duration-300 hover:bg-background-gray-secondary_alt"
-                        onClick={() => handleMarkAsRead(notification.id)}
-                      >
-                        {/* Icon */}
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border-secondary bg-background-gray-primary text-icon-secondary transition-all duration-300 group-hover:bg-brand-500 group-hover:text-base-white group-hover:shadow-[0_1px_3px_0.5px_rgba(13,13,18,0.08)]">
-                          {notification.icon}
-                        </span>
+            {isPending ? (
+              <p className="px-5 py-6 text-sm text-text-tertiary">Memuat...</p>
+            ) : items.length === 0 ? (
+              <p className="px-5 py-6 text-sm text-text-tertiary">Tidak ada notifikasi</p>
+            ) : (
+              <ul className="flex-1 overflow-y-auto px-3 py-2">
+                {items.map((notification) => (
+                  <li key={notification.id}>
+                    <button
+                      className="group flex w-full cursor-pointer gap-3.5 rounded-lg px-3 py-3 text-start transition-colors duration-300 hover:bg-background-gray-secondary_alt"
+                      onClick={() => markAsRead(notification.id)}
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border-secondary bg-background-gray-primary text-xs font-semibold text-icon-secondary uppercase transition-all duration-300 group-hover:bg-brand-500 group-hover:text-base-white">
+                        {(notification.data.module ?? "i").slice(0, 1)}
+                      </span>
 
-                        {/* Content */}
-                        <div className="min-w-0 flex-1 text-start">
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="text-sm leading-5 font-semibold text-text-primary">
-                              {notification.title}
-                            </p>
-
-                            {notification.isUnread && (
-                              <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                            )}
-                          </div>
-
-                          <p className="mt-1 line-clamp-2 text-xs leading-4 text-text-secondary">
-                            {notification.description}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm leading-5 font-semibold text-text-primary">
+                            {notification.data.title}
                           </p>
-                          <p className="mt-2 text-xs leading-4 text-text-tertiary">
-                            {notification.timestamp}
-                          </p>
+                          {!notification.read_at && (
+                            <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
+                          )}
                         </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
+                        <p className="mt-1 line-clamp-2 text-xs leading-4 text-text-secondary">
+                          {notification.data.body}
+                        </p>
+                        <p className="mt-2 text-xs leading-4 text-text-tertiary">
+                          {formatTime(notification.created_at)}
+                        </p>
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </ScrollAreaViewport>
           <ScrollBar />
         </ScrollArea>
@@ -196,13 +153,18 @@ export function NotificationsButton() {
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-border-secondary-alt px-5 py-4">
           <button
-            onClick={handleMarkAllAsRead}
+            onClick={markAllAsRead}
             className="text-xs font-medium text-text-secondary underline transition-colors hover:text-text-primary"
           >
             Mark all as read
           </button>
-          <Button variant="primary" size="sm" className="bg-brand-500 py-1.5">
-            View All
+          <Button
+            variant="primary"
+            size="sm"
+            className="bg-brand-500 py-1.5"
+            onPress={() => setIsOpen(false)}
+          >
+            <Link href="/profile/notification">View All</Link>
           </Button>
         </div>
       </Popover>
