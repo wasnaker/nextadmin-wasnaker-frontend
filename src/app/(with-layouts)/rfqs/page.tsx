@@ -186,6 +186,7 @@ export default function RfqsPage() {
     {
       key: "surveyor",
       label: "Surveyor",
+      primary: true,
       render: (it) =>
         it.surveyor ? (
           <span className="text-text-secondary">{it.surveyor.name}</span>
@@ -196,6 +197,7 @@ export default function RfqsPage() {
     {
       key: "status",
       label: "Status",
+      primary: true,
       render: (it) => <StatusBadge status={it.status} />,
     },
     {
@@ -432,6 +434,7 @@ export default function RfqsPage() {
             "deleted_at",
           ]}
           tabCustomValue={{
+            status: (v) => <StatusBadge status={String(v ?? "")} />,
             customer: (v) =>
               v && typeof v === "object" ? (
                 <span className="text-text-primary">
