@@ -67,9 +67,6 @@ interface RfqItemDraft {
   customer_equipment_id: number;
   item_id?: number | null;
   description: string;
-  qty: string;
-  rate: string;
-  unit?: string | null;
 }
 
 const EMPTY_FORM = {
@@ -233,9 +230,6 @@ export default function RfqsPage() {
               customer_equipment_id: ce.id,
               item_id: ce.equipment_id ?? null,
               description: ce.unit_name,
-              qty: "1",
-              rate: "0",
-              unit: ce.equipment?.unit ?? null,
             },
           ]
     );
@@ -263,9 +257,6 @@ export default function RfqsPage() {
         items: items.map((i) => ({
           description: i.description,
           item_id: i.item_id,
-          qty: Number(i.qty) || 0,
-          rate: Number(i.rate) || 0,
-          unit: i.unit,
         })),
       };
       if (!isCustomerEntity) {
@@ -500,10 +491,8 @@ export default function RfqsPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border-secondary text-left text-xs text-text-tertiary">
-                        <th className="px-2 py-1.5 font-medium">Deskripsi</th>
-                        <th className="px-2 py-1.5 font-medium">Qty</th>
-                        <th className="px-2 py-1.5 font-medium">Rate</th>
-                        <th className="px-2 py-1.5 font-medium">Satuan</th>
+                        <th className="px-2 py-1.5 font-medium">Item</th>
+                        <th className="px-2 py-1.5 font-medium">Katalog</th>
                         <th className="px-2 py-1.5" />
                       </tr>
                     </thead>
@@ -516,55 +505,26 @@ export default function RfqsPage() {
                           <td className="px-2 py-1.5 text-text-primary">
                             {it.description}
                           </td>
-                          <td className="px-2 py-1.5">
-                            <Input
-                              type="number"
-                              min={0}
-                              value={it.qty}
-                              onChange={(e) =>
-                                setItems((prev) =>
-                                  prev.map((x) =>
-                                    x.customer_equipment_id ===
-                                    it.customer_equipment_id
-                                      ? { ...x, qty: e.target.value }
-                                      : x
-                                  )
-                                )
-                              }
-                              className="w-20"
-                            />
-                          </td>
-                          <td className="px-2 py-1.5">
-                            <Input
-                              type="number"
-                              min={0}
-                              value={it.rate}
-                              onChange={(e) =>
-                                setItems((prev) =>
-                                  prev.map((x) =>
-                                    x.customer_equipment_id ===
-                                    it.customer_equipment_id
-                                      ? { ...x, rate: e.target.value }
-                                      : x
-                                  )
-                                )
-                              }
-                              className="w-24"
-                            />
-                          </td>
                           <td className="px-2 py-1.5 text-text-secondary">
-                            {it.unit ?? "—"}
+                            {(() => {
+                              const ce = myEquipment.find(
+                                (x) => x.id === it.customer_equipment_id
+                              );
+                              return ce?.equipment?.name ?? "—";
+                            })()}
                           </td>
                           <td className="px-2 py-1.5 text-right">
                             <Button
                               appearance="ghost"
-                              onClick={() => toggleEquipment({
-                                id: it.customer_equipment_id,
-                                unit_code: "",
-                                unit_name: it.description,
-                                equipment_id: it.item_id,
-                                customer_id: 0,
-                              } as CustomerEquipment)}
+                              onClick={() =>
+                                toggleEquipment({
+                                  id: it.customer_equipment_id,
+                                  unit_code: "",
+                                  unit_name: it.description,
+                                  equipment_id: it.item_id,
+                                  customer_id: 0,
+                                } as CustomerEquipment)
+                              }
                             >
                               ✕
                             </Button>
