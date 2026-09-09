@@ -32,7 +32,7 @@ interface Workflow {
   transitions_count: number;
 }
 
-interface WorkflowDetail extends Workflow {
+interface WorkflowDetail extends Omit<Workflow, "label"> {
   label?: string;
   states?: Record<string, WorkflowState>;
   transitions?: Record<string, WorkflowTransition>;
