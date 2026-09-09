@@ -10,7 +10,7 @@ import { ScrollArea, ScrollAreaViewport, ScrollBar } from "@/components/tailgrid
 import { cn } from "@/utils/cn";
 import Link from "next/link";
 import React, { useState } from "react";
-import { Header, Heading } from "react-aria-components";
+import { Button as RACButton, Header, Heading } from "react-aria-components";
 
 interface NotificationData {
   id: string;
@@ -75,10 +75,10 @@ export function NotificationsButton() {
 
   return (
     <OverlayWrapper isOpen={isOpen} onOpenChange={setIsOpen}>
-      <Button
-        iconOnly
-        appearance="outline"
-        className="relative size-10 rounded-lg border border-card-border bg-card-background text-icon-primary shadow-xs focus-visible:border-input-primary-focus-border focus-visible:ring-4 focus-visible:ring-input-primary-focus-border/20 [&>svg]:size-auto"
+      {/* Trigger = react-aria Button (auto-wire ke DialogTrigger; tailgrids Button = Mantine, tidak ter-wire) */}
+      <RACButton
+        aria-label="Notifications"
+        className="relative flex size-10 items-center justify-center rounded-lg border border-card-border bg-card-background text-icon-primary shadow-xs outline-none focus-visible:border-input-primary-focus-border focus-visible:ring-4 focus-visible:ring-input-primary-focus-border/20 [&>svg]:size-auto"
       >
         <BellIcon />
         {unreadCount > 0 && (
@@ -86,7 +86,7 @@ export function NotificationsButton() {
             <span className="absolute inset-0 -z-1 animate-ping rounded-full bg-red-400 opacity-75" />
           </span>
         )}
-      </Button>
+      </RACButton>
 
       <Popover
         placement="bottom end"
