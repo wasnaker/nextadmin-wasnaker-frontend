@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
@@ -19,6 +19,12 @@ import {
 } from "@/components/tailgrids/core/dialog";
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/tailgrids/core/dropdown";
 import {
   Select,
   SelectContent,
@@ -83,6 +89,25 @@ const EMPTY_FORM = {
   surveyor_id: "",
 };
 
+/** Mirror Rfq::TRANSITIONS backend — target status legal per status + actor. */
+const TRANSITIONS: Record<string, Record<string, string>> = {
+  draft: { sent: "customer" },
+  sent: {
+    draft: "customer",
+    accepted: "surveyor",
+    declined: "surveyor",
+    expired: "customer",
+  },
+};
+
+/** Target status yang boleh dijalankan role user ini (actor workflow). */
+function allowedTargets(status: string, actor: string): string[] {
+  const map = TRANSITIONS[status] ?? {};
+  return Object.entries(map)
+    .filter(([, a]) => a === actor)
+    .map(([target]) => target);
+}
+
 /** RFQs — dokumen RFQ (customer -> surveyor). */
 export default function RfqsPage() {
   const { token, user: me } = useAuth();
@@ -98,17 +123,32 @@ export default function RfqsPage() {
   const [items, setItems] = useState<RfqItemDraft[]>([]);
   const [smallView, setSmallView] = useState(true);
 
-  const [selectedId, setSelectedId] = useState<number | null>(() => {
-    if (typeof window === "undefined") return null;
-    const h = Number(window.location.hash.replace("#", ""));
-    return h || null;
-  });
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  // Hash URL = source of truth utk panel detail: buka dari link/share,
+  // route sama, back/forward — tanpa remount page (hash tidak dikirim server).
+  useEffect(() => {
+    const sync = () => {
+      const h = Number(window.location.hash.replace("#", ""));
+      setSelectedId(h || null);
+      if (h) setSmallView(true);
+    };
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
 
   const canView = can(me, "rfq:view") || can(me, "rfq:view_own");
   const canCreate = can(me, "rfq:create");
   const canManage = can(me, "rfq:edit") || can(me, "rfq:edit_own");
   const canDelete = can(me, "rfq:delete");
+  const canMarkAs = can(me, "rfq:mark_as");
   const isCustomerEntity = (me?.access?.roles ?? []).includes("customer");
+  const actorType = (me?.access?.roles ?? []).includes("surveyor")
+    ? "surveyor"
+    : isCustomerEntity
+      ? "customer"
+      : ""; // platform/non-entity = full access
 
   const { data: rfqs = [], isPending } = useQuery({
     queryKey: ["spine", "rfqs", token],
@@ -298,6 +338,19 @@ export default function RfqsPage() {
     setRefreshKey((k) => k + 1);
   }
 
+  async function onMarkAs(item: Rfq, status: string) {
+    const res = await api(`/api/v1/rfqs/${item.id}/transition`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) {
+      setError(res.error ?? "Gagal mengubah status");
+      return;
+    }
+    await qc.invalidateQueries({ queryKey: ["spine", "rfqs"] });
+    setRefreshKey((k) => k + 1);
+  }
+
   function toggleEquipment(ce: CustomerEquipment) {
     const selected = selectedEquipIds.includes(ce.id);
     setSelectedEquipIds((prev) =>
@@ -454,6 +507,7 @@ export default function RfqsPage() {
           }}
           renderHeader={(it) => (
             <span className="flex items-center gap-2">
+              <StatusBadge status={it.status} />
               <span className="font-mono text-text-primary">
                 {it.formatted_number ?? `#${it.id}`}
               </span>
@@ -466,6 +520,23 @@ export default function RfqsPage() {
                 <Button appearance="outline" onClick={() => openEdit(item)}>
                   Edit
                 </Button>
+              )}
+              {canMarkAs && Object.keys(TRANSITIONS[item.status] ?? {}).length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="rounded-lg border border-card-border px-3 py-1.5 text-sm font-medium transition outline-none focus:ring-4">
+                    More
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent placement="bottom end">
+                    {allowedTargets(item.status, actorType).map((target) => (
+                      <DropdownMenuItem
+                        key={target}
+                        onAction={() => onMarkAs(item, target)}
+                      >
+                        Mark as {target}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
               {canDelete && (
                 <Button appearance="outline" onClick={() => onDelete(item)}>
