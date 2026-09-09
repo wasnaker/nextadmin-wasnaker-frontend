@@ -63,6 +63,13 @@ interface Customer {
   type: string;
 }
 
+interface Surveyor {
+  id: number;
+  code: string;
+  name: string;
+  type: string;
+}
+
 interface RfqItemDraft {
   customer_equipment_id: number;
   item_id?: number | null;
@@ -73,6 +80,7 @@ const EMPTY_FORM = {
   date: new Date().toISOString().slice(0, 10),
   expirydate: "",
   customer_id: "",
+  surveyor_id: "",
 };
 
 /** RFQs — dokumen RFQ (customer -> surveyor). */
@@ -122,6 +130,23 @@ export default function RfqsPage() {
     enabled: Boolean(token) && canView && open && (isCustomerEntity || Boolean(form.customer_id)),
   });
 
+  // Surveyor terhubung (connections active) dgn customer — opsi utk form.
+  const { data: surveyorOptions = [] } = useQuery({
+    queryKey: ["spine", "rfqs", "surveyor-options", token, form.customer_id],
+    queryFn: async () => {
+      const qs = isCustomerEntity ? "" : `?customer_id=${form.customer_id}`;
+      const res = await api<{ data: Surveyor[] }>(
+        `/api/v1/rfqs/surveyor-options${qs}`
+      );
+      return res.data?.data ?? [];
+    },
+    enabled:
+      Boolean(token) &&
+      canView &&
+      open &&
+      (isCustomerEntity || Boolean(form.customer_id)),
+  });
+
   const { data: customers = [] } = useQuery({
     queryKey: ["spine", "customers", token],
     queryFn: async () => {
@@ -156,16 +181,6 @@ export default function RfqsPage() {
       ),
     },
     {
-      key: "customer",
-      label: "Customer",
-      render: (it) =>
-        it.customer ? (
-          <span className="text-text-secondary">{it.customer.name}</span>
-        ) : (
-          <span className="text-text-tertiary">—</span>
-        ),
-    },
-    {
       key: "surveyor",
       label: "Surveyor",
       render: (it) =>
@@ -179,6 +194,16 @@ export default function RfqsPage() {
       key: "status",
       label: "Status",
       render: (it) => <StatusBadge status={it.status} />,
+    },
+    {
+      key: "customer",
+      label: "Customer",
+      render: (it) =>
+        it.customer ? (
+          <span className="text-text-secondary">{it.customer.name}</span>
+        ) : (
+          <span className="text-text-tertiary">—</span>
+        ),
     },
     {
       key: "date",
@@ -236,8 +261,8 @@ export default function RfqsPage() {
   }
 
   async function onSave() {
-    if (!form.date || !items.length) {
-      setError("Tanggal dan minimal 1 equipment wajib diisi");
+    if (!form.date || !form.surveyor_id || !items.length) {
+      setError("Tanggal, Surveyor dan minimal 1 equipment wajib diisi");
       return;
     }
     if (!isCustomerEntity && !form.customer_id) {
@@ -250,6 +275,7 @@ export default function RfqsPage() {
       const payload: Record<string, unknown> = {
         date: form.date,
         expirydate: form.expirydate || null,
+        surveyor_id: Number(form.surveyor_id),
         equipment: items.map((i) => ({
           customer_equipment_id: i.customer_equipment_id,
           item_id: i.item_id,
@@ -428,7 +454,7 @@ export default function RfqsPage() {
                 <Select
                   value={form.customer_id}
                   onChange={(v) => {
-                    setForm({ ...form, customer_id: String(v ?? "") });
+                    setForm({ ...form, customer_id: String(v ?? ""), surveyor_id: "" });
                     setSelectedEquipIds([]);
                     setItems([]);
                   }}
@@ -449,6 +475,36 @@ export default function RfqsPage() {
                 </Select>
               </div>
             )}
+
+            <div>
+              <FieldLabel>Surveyor *</FieldLabel>
+              <Select
+                value={form.surveyor_id}
+                onChange={(v) =>
+                  setForm({ ...form, surveyor_id: String(v ?? "") })
+                }
+                className="mt-1.5 w-full"
+                aria-label="Surveyor"
+              >
+                <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
+                  <SelectValue />
+                  <SelectIndicator />
+                </SelectTrigger>
+                <SelectContent className="min-w-(--trigger-width)">
+                  {surveyorOptions.length === 0 ? (
+                    <SelectItem id="" textValue="Belum ada surveyor terhubung" isDisabled>
+                      Belum ada surveyor terhubung
+                    </SelectItem>
+                  ) : (
+                    surveyorOptions.map((s) => (
+                      <SelectItem key={s.id} id={String(s.id)} textValue={s.name}>
+                        {s.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
 
             <div>
               <FieldLabel>Pilih Equipment</FieldLabel>
