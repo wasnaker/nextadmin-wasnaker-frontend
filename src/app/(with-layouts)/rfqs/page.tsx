@@ -90,6 +90,7 @@ export default function RfqsPage() {
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Rfq | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -105,6 +106,8 @@ export default function RfqsPage() {
 
   const canView = can(me, "rfq:view") || can(me, "rfq:view_own");
   const canCreate = can(me, "rfq:create");
+  const canManage = can(me, "rfq:edit") || can(me, "rfq:edit_own");
+  const canDelete = can(me, "rfq:delete");
   const isCustomerEntity = (me?.access?.roles ?? []).includes("customer");
 
   const { data: rfqs = [], isPending } = useQuery({
@@ -234,11 +237,63 @@ export default function RfqsPage() {
   }
 
   function openCreate() {
+    setEditing(null);
     setForm({ ...EMPTY_FORM, date: new Date().toISOString().slice(0, 10) });
     setSelectedEquipIds([]);
     setItems([]);
     setError(null);
     setOpen(true);
+  }
+
+  async function openEdit(item: Rfq) {
+    setEditing(item);
+    setForm({
+      date: item.date,
+      expirydate: item.expirydate ?? "",
+      customer_id: String(item.customer_id),
+      surveyor_id: item.surveyor_id ? String(item.surveyor_id) : "",
+    });
+    setSelectedEquipIds([]);
+    setItems([]);
+    setError(null);
+    setOpen(true);
+
+    const res = await api<{
+      data: Rfq & { items?: RfqItemDraft[]; equipment?: { customer_equipment_id: number; item_id?: number | null }[] };
+    }>(`/api/v1/rfqs/${item.id}`);
+    const d = res.data as unknown as {
+      items?: RfqItemDraft[];
+      equipment?: { customer_equipment_id: number; item_id?: number | null }[];
+    };
+    const eq = d.equipment ?? [];
+    const its = d.items ?? [];
+    setSelectedEquipIds(eq.map((e) => e.customer_equipment_id));
+    setItems(
+      its.map((it) => {
+        const e = eq.find((x) => x.item_id === it.item_id);
+        return {
+          customer_equipment_id: e?.customer_equipment_id ?? 0,
+          item_id: it.item_id ?? e?.item_id ?? null,
+          description: it.description,
+        };
+      })
+    );
+  }
+
+  async function onDelete(item: Rfq) {
+    if (!window.confirm(`Hapus ${item.formatted_number ?? item.id}?`)) return;
+    const res = await api(`/api/v1/rfqs/${item.id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setError(res.error ?? "Gagal menghapus");
+      return;
+    }
+    if (selectedId === item.id) {
+      setSelectedId(null);
+      window.location.hash = "";
+      setSmallView(false);
+    }
+    await qc.invalidateQueries({ queryKey: ["spine", "rfqs"] });
+    setRefreshKey((k) => k + 1);
   }
 
   function toggleEquipment(ce: CustomerEquipment) {
@@ -276,20 +331,22 @@ export default function RfqsPage() {
         date: form.date,
         expirydate: form.expirydate || null,
         surveyor_id: Number(form.surveyor_id),
-        equipment: items.map((i) => ({
-          customer_equipment_id: i.customer_equipment_id,
-          item_id: i.item_id,
-        })),
+        equipment: items
+          .filter((i) => i.customer_equipment_id > 0)
+          .map((i) => ({
+            customer_equipment_id: i.customer_equipment_id,
+            item_id: i.item_id,
+          })),
         items: items.map((i) => ({
           description: i.description,
           item_id: i.item_id,
         })),
       };
-      if (!isCustomerEntity) {
+      if (!isCustomerEntity && !editing) {
         payload.customer_id = Number(form.customer_id);
       }
-      const res = await api("/api/v1/rfqs", {
-        method: "POST",
+      const res = await api(editing ? `/api/v1/rfqs/${editing.id}` : "/api/v1/rfqs", {
+        method: editing ? "PUT" : "POST",
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
@@ -297,6 +354,7 @@ export default function RfqsPage() {
         return;
       }
       setOpen(false);
+      setEditing(null);
       await qc.invalidateQueries({ queryKey: ["spine", "rfqs"] });
       selectItem((res.data as Rfq).id);
       setRefreshKey((k) => k + 1);
@@ -400,12 +458,21 @@ export default function RfqsPage() {
             </span>
           )}
           toolbar={(item) => (
-            <Button
-              appearance="outline"
-              onClick={() => setSmallView((v) => !v)}
-            >
-              {smallView ? "◀" : "▶"}
-            </Button>
+            <>
+              {canManage && (
+                <Button appearance="outline" onClick={() => openEdit(item)}>
+                  Edit
+                </Button>
+              )}
+              {canDelete && (
+                <Button appearance="outline" onClick={() => onDelete(item)}>
+                  Delete
+                </Button>
+              )}
+              <Button appearance="outline" onClick={() => setSmallView((v) => !v)}>
+                {smallView ? "◀" : "▶"}
+              </Button>
+            </>
           )}
         />
       )}
@@ -413,7 +480,11 @@ export default function RfqsPage() {
       {open && (
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
-            <DialogTitle>Buat RFQ</DialogTitle>
+            <DialogTitle>
+              {editing
+                ? `Edit RFQ ${editing.formatted_number ?? editing.id}`
+                : "Buat RFQ"}
+            </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
@@ -441,11 +512,13 @@ export default function RfqsPage() {
               </div>
             </div>
 
-            {isCustomerEntity ? (
+            {isCustomerEntity || editing ? (
               <>
                 <FieldLabel>Customer</FieldLabel>
                 <div className="mt-1.5 rounded-lg border border-border-secondary bg-input-background px-3 py-2.5 text-sm text-text-secondary">
-                  Customer dari akun login Anda
+                  {editing
+                    ? editing.customer?.name ?? "Customer tetap"
+                    : "Customer dari akun login Anda"}
                 </div>
               </>
             ) : (
