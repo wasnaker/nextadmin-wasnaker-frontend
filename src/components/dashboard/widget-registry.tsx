@@ -7,6 +7,7 @@ import type { ModuleWidget } from "@/services/spine/module-extensions";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { CalendarWidget } from "./widgets/calendar-widget";
 import { TodosWidget } from "./widgets/todos-widget";
+import { CustomerEquipmentsWidget } from "./widgets/customer-equipments-widget";
 
 /**
  * Registry widget DASHBOARD — infrastruktur.
@@ -133,6 +134,7 @@ const REGISTRY: Record<string, ComponentType<{ apiPath: string }>> = {
   agencies: AgenciesWidget,
   calendar: CalendarWidget,
   todos: TodosWidget,
+  "customer-equipments": CustomerEquipmentsWidget,
 };
 
 /** Body widget dari registry; fallback bila belum terdaftar komponennya. */

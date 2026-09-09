@@ -114,6 +114,11 @@ export default function ConnectionsPage() {
   const canCreate = can(me, "connection:create");
   const canCancel = can(me, "connection:cancel");
 
+  // POLA: actor entity → kolom sisi sendiri dihapus (selalu diri sendiri).
+  const roles = me?.access?.roles ?? [];
+  const isCustomer = roles.includes("customer");
+  const isSurveyor = roles.includes("surveyor");
+
   const { data: items = [], isPending } = useQuery({
     queryKey: ["spine", "connections", token],
     queryFn: async () => {
@@ -174,41 +179,45 @@ export default function ConnectionsPage() {
     }
   }
 
-  const columns: SmallTableColumn<ConnectionRow>[] = useMemo(
-    () => [
-      {
-        key: "status",
-        label: "Status",
-        render: (it) => <StatusBadge status={it.status} />,
-      },
-      {
-        key: "customer",
-        label: "Customer",
-        primary: true,
-        render: (it) => (
-          <span className="text-text-primary">{partyLabel(it.customer)}</span>
-        ),
-      },
-      {
-        key: "surveyor",
-        label: "Surveyor",
-        primary: true,
-        render: (it) => (
-          <span className="text-text-primary">{partyLabel(it.surveyor)}</span>
-        ),
-      },
-      {
-        key: "created_at",
-        label: "Dibuat",
-        render: (it) => (
-          <span className="text-text-tertiary">
-            {it.created_at ? new Date(it.created_at).toLocaleString("id-ID") : "—"}
-          </span>
-        ),
-      },
-    ],
-    []
-  );
+  const columns: SmallTableColumn<ConnectionRow>[] = useMemo(() => {
+    const all: SmallTableColumn<ConnectionRow>[] = [
+        {
+          key: "status",
+          label: "Status",
+          render: (it) => <StatusBadge status={it.status} />,
+        },
+        {
+          key: "customer",
+          label: "Customer",
+          primary: true,
+          render: (it) => (
+            <span className="text-text-primary">{partyLabel(it.customer)}</span>
+          ),
+        },
+        {
+          key: "surveyor",
+          label: "Surveyor",
+          primary: true,
+          render: (it) => (
+            <span className="text-text-primary">{partyLabel(it.surveyor)}</span>
+          ),
+        },
+        {
+          key: "created_at",
+          label: "Dibuat",
+          render: (it) => (
+            <span className="text-text-tertiary">
+              {it.created_at ? new Date(it.created_at).toLocaleString("id-ID") : "—"}
+            </span>
+          ),
+        },
+      ];
+    return all.filter(
+      (c) =>
+        !(c.key === "customer" && isCustomer) &&
+        !(c.key === "surveyor" && isSurveyor)
+    );
+  }, [isCustomer, isSurveyor]);
 
   if (!canView) {
     return (

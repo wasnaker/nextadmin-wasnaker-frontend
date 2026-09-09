@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { useAuth } from "@/services/spine/auth-context";
+import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@/components/tailgrids/core/table";
 
 interface PlatformStaff {
   id: number;
@@ -35,33 +36,33 @@ export default function PlatformStaffPage() {
       <div className="border-b border-border-primary px-5 py-4">
         <h2 className="text-sm font-semibold text-text-primary">Daftar Staf</h2>
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border-primary text-left text-xs text-text-tertiary">
-            <th className="px-5 py-2.5 font-medium">Nama</th>
-            <th className="px-5 py-2.5 font-medium">Jabatan</th>
-            <th className="px-5 py-2.5 font-medium">Departemen</th>
-            <th className="px-5 py-2.5 font-medium">Email</th>
-          </tr>
-        </thead>
-        <tbody>
+      <TableRoot className="w-full text-sm">
+        <TableHeader>
+          <TableRow className="border-b border-border-primary text-left text-xs text-text-tertiary">
+            <TableHead className="px-5 py-2.5 font-medium">Nama</TableHead>
+            <TableHead className="px-5 py-2.5 font-medium">Jabatan</TableHead>
+            <TableHead className="px-5 py-2.5 font-medium">Departemen</TableHead>
+            <TableHead className="px-5 py-2.5 font-medium">Email</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {staffs.map((s) => (
-            <tr key={s.id} className="border-b border-border-primary/60 last:border-0">
-              <td className="px-5 py-2.5 text-text-primary">{s.realname}</td>
-              <td className="px-5 py-2.5 text-text-secondary">{s.jabatan ?? "—"}</td>
-              <td className="px-5 py-2.5 text-text-secondary">{s.departemen ?? "—"}</td>
-              <td className="px-5 py-2.5 text-text-secondary">{s.user.email}</td>
-            </tr>
+            <TableRow key={s.id} className="border-b border-border-primary/60 last:border-0">
+              <TableCell className="px-5 py-2.5 text-text-primary">{s.realname}</TableCell>
+              <TableCell className="px-5 py-2.5 text-text-secondary">{s.jabatan ?? "—"}</TableCell>
+              <TableCell className="px-5 py-2.5 text-text-secondary">{s.departemen ?? "—"}</TableCell>
+              <TableCell className="px-5 py-2.5 text-text-secondary">{s.user.email}</TableCell>
+            </TableRow>
           ))}
           {staffs.length === 0 && (
-            <tr>
-              <td colSpan={4} className="px-5 py-6 text-sm text-text-tertiary">
+            <TableRow>
+              <TableCell colSpan={4} className="px-5 py-6 text-sm text-text-tertiary">
                 Belum ada staf.
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </TableRoot>
     </div>
   );
 }

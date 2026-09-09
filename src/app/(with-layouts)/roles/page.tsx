@@ -56,6 +56,8 @@ export default function RolesPage() {
     const h = Number(window.location.hash.replace("#", ""));
     return h || null;
   });
+  // POLA: state smallView di parent — bukan di SmallTable.
+  const [smallView, setSmallView] = useState(true);
 
   const canView = can(me, "roles:view");
   const canCreate = can(me, "roles:create");
@@ -139,6 +141,8 @@ export default function RolesPage() {
   function selectItem(id: number | string) {
     const n = Number(id);
     setSelectedId(n);
+    // POLA: klik row → selectItem + setSmallView(true) (auto-expand).
+    setSmallView(true);
     window.location.hash = String(n);
   }
 
@@ -245,7 +249,7 @@ export default function RolesPage() {
           selectedId={selectedId}
           onSelectId={selectItem}
           getItemId={(it) => it.id}
-          showDetail
+          showDetail={smallView}
           refreshKey={refreshKey}
           perPage={perPage}
           tabCustomValue={detailCustom}
@@ -272,6 +276,12 @@ export default function RolesPage() {
                   Delete
                 </Button>
               )}
+              <Button
+                appearance="outline"
+                onClick={() => setSmallView((v) => !v)}
+              >
+                {smallView ? "◀" : "▶"}
+              </Button>
             </>
           )}
         />

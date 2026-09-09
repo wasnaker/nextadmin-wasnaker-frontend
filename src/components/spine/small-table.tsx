@@ -69,6 +69,10 @@ export interface SmallTableProps<T> {
   showDetail?: boolean;
   refreshKey?: number;
   tabHideKeys?: string[];
+  /** Row selection (pola diskusi.md): checkbox di kolom kiri + highlight. */
+  selectable?: boolean;
+  selectedRowIds?: Array<number | string>;
+  onSelectRows?: (ids: Array<number | string>) => void;
   tabCustomValue?: Record<
     string,
     (value: unknown, row: Record<string, unknown>) => React.ReactNode
@@ -99,6 +103,9 @@ export function SmallTable<T>({
   showDetail = true,
   refreshKey = 0,
   tabHideKeys = [],
+  selectable = false,
+  selectedRowIds = [],
+  onSelectRows,
   tabCustomValue,
   renderHeader,
   searchableKeys = [],
@@ -234,6 +241,7 @@ export function SmallTable<T>({
           <TableRoot className="w-full rounded-none border-none">
             <TableHeader>
               <TableRow className="[&_th]:border-t">
+                {selectable && <TableHead className="w-10 px-2" />}
                 {visibleCols.map((c) => (
                   <TableHead
                     key={c.key}
@@ -248,7 +256,7 @@ export function SmallTable<T>({
               {table.getRowModel().rows.length === 0 ? (
                 <TableRow className="[&_td]:border-none">
                   <TableCell
-                    colSpan={visibleCols.length}
+                    colSpan={visibleCols.length + (selectable ? 1 : 0)}
                     className="px-4 py-6 text-center text-sm text-text-tertiary"
                   >
                     {emptyText}
@@ -257,17 +265,40 @@ export function SmallTable<T>({
               ) : (
                 table.getRowModel().rows.map((row) => {
                   const active = row.id === String(selectedId);
+                  const id = getItemId(row.original);
+                  const checked = selectedRowIds.includes(id);
                   return (
                     <TableRow
                       key={row.id}
-                      onClick={() => onSelectId(getItemId(row.original))}
+                      onClick={() => onSelectId(id)}
                       className={cn(
                         "small-table-list-row cursor-pointer transition-colors [&_td]:border-none",
-                        active
+                        active || checked
                           ? "small-table-list-row--selected bg-card-surface-area"
                           : "hover:bg-card-surface-area"
                       )}
                     >
+                      {selectable && (
+                        <TableCell
+                          className="px-2 py-3 text-sm"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            aria-label="Select row"
+                            checked={checked}
+                            onChange={(e) => {
+                              if (!onSelectRows) return;
+                              onSelectRows(
+                                e.currentTarget.checked
+                                  ? [...selectedRowIds, id]
+                                  : selectedRowIds.filter((x) => x !== id)
+                              );
+                            }}
+                            className="h-4 w-4 cursor-pointer accent-blue-600"
+                          />
+                        </TableCell>
+                      )}
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}

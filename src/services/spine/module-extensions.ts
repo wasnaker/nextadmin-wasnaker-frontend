@@ -21,6 +21,8 @@ export interface ModuleMenuItem {
   position?: number;
   /** Permission yang dibutuhkan utk melihat item (opsional; tanpa = semua login). */
   permission?: string;
+  /** Submenu (render sebagai collapsible oleh sidebar). */
+  children?: Array<{ title: string; url?: string }>;
   module: string;
 }
 

@@ -197,7 +197,7 @@ export default function Sidebar({
                                         }
                                         label={m.label}
                                         href={m.href}
-                                        items={[]}
+                                        items={m.children ?? []}
                                         collapsed={!isSidebarOpen}
                                         onItemClick={onItemClick}
                                     />

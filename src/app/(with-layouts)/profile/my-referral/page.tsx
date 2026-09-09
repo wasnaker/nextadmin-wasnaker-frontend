@@ -5,6 +5,7 @@ import { api } from "@/services/spine/api";
 import { useAuth } from "@/services/spine/auth-context";
 import { Card } from "@/components/tailgrids/core/card";
 import { StatusBadge } from "@/components/spine/status-badge";
+import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@/components/tailgrids/core/table";
 
 /**
  * My Referral — tab Profile (self-service).
@@ -100,32 +101,32 @@ export default function MyReferralPage() {
         </p>
       ) : (
         <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-border-primary text-xs uppercase tracking-wider text-text-tertiary">
-              <tr>
-                <th className="px-4 py-3">Nama</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Terdaftar</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-primary">
+          <TableRoot className="w-full text-left text-sm">
+            <TableHeader className="border-b border-border-primary text-xs uppercase tracking-wider text-text-tertiary">
+              <TableRow>
+                <TableHead className="px-4 py-3">Nama</TableHead>
+                <TableHead className="px-4 py-3">Email</TableHead>
+                <TableHead className="px-4 py-3">Status</TableHead>
+                <TableHead className="px-4 py-3">Terdaftar</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-border-primary">
               {referrals.map((r) => (
-                <tr key={r.id}>
-                  <td className="px-4 py-3 text-text-primary">{r.referred?.name ?? "—"}</td>
-                  <td className="px-4 py-3 text-text-tertiary">{r.referred?.email ?? "—"}</td>
-                  <td className="px-4 py-3">
+                <TableRow key={r.id}>
+                  <TableCell className="px-4 py-3 text-text-primary">{r.referred?.name ?? "—"}</TableCell>
+                  <TableCell className="px-4 py-3 text-text-tertiary">{r.referred?.email ?? "—"}</TableCell>
+                  <TableCell className="px-4 py-3">
                     <StatusBadge status={r.status} />
-                  </td>
-                  <td className="px-4 py-3 text-text-tertiary">
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-text-tertiary">
                     {r.registered_at
                       ? new Date(r.registered_at).toLocaleString("id-ID")
                       : "—"}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </TableRoot>
         </Card>
       )}
     </div>

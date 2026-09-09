@@ -46,6 +46,8 @@ export default function UsersPage() {
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
+  // POLA: state smallView di parent — bukan di SmallTable.
+  const [smallView, setSmallView] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<SpineUser | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -329,7 +331,7 @@ export default function UsersPage() {
           selectedId={selectedId}
           onSelectId={selectItem}
           getItemId={(it) => it.id}
-          showDetail
+          showDetail={smallView}
           refreshKey={refreshKey}
           perPage={perPage}
           tabCustomValue={detailCustom}
@@ -359,6 +361,12 @@ export default function UsersPage() {
                   Delete
                 </Button>
               )}
+              <Button
+                appearance="outline"
+                onClick={() => setSmallView((v) => !v)}
+              >
+                {smallView ? "◀" : "▶"}
+              </Button>
             </>
           )}
         />
