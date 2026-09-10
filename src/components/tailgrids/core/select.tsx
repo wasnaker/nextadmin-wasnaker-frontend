@@ -132,15 +132,34 @@ export function Select<T extends object>({ className, children, ...props }: Sele
     );
   }
 
+  const isEmptyValue =
+    !props.value ||
+    (Array.isArray(props.value) && props.value.length === 0) ||
+    (props.value instanceof Set && props.value.size === 0) ||
+    (typeof props.value === "object" &&
+      props.value !== null &&
+      Symbol.iterator in props.value &&
+      Array.from(props.value as Iterable<any>).length === 0);
+
   return (
-    <AriaSelect
-      {...(props as any)}
-      className={cn("group flex w-full flex-col gap-2", className)}
-      selectedKey={props.value as Key}
-      onSelectionChange={props.onChange}
+    <SelectContext.Provider
+      value={{
+        selectionMode: "single",
+        value: props.value,
+        onChange: props.onChange,
+        isRequired: props.isRequired,
+        isInvalid: props.isInvalid || (props.isRequired && isEmptyValue),
+      }}
     >
-      {children}
-    </AriaSelect>
+      <AriaSelect
+        {...(props as any)}
+        className={cn("group flex w-full flex-col gap-2", className)}
+        selectedKey={props.value as Key}
+        onSelectionChange={props.onChange}
+      >
+        {children}
+      </AriaSelect>
+    </SelectContext.Provider>
   );
 }
 
@@ -238,11 +257,15 @@ function SelectContent({ children, className, ...props }: SelectContentProps) {
           selectedKeys={
             context.value instanceof Set
               ? context.value
-              : new Set((context.value as Iterable<Key>) || [])
+              : new Set(context.value == null ? [] : [context.value as Key])
           }
           onSelectionChange={(keys) => {
-            if (context.onChange) {
-              context.onChange(Array.from(keys));
+            const arr = Array.from(keys);
+            if (context.selectionMode === "multiple") {
+              context.onChange?.(arr);
+            } else {
+              // single: kirim key (bukan array) — konsisten dgn onChange Select
+              context.onChange?.(arr[0] ?? null);
             }
           }}
         >

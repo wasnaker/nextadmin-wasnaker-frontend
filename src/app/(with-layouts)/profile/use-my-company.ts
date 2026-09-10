@@ -19,7 +19,20 @@ export interface CompanyEntity {
   type: "customer" | "surveyor" | "branch";
   parent_id?: number | null;
   is_active?: boolean;
-  vat?: { npwp: string; name?: string | null } | null;
+  postal_code?: string | null;
+  nib?: string | null;
+  vat?: {
+    id: number;
+    npwp: string;
+    name?: string | null;
+    address?: string | null;
+    postal_code?: string | null;
+    province_id?: number | null;
+    regency_id?: number | null;
+    owner_id?: number | null;
+    province?: { id: number; name: string } | null;
+    regency?: { id: number; name: string } | null;
+  } | null;
   province?: { id: number; name: string } | null;
   regency?: { id: number; name: string } | null;
   admin?: { id: number; name: string } | null;
@@ -27,11 +40,13 @@ export interface CompanyEntity {
 
 export interface MyCompanyData {
   type: "customer" | "surveyor" | null;
-  /** HO tempat user bernaung (row type customer/surveyor). */
+  /** Entity tempat user TERDAFTAR — HO atau cabang (bukan selalu HO). */
   company: CompanyEntity | null;
   /** Posisi user: HO atau row cabang tempat user berada. */
   entity: { id: number; code: string; name: string; type: string; parent_id: number | null } | null;
-  /** Cabang: semua anak HO (user di HO) atau row cabang user (user di cabang). */
+  /** Referensi kantor pusat (info saja) — ada kalau entity user adalah cabang. */
+  parent_company: { id: number; code: string; name: string } | null;
+  /** Cabang anak: terisi hanya kalau entity user adalah HO; cabang = kosong. */
   branches: CompanyEntity[];
 }
 

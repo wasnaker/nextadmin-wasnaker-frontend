@@ -6,11 +6,13 @@ import { can, useAuth } from "@/services/spine/auth-context";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tabsItems } from "./data";
+import { useMyCompany } from "./use-my-company";
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user } = useAuth();
   const { data: ext } = useModuleExtensions();
+  const { data } = useMyCompany();
 
   // Tab dari manifest modul aktif (profile_tabs) — filter permission.
   const moduleTabs = (ext?.profile_tabs ?? [])
@@ -22,7 +24,13 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
       description: "",
     }));
 
-  const allTabs = [...tabsItems, ...moduleTabs];
+  // My Branch hanya untuk user HO — user cabang tidak punya daftar cabang.
+  const isBranchUser = data?.entity?.type === "branch";
+
+  const allTabs = [
+    ...tabsItems.filter((t) => !(isBranchUser && t.href === "/profile/branch")),
+    ...moduleTabs,
+  ];
 
   return (
     <div className="mt-6 space-y-5">

@@ -24,6 +24,19 @@ export default function MyBranchPage() {
     );
   }
 
+  // User cabang: My Branch tidak berlaku (daftar cabang milik HO).
+  if (data.entity?.type === "branch") {
+    return (
+      <p className="text-sm text-text-tertiary">
+        Anda terdaftar di cabang{" "}
+        <span className="font-medium text-text-primary">
+          {data.entity.code} {data.entity.name}
+        </span>
+        . Daftar cabang hanya tersedia untuk kantor pusat.
+      </p>
+    );
+  }
+
   const branches = data.branches ?? [];
 
   return (
@@ -34,9 +47,7 @@ export default function MyBranchPage() {
         <span className="font-medium text-text-primary">
           {data.company.code} {data.company.name}
         </span>
-        {data.entity && data.entity.type === "branch"
-          ? " — Anda terdaftar di cabang ini."
-          : ` — total ${branches.length} cabang.`}
+        {` — total ${branches.length} cabang.`}
       </p>
 
       {branches.length === 0 ? (
