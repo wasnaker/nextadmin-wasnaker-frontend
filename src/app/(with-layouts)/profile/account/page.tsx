@@ -14,6 +14,7 @@ import { TextField } from "@/components/tailgrids/core/text-field";
 import { api, API_URL } from "@/services/spine/api";
 import { useAuth } from "@/services/spine/auth-context";
 import { Form } from "react-aria-components";
+import { useT } from "@/services/i18n";
 
 const AVATAR_MAX = 2 * 1024 * 1024; // 2MB — sama dengan validasi backend
 
@@ -21,6 +22,7 @@ type Status = { type: "error" | "success"; text: string } | null;
 
 export default function AccountPage() {
   const { user, updateUser } = useAuth();
+  const t = useT();
   const fileRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [avatarBusy, setAvatarBusy] = useState(false);
@@ -44,13 +46,13 @@ export default function AccountPage() {
         body: JSON.stringify({ name }),
       });
       if (!res.ok) {
-        setStatus({ type: "error", text: res.error ?? "Gagal menyimpan" });
+        setStatus({ type: "error", text: res.error ?? t("Failed to save") });
         return;
       }
       updateUser(res.data as never);
-      setStatus({ type: "success", text: "Profil tersimpan." });
+      setStatus({ type: "success", text: t("Profile saved.") });
     } catch {
-      setStatus({ type: "error", text: "Gagal menyimpan" });
+      setStatus({ type: "error", text: t("Failed to save") });
     } finally {
       setSaving(false);
     }
@@ -61,11 +63,11 @@ export default function AccountPage() {
     event.target.value = ""; // izinkan pilih file sama berulang kali
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setStatus({ type: "error", text: "File harus berupa gambar." });
+      setStatus({ type: "error", text: t("File must be an image.") });
       return;
     }
     if (file.size > AVATAR_MAX) {
-      setStatus({ type: "error", text: "Ukuran maksimal 2MB." });
+      setStatus({ type: "error", text: t("Maximum size is 2MB.") });
       return;
     }
 
@@ -76,13 +78,13 @@ export default function AccountPage() {
       body.append("avatar", file);
       const res = await api("/api/v1/user/avatar", { method: "POST", body });
       if (!res.ok) {
-        setStatus({ type: "error", text: res.error ?? "Gagal upload avatar" });
+        setStatus({ type: "error", text: res.error ?? t("Failed to upload avatar") });
         return;
       }
       updateUser(res.data as never);
-      setStatus({ type: "success", text: "Avatar diperbarui." });
+      setStatus({ type: "success", text: t("Avatar updated.") });
     } catch {
-      setStatus({ type: "error", text: "Gagal upload avatar" });
+      setStatus({ type: "error", text: t("Failed to upload avatar") });
     } finally {
       setAvatarBusy(false);
     }
@@ -95,13 +97,13 @@ export default function AccountPage() {
     try {
       const res = await api("/api/v1/user/avatar", { method: "DELETE" });
       if (!res.ok) {
-        setStatus({ type: "error", text: res.error ?? "Gagal hapus avatar" });
+        setStatus({ type: "error", text: res.error ?? t("Failed to delete avatar") });
         return;
       }
       updateUser(res.data as never);
-      setStatus({ type: "success", text: "Avatar dihapus." });
+      setStatus({ type: "success", text: t("Avatar deleted.") });
     } catch {
-      setStatus({ type: "error", text: "Gagal hapus avatar" });
+      setStatus({ type: "error", text: t("Failed to delete avatar") });
     } finally {
       setAvatarBusy(false);
     }
@@ -139,7 +141,7 @@ export default function AccountPage() {
                 isDisabled={avatarBusy}
                 onPress={() => fileRef.current?.click()}
               >
-                {avatarBusy ? "Mengunggah…" : "Change Avatar"}
+                {avatarBusy ? t("Uploading…") : t("Change Avatar")}
               </Button>
               <Button
                 appearance="outline"
@@ -216,7 +218,7 @@ export default function AccountPage() {
               className="px-3.5 text-sm"
               isDisabled={saving}
             >
-              {saving ? "Menyimpan…" : "Save Changes"}
+              {saving ? t("Saving…") : t("Save Changes")}
             </Button>
           </div>
         </Form>

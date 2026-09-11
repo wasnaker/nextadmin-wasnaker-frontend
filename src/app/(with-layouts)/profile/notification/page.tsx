@@ -87,7 +87,7 @@ export default function NotificationPage() {
       const res = await api<NotificationsResponse>(
         `/api/v1/notifications?per_page=25&page=${page}`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat notifikasi");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load notifications"));
       return res.data;
     },
   });
@@ -114,7 +114,7 @@ export default function NotificationPage() {
       </div>
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
+        <p className="text-sm text-text-tertiary">{t(t("Loading..."))}</p>
       ) : items.length === 0 ? (
         <p className="text-sm text-text-tertiary">Tidak ada notifikasi</p>
       ) : (

@@ -24,9 +24,11 @@ import { Eye, EyeDisabled } from "@tailgrids/icons";
 import { useState } from "react";
 import { Form } from "react-aria-components";
 import { securityItems } from "./data";
+import { useT } from "@/services/i18n";
 
 export default function SecurityTabContent() {
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
+  const t = useT();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -45,7 +47,7 @@ export default function SecurityTabContent() {
       password_confirmation: String(fd.get("password_confirmation") ?? ""),
     };
     if (payload.password.length < 8) {
-      setError("Password minimal 8 karakter");
+      setError(t("Password must be at least 8 characters"));
       return;
     }
 
@@ -143,7 +145,7 @@ export default function SecurityTabContent() {
                       id="current-password"
                       name="current_password"
                       type={showCurrentPassword ? "text" : "password"}
-                      placeholder="Enter your current password"
+                      placeholder={t("Enter your current password")}
                       autoComplete="current-password"
                       required
                     />
@@ -151,7 +153,7 @@ export default function SecurityTabContent() {
                       size="icon-sm"
                       className="mr-1"
                       onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                      aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                      aria-label={showCurrentPassword ? t("Hide password") : t("Show password")}
                     >
                       {showCurrentPassword ? (
                         <EyeDisabled className="size-5" />
@@ -169,7 +171,7 @@ export default function SecurityTabContent() {
                       id="new-password"
                       name="password"
                       type={showNewPassword ? "text" : "password"}
-                      placeholder="Choose a new password"
+                      placeholder={t("Choose a new password")}
                       minLength={8}
                       autoComplete="new-password"
                       required
@@ -178,7 +180,7 @@ export default function SecurityTabContent() {
                       size="icon-sm"
                       className="mr-1"
                       onPress={() => setShowNewPassword(!showNewPassword)}
-                      aria-label={showNewPassword ? "Hide password" : "Show password"}
+                      aria-label={showNewPassword ? t("Hide password") : t("Show password")}
                     >
                       {showNewPassword ? (
                         <EyeDisabled className="size-5" />
@@ -196,7 +198,7 @@ export default function SecurityTabContent() {
                       id="confirm-password"
                       name="password_confirmation"
                       type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Re-enter your new password"
+                      placeholder={t("Re-enter your new password")}
                       minLength={8}
                       autoComplete="new-password"
                       required
@@ -205,7 +207,7 @@ export default function SecurityTabContent() {
                       size="icon-sm"
                       className="mr-1"
                       onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                      aria-label={showConfirmPassword ? t("Hide password") : t("Show password")}
                     >
                       {showConfirmPassword ? (
                         <EyeDisabled className="size-5" />
@@ -237,7 +239,7 @@ export default function SecurityTabContent() {
                   className="px-3.5 text-sm"
                   isDisabled={saving}
                 >
-                  {saving ? "Menyimpan…" : "Apply Changes"}
+                  {saving ? t("Saving…") : t("Apply Changes")}
                 </Button>
               </DialogFooter>
             </Form>

@@ -56,27 +56,27 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
-function companyInfo(c: CompanyEntity, isBranch: boolean, parentCompany: { code: string; name: string } | null) {
+function companyInfo(t: (s: string) => string, c: CompanyEntity, isBranch: boolean, parentCompany: { code: string; name: string } | null) {
   const prov = c.province ? (c.regency ? `${c.province.name}, ${c.regency.name}` : c.province.name) : null;
   const vatProv = c.vat?.province ? (c.vat.regency ? `${c.vat.province.name}, ${c.vat.regency.name}` : c.vat.province.name) : null;
   const rows: [string, React.ReactNode][] = [
-    ["Code", <span key="c" className="font-mono">{c.code}</span>],
-    ["Nama", c.name],
-    ["Email", c.email ?? "—"],
-    ["Telepon", c.phone ?? "—"],
-    ["Alamat", c.address ?? "—"],
-    ["Kode Pos", c.postal_code ?? "—"],
-    ["NIB", isBranch ? <span key="n" className="text-text-tertiary">mengikuti kantor pusat</span> : <span key="n" className="font-mono">{c.nib ?? "—"}</span>],
+    [t("Code"), <span key="c" className="font-mono">{c.code}</span>],
+    [t("Name"), c.name],
+    [t("Email"), c.email ?? "—"],
+    [t("Phone"), c.phone ?? "—"],
+    [t("Address"), c.address ?? "—"],
+    [t("Postal Code"), c.postal_code ?? "—"],
+    ["NIB", isBranch ? <span key="n" className="text-text-tertiary">{t("follows head office")}</span> : <span key="n" className="font-mono">{c.nib ?? "—"}</span>],
     ["NPWP", c.vat ? <span key="v" className="font-mono">{c.vat.npwp}{c.vat.name ? ` — ${c.vat.name}` : ""}</span> : "—"],
-    ["Alamat NPWP", c.vat?.address ? <span key="a">{c.vat.address}{vatProv ? `, ${vatProv}` : ""}{c.vat.postal_code ? ` ${c.vat.postal_code}` : ""}</span> : "—"],
-    ["Wilayah", prov ?? "—"],
-    ["Status", <StatusBadge key="s" status={c.is_active ? "active" : "inactive"} />],
-    ["Admin", c.admin?.name ?? "—"],
+    [t("NPWP Address"), c.vat?.address ? <span key="a">{c.vat.address}{vatProv ? `, ${vatProv}` : ""}{c.vat.postal_code ? ` ${c.vat.postal_code}` : ""}</span> : "—"],
+    [t("Region"), prov ?? "—"],
+    [t("Status"), <StatusBadge key="s" status={c.is_active ? "active" : "inactive"} />],
+    [t("Admin"), c.admin?.name ?? "—"],
   ];
   // User cabang: referensi kantor pusat (info, read-only).
   if (isBranch) {
     rows.push([
-      "Kantor Pusat",
+      t("Head Office"),
       parentCompany
         ? <span key="p" className="font-mono">{parentCompany.code}</span>
         : <span key="p" className="text-text-tertiary">belum ada kantor pusat terdaftar</span>,
@@ -143,7 +143,7 @@ export default function MyCompanyPage() {
     enabled: Boolean(token) && open && Boolean(form.vatProvinceId),
   });
 
-  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t(t("Loading..."))}</p>;
   if (error) return <p className="text-sm text-text-tertiary">{String(error)}</p>;
   if (!data || !data.company) {
     return (
@@ -206,7 +206,7 @@ export default function MyCompanyPage() {
     });
     setSaving(false);
     if (!res.ok) {
-      setSaveError(res.error ?? "Gagal menyimpan");
+      setSaveError(res.error ?? t("Failed to save"));
       return;
     }
     setOpen(false);
@@ -219,7 +219,7 @@ export default function MyCompanyPage() {
     const res = await api("/api/v1/user/company/npwp-claim", { method: "POST" });
     setSaving(false);
     if (!res.ok) {
-      setSaveError(res.error ?? "Gagal klaim");
+      setSaveError(res.error ?? t("Failed to claim"));
       return;
     }
     qc.invalidateQueries({ queryKey: ["spine", "user-company"] });
@@ -234,7 +234,7 @@ export default function MyCompanyPage() {
     const res = await api("/api/v1/user/company/npwp-file", { method: "POST", body: fd });
     setSaving(false);
     if (!res.ok) {
-      setSaveError(res.error ?? "Gagal upload file");
+      setSaveError(res.error ?? t("Failed to upload file"));
     }
   }
 
@@ -245,7 +245,7 @@ export default function MyCompanyPage() {
         headers: { Authorization: `Bearer ${getToken() ?? ""}` },
       });
       if (!res.ok) {
-        setSaveError("Belum ada file NPWP.");
+        setSaveError(t("No NPWP file yet."));
         return;
       }
       const blob = await res.blob();
@@ -256,7 +256,7 @@ export default function MyCompanyPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      setSaveError("Gagal mengunduh file NPWP.");
+      setSaveError(t("Failed to download NPWP file."));
     }
   }
 
@@ -265,7 +265,7 @@ export default function MyCompanyPage() {
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-xl font-semibold text-text-primary">My Company</h2>
         <span className="rounded-md bg-badge-primary-background px-2 py-0.5 text-xs font-medium text-badge-primary-text">
-          {isBranch ? "Cabang" : "Head Office"}
+          {isBranch ? t("Branch") : t("Head Office")}
         </span>
       </div>
 
@@ -281,7 +281,7 @@ export default function MyCompanyPage() {
 
       <Card className="p-5">
         <dl className="divide-y divide-border-primary">
-          {companyInfo(company, isBranch, data.parent_company).map(([label, value]) => (
+          {companyInfo(t, company, isBranch, data.parent_company).map(([label, value]) => (
             <InfoRow key={label} label={label}>
               {value}
             </InfoRow>
@@ -308,12 +308,12 @@ export default function MyCompanyPage() {
 
       <Dialog isOpen={open} onOpenChange={setOpen}>
         <DialogHeader>
-          <DialogTitle>Edit {isBranch ? "Cabang" : "Kantor Pusat"}</DialogTitle>
+          <DialogTitle>Edit {isBranch ? t("Branch") : t("Head Office")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSave}>
           <DialogBody className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
             <div>
-              <FieldLabel htmlFor="c-name">{t("Name")}</FieldLabel>
+              <FieldLabel htmlFor="c-name">{t(t("Name"))}</FieldLabel>
               <Input id="c-name" name="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div>
@@ -326,7 +326,7 @@ export default function MyCompanyPage() {
             </div>
             <div>
               <FieldLabel htmlFor="c-postal">Kode Pos</FieldLabel>
-              <Input id="c-postal" name="postal_code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} placeholder="mis. 40286" className="mt-1.5 w-full" />
+              <Input id="c-postal" name="postal_code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} placeholder={t("e.g. 40286")} className="mt-1.5 w-full" />
             </div>
             <div className="sm:col-span-2">
               <FieldLabel htmlFor="c-address">Alamat</FieldLabel>
@@ -335,15 +335,15 @@ export default function MyCompanyPage() {
             {!isBranch && (
               <div>
                 <FieldLabel htmlFor="c-nib">NIB</FieldLabel>
-                <Input id="c-nib" name="nib" value={form.nib} onChange={(e) => setForm({ ...form, nib: e.target.value })} placeholder="13 digit" className="mt-1.5 w-full" />
+                <Input id="c-nib" name="nib" value={form.nib} onChange={(e) => setForm({ ...form, nib: e.target.value })} placeholder={t("13 digits")} className="mt-1.5 w-full" />
               </div>
             )}
             <div>
               <FieldLabel>Provinsi</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
-                placeholder="Pilih provinsi"
-                aria-label="Provinsi"
+                placeholder={t("Select province")}
+                aria-label={t("Province")}
                 value={form.province_id != null ? String(form.province_id) : undefined}
                 onChange={(k) => setForm({ ...form, province_id: Number(k), regency_id: null })}
               >
@@ -364,8 +364,8 @@ export default function MyCompanyPage() {
               <FieldLabel>Kabupaten/Kota</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
-                placeholder={form.province_id ? "Pilih kabupaten/kota" : "Pilih provinsi dulu"}
-                aria-label="Kabupaten/Kota"
+                placeholder={form.province_id ? t("Select regency/city") : t("Select province first")}
+                aria-label={t("Regency/City")}
                 value={form.regency_id != null ? String(form.regency_id) : undefined}
                 onChange={(k) => setForm({ ...form, regency_id: Number(k) })}
               >
@@ -393,7 +393,7 @@ export default function MyCompanyPage() {
             </div>
             <div>
               <FieldLabel htmlFor="c-npwp">NPWP</FieldLabel>
-              <Input id="c-npwp" name="npwp" value={form.npwp} onChange={(e) => setForm({ ...form, npwp: e.target.value })} placeholder="mis. 00.000.000.0-000.000" className="mt-1.5 w-full" />
+              <Input id="c-npwp" name="npwp" value={form.npwp} onChange={(e) => setForm({ ...form, npwp: e.target.value })} placeholder={t("e.g. 00.000.000.0-000.000")} className="mt-1.5 w-full" />
             </div>
             <div>
               <FieldLabel htmlFor="c-vatname">Nama NPWP</FieldLabel>
@@ -407,8 +407,8 @@ export default function MyCompanyPage() {
               <FieldLabel>Provinsi NPWP</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
-                placeholder="Pilih provinsi"
-                aria-label="Provinsi NPWP"
+                placeholder={t("Select province")}
+                aria-label={t("NPWP Province")}
                 value={form.vatProvinceId != null ? String(form.vatProvinceId) : undefined}
                 onChange={(k) => setForm({ ...form, vatProvinceId: Number(k), vatRegencyId: null })}
               >
@@ -429,8 +429,8 @@ export default function MyCompanyPage() {
               <FieldLabel>Kabupaten/Kota NPWP</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
-                placeholder={form.vatProvinceId ? "Pilih kabupaten/kota" : "Pilih provinsi dulu"}
-                aria-label="Kabupaten/Kota NPWP"
+                placeholder={form.vatProvinceId ? t("Select regency/city") : t("Select province first")}
+                aria-label={t("NPWP Regency/City")}
                 value={form.vatRegencyId != null ? String(form.vatRegencyId) : undefined}
                 onChange={(k) => setForm({ ...form, vatRegencyId: Number(k) })}
               >
@@ -468,10 +468,10 @@ export default function MyCompanyPage() {
           </DialogBody>
           <DialogFooter>
             <Button type="button" appearance="outline" onClick={() => setOpen(false)}>
-              {t("Cancel")}
+              {t(t("Cancel"))}
             </Button>
             <Button type="submit" isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </form>
