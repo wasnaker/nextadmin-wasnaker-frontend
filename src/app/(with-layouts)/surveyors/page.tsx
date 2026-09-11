@@ -30,6 +30,7 @@ import {
 } from '@/components/tailgrids/core/select';
 import { usePaginationLimit } from '@/services/spine/use-pagination-limit';
 import { useModuleExtensions } from '@/services/spine/module-extensions';
+import { useT } from "@/services/i18n";
 
 interface Surveyor {
   id: number;
@@ -72,6 +73,7 @@ const EMPTY_FORM = {
 };
 
 export default function SurveyorsPage() {
+  const t = useT();
   const { token, user: me } = useAuth();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
@@ -361,7 +363,7 @@ export default function SurveyorsPage() {
       {error && <p className='text-sm text-text-tertiary'>{error}</p>}
 
       {isPending ? (
-        <p className='text-sm text-text-tertiary'>Memuat...</p>
+        <p className='text-sm text-text-tertiary'>{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -551,7 +553,7 @@ export default function SurveyorsPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
               {saving ? 'Menyimpan...' : 'Simpan'}

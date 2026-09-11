@@ -12,10 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/tailgrids/core/dropdown";
 import { useAuth } from "@/services/spine/auth-context";
-import { API_URL } from "@/services/spine/api";
+import { API_URL, api } from "@/services/spine/api";
 import { AltArrowDownIcon } from "@/utils/icon";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
+import { useT } from "@/services/i18n";
 
 interface UserProfileMenuItem {
   href: string;
@@ -23,9 +25,20 @@ interface UserProfileMenuItem {
   label: string;
 }
 
+/** Label + kode locale — sumber tunggal untuk picker di menu profile. */
+const LANGUAGES: { code: string; label: string }[] = [
+  { code: "en", label: "English" },
+  { code: "id", label: "Indonesia" },
+  { code: "ko", label: "한국어" },
+  { code: "ja", label: "日本語" },
+  { code: "zh", label: "中文" },
+];
+
 export function UserProfileButton() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const t = useT();
+  const { user, logout, updateUser } = useAuth();
+  const [saving, setSaving] = useState(false);
 
   // Belum login: trigger jadi link ke halaman login.
   if (!user) {
@@ -34,7 +47,7 @@ export function UserProfileButton() {
         href="/login"
         className="flex items-center gap-2.5 rounded-lg border border-card-border bg-card-background px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary-300"
       >
-        Masuk
+        {t("Masuk")}
       </Link>
     );
   }
@@ -43,11 +56,22 @@ export function UserProfileButton() {
     {
       href: "/settings",
       icon: <GearIcon />,
-      label: "Settings",
+      label: t("Settings"),
     },
   ];
 
   const avatarSrc = user.avatar ? `${API_URL}/storage/${user.avatar}` : null;
+
+  async function pickLanguage(code: string) {
+    if (saving || code === user?.locale) return;
+    setSaving(true);
+    const res = await api<{ locale: string }>("/api/v1/user/locale", {
+      method: "PUT",
+      body: JSON.stringify({ locale: code }),
+    });
+    if (res.ok && user) updateUser({ ...user, locale: code });
+    setSaving(false);
+  }
 
   return (
     <DropdownMenu>
@@ -98,6 +122,26 @@ export function UserProfileButton() {
 
         <DropdownMenuSeparator />
 
+        <DropdownMenuSection className="p-1.5" selectionMode="single">
+          <DropdownMenuHeader className="px-3 pt-1.5 pb-1 text-xs uppercase text-text-tertiary">
+            {t("Bahasa")}
+          </DropdownMenuHeader>
+          {LANGUAGES.map((l) => (
+            <DropdownMenuItem
+              key={l.code}
+              onAction={() => pickLanguage(l.code)}
+              className="cursor-pointer px-3 py-2.5"
+            >
+              <span className="w-4 shrink-0 text-icon-secondary">
+                {user.locale === l.code ? "✓" : ""}
+              </span>
+              <span className="leading-5 font-medium">{l.label}</span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuSection>
+
+        <DropdownMenuSeparator />
+
         <DropdownMenuItem
           onAction={async () => {
             await logout();
@@ -108,7 +152,7 @@ export function UserProfileButton() {
           <span className="text-icon-secondary group-hover:text-text-primary">
             <LogoutIcon />
           </span>
-          <span className="leading-5">Logout</span>
+          <span className="leading-5">{t("Logout")}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

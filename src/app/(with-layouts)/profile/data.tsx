@@ -31,4 +31,10 @@ export const tabsItems = [
     title: "Notification",
     description: "Customize your notification preferences",
   },
+  {
+    href: "/profile/language",
+    icon: <span className="text-lg">🌐</span>,
+    title: "Language",
+    description: "Choose your preferred language",
+  },
 ];

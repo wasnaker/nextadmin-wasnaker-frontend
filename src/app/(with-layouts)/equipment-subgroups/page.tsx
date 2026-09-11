@@ -30,6 +30,7 @@ import {
 } from "@/components/tailgrids/core/select";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface EquipmentSubgroup {
   id: number;
@@ -52,6 +53,7 @@ const EMPTY_FORM = { code: "", name: "", group_id: "", is_active: true };
 /** Equipment Subgroups — anak group. */
 export default function EquipmentSubgroupsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -75,7 +77,7 @@ export default function EquipmentSubgroupsPage() {
     queryKey: ["spine", "equipment-subgroups", token],
     queryFn: async () => {
       const res = await api<{ data: EquipmentSubgroup[] }>("/api/v1/equipment-subgroups");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -108,13 +110,13 @@ export default function EquipmentSubgroupsPage() {
     },
     {
       key: "name",
-      label: "Subgroup Name",
+      label: t("Subgroup Name"),
       primary: true,
       render: (it) => <span className="text-text-secondary">{it.name}</span>,
     },
     {
       key: "group",
-      label: "Group",
+      label: t("Group"),
       render: (it) =>
         it.group ? (
           <span className="text-text-secondary">{it.group.name}</span>
@@ -124,14 +126,14 @@ export default function EquipmentSubgroupsPage() {
     },
     {
       key: "code",
-      label: "Subgroup Code",
+      label: t("Subgroup Code"),
       render: (it) => (
         <span className="font-mono text-sm text-text-primary">{it.code}</span>
       ),
     },
     {
       key: "is_active",
-      label: "Status",
+      label: t("Status"),
       render: (it) => (
         <StatusBadge status={it.is_active ? "active" : "inactive"} />
       ),
@@ -188,7 +190,7 @@ export default function EquipmentSubgroupsPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -198,7 +200,7 @@ export default function EquipmentSubgroupsPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -210,7 +212,7 @@ export default function EquipmentSubgroupsPage() {
       method: "DELETE",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -247,7 +249,7 @@ export default function EquipmentSubgroupsPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -296,7 +298,7 @@ export default function EquipmentSubgroupsPage() {
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>
-              {editing ? `Edit Subgroup #${editing.id}` : "Add Subgroup"}
+              {editing ? `Edit Subgroup #${editing.id}` : t("Add Subgroup")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
@@ -306,7 +308,7 @@ export default function EquipmentSubgroupsPage() {
                 value={form.group_id}
                 onChange={(v) => setForm({ ...form, group_id: String(v ?? "") })}
                 className="mt-1.5 w-full"
-                aria-label="Group"
+                aria-label={t("Group")}
               >
                 <SelectLabel>Group</SelectLabel>
                 <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
@@ -362,10 +364,10 @@ export default function EquipmentSubgroupsPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

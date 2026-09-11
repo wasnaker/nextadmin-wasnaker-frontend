@@ -6,6 +6,7 @@ import { useAuth } from "@/services/spine/auth-context";
 import { Card } from "@/components/tailgrids/core/card";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@/components/tailgrids/core/table";
+import { useT } from "@/services/i18n";
 
 /**
  * My Referral — tab Profile (self-service).
@@ -31,6 +32,7 @@ interface MyReferralData {
 
 function useMyReferral() {
   const { token } = useAuth();
+  const t = useT();
   return useQuery({
     queryKey: ["spine", "my-referral", token],
     queryFn: async () => {
@@ -52,9 +54,10 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
 }
 
 export default function MyReferralPage() {
+  const t = useT();
   const { data, isPending, error } = useMyReferral();
 
-  if (isPending) return <p className="text-sm text-text-tertiary">Memuat...</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
   if (error) return <p className="text-sm text-text-tertiary">{String(error)}</p>;
 
   const code = data?.code ?? null;
@@ -104,9 +107,9 @@ export default function MyReferralPage() {
           <TableRoot className="w-full text-left text-sm">
             <TableHeader className="border-b border-border-primary text-xs uppercase tracking-wider text-text-tertiary">
               <TableRow>
-                <TableHead className="px-4 py-3">Nama</TableHead>
+                <TableHead className="px-4 py-3">{t("Name")}</TableHead>
                 <TableHead className="px-4 py-3">Email</TableHead>
-                <TableHead className="px-4 py-3">Status</TableHead>
+                <TableHead className="px-4 py-3">{t("Status")}</TableHead>
                 <TableHead className="px-4 py-3">Terdaftar</TableHead>
               </TableRow>
             </TableHeader>

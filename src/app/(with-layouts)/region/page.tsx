@@ -9,6 +9,7 @@ import {
   type SmallTableColumn,
 } from "@/components/spine/small-table";
 import { Button } from "@/components/tailgrids/core/button";
+import { useT } from "@/services/i18n";
 
 interface ProvinceRow {
   id: number;
@@ -40,6 +41,7 @@ const EMPTY_OVERVIEW = {
 
 export default function RegionPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -58,7 +60,7 @@ export default function RegionPage() {
     queryKey: ["spine", "region", "provinces", token],
     queryFn: async () => {
       const res = await api<{ data: ProvinceRow[] }>("/api/v1/provinces");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat provinsi");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load provinces"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -67,7 +69,7 @@ export default function RegionPage() {
   const columns: SmallTableColumn<ProvinceRow>[] = [
     {
       key: "code",
-      label: "Code",
+      label: t("Code"),
       primary: true,
       render: (it) => (
         <span className="font-mono text-sm text-text-primary">{it.code}</span>
@@ -75,7 +77,7 @@ export default function RegionPage() {
     },
     {
       key: "name",
-      label: "Name",
+      label: t("Name"),
       primary: true,
       render: (it) => (
         <span className="font-medium text-text-primary">{it.name}</span>
@@ -90,7 +92,7 @@ export default function RegionPage() {
       const res = await api<{ data: ProvinceOverview }>(
         `/api/v1/provinces/${selectedId}`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat provinsi");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load provinces"));
       return res.data?.data ?? EMPTY_OVERVIEW;
     },
     enabled: Boolean(token) && canView && Boolean(selectedId),
@@ -103,7 +105,7 @@ export default function RegionPage() {
       const res = await api<{ data: RegencyRow[] }>(
         `/api/v1/regencies?province_id=${selectedId}`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat kabupaten");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load regencies"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView && Boolean(selectedId),
@@ -153,7 +155,7 @@ export default function RegionPage() {
       </div>
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -162,14 +164,14 @@ export default function RegionPage() {
               ? [
                   {
                     slug: "overview",
-                    label: "Overview",
+                    label: t("Overview"),
                     icon: "👁️",
                     api: `/api/v1/provinces/{id}`,
                     position: 10,
                   },
                   {
                     slug: "regencies",
-                    label: "Regencies",
+                    label: t("Regencies"),
                     icon: "🏙️",
                     api: `/api/v1/regencies?province_id={id}`,
                     position: 20,

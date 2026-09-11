@@ -15,6 +15,7 @@ import NavItem from './nav-item';
 import { findActiveGroupKey } from './utils';
 import { useAuth, can } from '@/services/spine/auth-context';
 import { useModuleExtensions } from '@/services/spine/module-extensions';
+import { useT } from '@/services/i18n';
 
 export default function Sidebar({
     isSidebarOpen,
@@ -29,6 +30,7 @@ export default function Sidebar({
 }) {
     const pathname = usePathname();
     const { theme } = useTheme();
+    const t = useT();
     const { token, user } = useAuth();
     const { data: ext } = useModuleExtensions();
     const modules = [...(ext?.menu ?? [])].sort(
@@ -42,8 +44,8 @@ export default function Sidebar({
     const canViewRoles = can(user, 'roles:view');
     const canViewSettings = can(user, 'settings:view');
     const adminItems = [
-        canViewUsers && { key: 'users', label: 'Users', href: '/users' },
-        canViewRoles && { key: 'roles', label: 'Roles & Permission', href: '/roles' },
+        canViewUsers && { key: 'users', label: t('Users'), href: '/users' },
+        canViewRoles && { key: 'roles', label: t('Roles & Permission'), href: '/roles' },
     ].filter(Boolean) as { key: string; label: string; href: string }[];
 
     const activeGroupKey = useMemo(
@@ -89,7 +91,7 @@ export default function Sidebar({
                             : 'text-icon-tertiary hover:text-text-secondary',
                     )}
                     aria-label={
-                        isMobileSheet ? 'Close sidebar' : 'Toggle sidebar'
+                        t(isMobileSheet ? 'Close sidebar' : 'Toggle sidebar')
                     }
                 >
                     {isMobileSheet ? <CloseIcon /> : <SidebarExpandedIcon />}
@@ -111,7 +113,7 @@ export default function Sidebar({
                         <div key={section.label}>
                             {isSidebarOpen ? (
                                 <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
-                                    {section.label}
+                                    {t(section.label)}
                                 </p>
                             ) : (
                                 section.label && (
@@ -132,7 +134,7 @@ export default function Sidebar({
                                         key={item.title}
                                         id={item.title}
                                         icon={item.icon}
-                                        label={item.title}
+                                        label={t(item.title)}
                                         href={item.url}
                                         items={item.items}
                                         collapsed={!isSidebarOpen}
@@ -147,7 +149,7 @@ export default function Sidebar({
                         <div>
                             {isSidebarOpen ? (
                                 <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
-                                    ADMIN
+                                    {t('Admin')}
                                 </p>
                             ) : (
                                 <span className='flex items-center justify-center pt-6 pb-4 text-icon-secondary'>
@@ -176,7 +178,7 @@ export default function Sidebar({
                                 <>
                                     {isSidebarOpen ? (
                                         <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
-                                            MODULES
+                                            {t('Modules')}
                                         </p>
                                     ) : (
                                         <span className='flex items-center justify-center pt-6 pb-4 text-icon-secondary'>
@@ -206,7 +208,7 @@ export default function Sidebar({
                                     <NavItem
                                         key='settings'
                                         id='Settings'
-                                        label='Settings'
+                                        label={t('Settings')}
                                         href='/settings'
                                         items={[]}
                                         collapsed={!isSidebarOpen}

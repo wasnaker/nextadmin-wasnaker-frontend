@@ -6,6 +6,7 @@ import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
+import { useT } from "@/services/i18n";
 
 /**
  * SurveyorRegistrationsTab — tab "Surveyor Regs" di detail Disnaker.
@@ -37,11 +38,12 @@ interface SurveyorRegRow {
 const ACTION_LABEL: Record<string, string> = {
   approved: "Approve",
   review: "Minta Review",
-  rejected: "Tolak",
+  rejected: "Reject",
 };
 
 export function SurveyorRegistrationsTab({ agencyId }: { agencyId: number }) {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const [busy, setBusy] = useState<{ id: number; action: string } | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -54,19 +56,19 @@ export function SurveyorRegistrationsTab({ agencyId }: { agencyId: number }) {
       const res = await api<{ data: SurveyorRegRow[] }>(
         `/api/v1/agencies/${agencyId}/surveyor-registrations`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token),
     // Denyut fix (sama dgn TabContent): ganti agency -> data sebelumnya tetap
-    // tampil sebagai placeholder selama fetch (tanpa fase "Memuat...").
+    // tampil sebagai placeholder selama fetch (tanpa fase t("Loading...")).
     placeholderData: (prev) => prev,
   });
 
   async function decide(row: SurveyorRegRow, action: string) {
     let note: string | undefined;
     if (action === "rejected") {
-      note = window.prompt("Alasan penolakan (wajib):") ?? undefined;
+      note = window.prompt("Rejection reason (required):") ?? undefined;
       if (!note) return;
     }
     setBusy({ id: row.id, action });
@@ -80,20 +82,20 @@ export function SurveyorRegistrationsTab({ agencyId }: { agencyId: number }) {
         }
       );
       if (!res.ok) {
-        setErr(res.error ?? "Gagal memproses");
+        setErr(res.error ?? t("Failed to process"));
         return;
       }
       await qc.invalidateQueries({
         queryKey: ["spine", "agency-registrations", agencyId],
       });
     } catch {
-      setErr("Gagal memproses");
+      setErr(t("Failed to process"));
     } finally {
       setBusy(null);
     }
   }
 
-  if (isPending) return <p className="text-sm text-text-tertiary">Memuat...</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
 
   return (
     <div className="space-y-3">
@@ -146,7 +148,7 @@ export function SurveyorRegistrationsTab({ agencyId }: { agencyId: number }) {
                       >
                         {busy?.id === r.id && busy.action === a
                           ? "..."
-                          : ACTION_LABEL[a]}
+                          : t(ACTION_LABEL[a])}
                       </Button>
                     ))}
                 </div>

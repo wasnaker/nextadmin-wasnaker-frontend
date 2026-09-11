@@ -8,6 +8,7 @@ import { can, useAuth } from "@/services/spine/auth-context";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
 import { Skeleton } from "@/components/tailgrids/core/skeleton";
+import { useT } from "@/services/i18n";
 
 interface Party {
   id: number;
@@ -40,6 +41,7 @@ export default function ConnectApprovePage() {
   const params = useParams<{ token: string }>();
   const token = params?.token ?? "";
   const router = useRouter();
+  const t = useT();
   const qc = useQueryClient();
   const { user: me } = useAuth();
   const [busy, setBusy] = useState(false);
@@ -67,13 +69,13 @@ export default function ConnectApprovePage() {
         method: "POST",
       });
       if (!res.ok) {
-        setError(res.error ?? "Gagal approve");
+        setError(res.error ?? t("Failed to approve"));
         return;
       }
-      setResult("Koneksi berhasil dibuat. Kedua pihak kini terhubung.");
+      setResult("Connection created successfully. Both parties are now connected.");
       await qc.invalidateQueries({ queryKey: ["spine", "connections"] });
     } catch {
-      setError("Gagal approve");
+      setError(t("Failed to approve"));
     } finally {
       setBusy(false);
     }
@@ -107,7 +109,7 @@ export default function ConnectApprovePage() {
         <div className="space-y-4 rounded-lg border border-border-primary p-5">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-text-primary">
-              Status
+              {t("Status")}
             </span>
             <StatusBadge status={info.status} />
           </div>
@@ -146,7 +148,7 @@ export default function ConnectApprovePage() {
                 Kembali
               </Button>
               <Button onClick={onApprove} isDisabled={busy}>
-                {busy ? "Memproses..." : "Approve Koneksi"}
+                {busy ? "Memproses..." : t("Approve Connection")}
               </Button>
             </div>
           )}

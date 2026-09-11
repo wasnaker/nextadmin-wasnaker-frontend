@@ -21,6 +21,7 @@ import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface EquipmentCategory {
   id: number;
@@ -35,6 +36,7 @@ const EMPTY_FORM = { code: "", name: "", is_active: true };
 /** Equipment Categories — atribut item katalog (bukan hierarki). */
 export default function EquipmentCategoriesPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -58,7 +60,7 @@ export default function EquipmentCategoriesPage() {
     queryKey: ["spine", "equipment-categories", token],
     queryFn: async () => {
       const res = await api<{ data: EquipmentCategory[] }>("/api/v1/equipment-categories");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -95,7 +97,7 @@ export default function EquipmentCategoriesPage() {
     },
     {
       key: "is_active",
-      label: "Status",
+      label: t("Status"),
       render: (it) => (
         <StatusBadge status={it.is_active ? "active" : "inactive"} />
       ),
@@ -146,7 +148,7 @@ export default function EquipmentCategoriesPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -156,7 +158,7 @@ export default function EquipmentCategoriesPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -168,7 +170,7 @@ export default function EquipmentCategoriesPage() {
       method: "DELETE",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -205,7 +207,7 @@ export default function EquipmentCategoriesPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -252,7 +254,7 @@ export default function EquipmentCategoriesPage() {
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>
-              {editing ? `Edit Category #${editing.id}` : "Add Category"}
+              {editing ? `Edit Category #${editing.id}` : t("Add Category")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
@@ -296,10 +298,10 @@ export default function EquipmentCategoriesPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

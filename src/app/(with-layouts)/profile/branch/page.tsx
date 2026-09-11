@@ -10,11 +10,13 @@ import {
 } from "@/components/tailgrids/core/table";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { useMyCompany } from "../use-my-company";
+import { useT } from "@/services/i18n";
 
 export default function MyBranchPage() {
   const { data, isPending, error } = useMyCompany();
+  const t = useT();
 
-  if (isPending) return <p className="text-sm text-text-tertiary">Memuat...</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
   if (error) return <p className="text-sm text-text-tertiary">{String(error)}</p>;
   if (!data || !data.company) {
     return (
@@ -60,7 +62,7 @@ export default function MyBranchPage() {
                 Code
               </TableHead>
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
-                Nama
+                {t("Name")}
               </TableHead>
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
                 Wilayah
@@ -69,7 +71,7 @@ export default function MyBranchPage() {
                 Admin
               </TableHead>
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
-                Status
+                {t("Status")}
               </TableHead>
             </TableRow>
           </TableHeader>

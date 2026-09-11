@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
+import { useT } from "@/services/i18n";
 import {
   TableBody,
   TableCell,
@@ -47,6 +48,7 @@ const ACTOR_COLOR: Record<string, string> = {
 /** Workflows — visualizer state machine code-driven (tanpa DB). */
 export default function WorkflowsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const canView = can(me, "workflow:view");
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -54,7 +56,7 @@ export default function WorkflowsPage() {
     queryKey: ["spine", "workflows", token],
     queryFn: async () => {
       const res = await api<{ data: Workflow[] }>("/api/v1/workflows");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -66,7 +68,7 @@ export default function WorkflowsPage() {
       const res = await api<{ data: WorkflowDetail }>(
         `/api/v1/workflows/${selected}`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? null;
     },
     enabled: Boolean(token) && canView && selected !== null,
@@ -123,7 +125,7 @@ export default function WorkflowsPage() {
             {isPending ? (
               <TableRow>
                 <TableCell className="px-4 py-2.5 text-sm text-text-tertiary">
-                  Memuat...
+                  {t("Loading...")}
                 </TableCell>
               </TableRow>
             ) : (
@@ -161,11 +163,11 @@ export default function WorkflowsPage() {
           {!selected || (!detailPending && !detail) ? (
             <p className="text-sm text-text-tertiary">
               {selected
-                ? "Workflow tidak ditemukan."
-                : "Pilih satu workflow untuk melihat detail."}
+                ? t("Workflow not found.")
+                : t("Select a workflow to see details.")}
             </p>
           ) : detailPending ? (
-            <p className="text-sm text-text-tertiary">Memuat...</p>
+            <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2">

@@ -31,6 +31,7 @@ import {
 } from "@/components/tailgrids/core/select";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface CustomerEquipment {
   id: number;
@@ -78,6 +79,7 @@ const EMPTY_FORM = {
 /** My Equipment — equipment milik customer (pola ~/My Equipment.csv). */
 export default function MyEquipmentPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -107,7 +109,7 @@ export default function MyEquipmentPage() {
       const res = await api<{ data: CustomerEquipment[] }>(
         "/api/v1/customer-equipments"
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -158,7 +160,7 @@ export default function MyEquipmentPage() {
   const columns: SmallTableColumn<CustomerEquipment>[] = [
     {
       key: "unit_code",
-      label: "Unit Code",
+      label: t("Unit Code"),
       primary: true,
       render: (it) => (
         <span className="font-mono text-sm text-text-primary">{it.unit_code}</span>
@@ -166,13 +168,13 @@ export default function MyEquipmentPage() {
     },
     {
       key: "unit_name",
-      label: "Unit Name",
+      label: t("Unit Name"),
       primary: true,
       render: (it) => <span className="text-text-secondary">{it.unit_name}</span>,
     },
     {
       key: "equipment",
-      label: "Equipment Type",
+      label: t("Equipment Type"),
       render: (it) =>
         it.equipment ? (
           <span className="text-text-secondary">{it.equipment.name}</span>
@@ -192,7 +194,7 @@ export default function MyEquipmentPage() {
     },
     {
       key: "serial_no",
-      label: "Serial No",
+      label: t("Serial No"),
       render: (it) =>
         it.serial_no ? (
           <span className="font-mono text-sm text-text-secondary">
@@ -226,7 +228,7 @@ export default function MyEquipmentPage() {
     },
     {
       key: "status",
-      label: "Status",
+      label: t("Status"),
       render: (it) => <StatusBadge status={it.status} />,
     },
   ];
@@ -266,8 +268,8 @@ export default function MyEquipmentPage() {
     if (!form.unit_name.trim() || !form.equipment_id) {
       setError(
         isCustomerEntity
-          ? "Unit Name dan Equipment Type wajib diisi"
-          : "Unit Name, Equipment Type dan Customer wajib diisi"
+          ? t("Unit Name and Equipment Type are required")
+          : t("Unit Name, Equipment Type and Customer are required")
       );
       return;
     }
@@ -306,7 +308,7 @@ export default function MyEquipmentPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -316,7 +318,7 @@ export default function MyEquipmentPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -328,7 +330,7 @@ export default function MyEquipmentPage() {
       method: "DELETE",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -366,7 +368,7 @@ export default function MyEquipmentPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -445,7 +447,7 @@ export default function MyEquipmentPage() {
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>
-              {editing ? `Edit Equipment #${editing.id}` : "Add Equipment"}
+              {editing ? `Edit Equipment #${editing.id}` : t("Add Equipment")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
@@ -503,7 +505,7 @@ export default function MyEquipmentPage() {
                     setForm({ ...form, equipment_id: String(v ?? "") })
                   }
                   className="mt-1.5 w-full"
-                  aria-label="Equipment Type"
+                  aria-label={t("Equipment Type")}
                   >
                   <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
                     <SelectValue />
@@ -586,14 +588,14 @@ export default function MyEquipmentPage() {
                 />
               </div>
               <div>
-                <FieldLabel>Status</FieldLabel>
+                <FieldLabel>{t("Status")}</FieldLabel>
                 <Select
                   value={form.status}
                   onChange={(v) =>
                     setForm({ ...form, status: String(v ?? "active") })
                   }
                   className="mt-1.5 w-full"
-                  aria-label="Status"
+                  aria-label={t("Status")}
                 >
                   <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
                     <SelectValue />
@@ -619,10 +621,10 @@ export default function MyEquipmentPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

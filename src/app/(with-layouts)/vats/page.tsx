@@ -21,6 +21,7 @@ import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface Vat {
   id: number;
@@ -42,6 +43,7 @@ const EMPTY_FORM = { npwp: "", name: "" };
  */
 export default function VatsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -67,7 +69,7 @@ export default function VatsPage() {
     queryKey: ["spine", "vats", token],
     queryFn: async () => {
       const res = await api<{ data: Vat[] }>("/api/v1/vats");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -99,7 +101,7 @@ export default function VatsPage() {
     },
     {
       key: "name",
-      label: "Name",
+      label: t("Name"),
       render: (it) =>
         it.name ? (
           <span className="text-text-secondary">{it.name}</span>
@@ -133,7 +135,7 @@ export default function VatsPage() {
 
   async function onSave() {
     if (!form.npwp.trim()) {
-      setError("NPWP wajib diisi");
+      setError(t("NPWP is required"));
       return;
     }
     setSaving(true);
@@ -151,7 +153,7 @@ export default function VatsPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -161,7 +163,7 @@ export default function VatsPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -171,7 +173,7 @@ export default function VatsPage() {
     if (!window.confirm(`Hapus NPWP ${item.npwp}?`)) return;
     const res = await api(`/api/v1/vats/${item.id}`, { method: "DELETE" });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -209,7 +211,7 @@ export default function VatsPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -257,7 +259,7 @@ export default function VatsPage() {
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>
-              {editing ? `Edit NPWP #${editing.id}` : "Add NPWP"}
+              {editing ? `Edit NPWP #${editing.id}` : t("Add NPWP")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
@@ -293,10 +295,10 @@ export default function VatsPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

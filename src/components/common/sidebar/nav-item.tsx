@@ -10,6 +10,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { isPathActive } from "./utils";
+import { useT } from "@/services/i18n";
 
 export interface NavItemProps {
   id?: string;
@@ -31,6 +32,7 @@ export default function NavItem({
   onItemClick,
 }: NavItemProps) {
   const pathname = usePathname();
+  const t = useT();
 
   const isActive = href ? isPathActive(href, pathname) : false;
 
@@ -110,7 +112,7 @@ export default function NavItem({
                       : "text-text-secondary hover:bg-sidebar-navigation-nav-item-nav-hover-background hover:text-text-primary",
                   )}
                 >
-                  {item.title}
+                  {t(item.title)}
                 </Link>
               </div>
             );

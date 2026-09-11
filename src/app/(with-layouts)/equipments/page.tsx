@@ -30,6 +30,7 @@ import {
 } from "@/components/tailgrids/core/select";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface Equipment {
   id: number;
@@ -76,6 +77,7 @@ const STATUSES = ["draft", "active", "inactive", "expired"];
 /** Equipments — item katalog (Group -> Subgroup -> Item). */
 export default function EquipmentsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -99,7 +101,7 @@ export default function EquipmentsPage() {
     queryKey: ["spine", "equipments", token],
     queryFn: async () => {
       const res = await api<{ data: Equipment[] }>("/api/v1/equipments");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -141,7 +143,7 @@ export default function EquipmentsPage() {
     },
     {
       key: "code",
-      label: "Code",
+      label: t("Code"),
       primary: true,
       render: (it) => (
         <span className="font-mono text-sm text-text-primary">{it.code}</span>
@@ -149,7 +151,7 @@ export default function EquipmentsPage() {
     },
     {
       key: "name",
-      label: "Name",
+      label: t("Name"),
       render: (it) => <span className="text-text-secondary">{it.name}</span>,
     },
     {
@@ -164,7 +166,7 @@ export default function EquipmentsPage() {
     },
     {
       key: "subgroup",
-      label: "Subgroup",
+      label: t("Subgroup"),
       render: (it) =>
         it.subgroup ? (
           <span className="text-text-secondary">{it.subgroup.name}</span>
@@ -174,7 +176,7 @@ export default function EquipmentsPage() {
     },
     {
       key: "group_name",
-      label: "Group",
+      label: t("Group"),
       render: (it) =>
         it.group_name ? (
           <span className="text-text-secondary">{it.group_name}</span>
@@ -184,7 +186,7 @@ export default function EquipmentsPage() {
     },
     {
       key: "status",
-      label: "Status",
+      label: t("Status"),
       render: (it) => <StatusBadge status={it.status} />,
     },
   ];
@@ -245,7 +247,7 @@ export default function EquipmentsPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -255,7 +257,7 @@ export default function EquipmentsPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -267,7 +269,7 @@ export default function EquipmentsPage() {
       method: "DELETE",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -304,7 +306,7 @@ export default function EquipmentsPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -372,7 +374,7 @@ export default function EquipmentsPage() {
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>
-              {editing ? `Edit Equipment #${editing.id}` : "Add Equipment"}
+              {editing ? `Edit Equipment #${editing.id}` : t("Add Equipment")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
@@ -416,7 +418,7 @@ export default function EquipmentsPage() {
                     setForm({ ...form, subgroup_id: String(v ?? "") })
                   }
                   className="mt-1.5 w-full"
-                  aria-label="Subgroup"
+                  aria-label={t("Subgroup")}
                 >
                   <SelectLabel>Subgroup</SelectLabel>
                   <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
@@ -478,14 +480,14 @@ export default function EquipmentsPage() {
                 />
               </div>
               <div>
-                <FieldLabel>Status</FieldLabel>
+                <FieldLabel>{t("Status")}</FieldLabel>
                 <Select
                   value={form.status}
                   onChange={(v) => setForm({ ...form, status: String(v ?? "draft") })}
                   className="mt-1.5 w-full"
-                  aria-label="Status"
+                  aria-label={t("Status")}
                 >
-                  <SelectLabel>Status</SelectLabel>
+                  <SelectLabel>{t("Status")}</SelectLabel>
                   <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
                     <SelectValue />
                     <SelectIndicator />
@@ -510,10 +512,10 @@ export default function EquipmentsPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

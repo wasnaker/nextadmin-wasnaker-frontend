@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { useAuth } from "@/services/spine/auth-context";
 import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@/components/tailgrids/core/table";
+import { useT } from "@/services/i18n";
 
 interface PlatformStaff {
   id: number;
@@ -17,29 +18,30 @@ interface PlatformStaff {
 
 export default function PlatformStaffPage() {
   const { token } = useAuth();
+  const t = useT();
 
   const { data: staffs = [], isPending } = useQuery({
     queryKey: ["spine", "platform-staffs", token],
     queryFn: async () => {
       const res = await api<{ data: PlatformStaff[] }>("/api/v1/platform/staffs");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat staf");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load staff"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token),
     placeholderData: (prev) => prev,
   });
 
-  if (isPending) return <p className="text-sm text-text-tertiary">Memuat...</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
 
   return (
     <div className="overflow-hidden rounded-xl border border-card-border bg-card-background">
       <div className="border-b border-border-primary px-5 py-4">
-        <h2 className="text-sm font-semibold text-text-primary">Daftar Staf</h2>
+        <h2 className="text-sm font-semibold text-text-primary">{t("Staff List")}</h2>
       </div>
       <TableRoot className="w-full text-sm">
         <TableHeader>
           <TableRow className="border-b border-border-primary text-left text-xs text-text-tertiary">
-            <TableHead className="px-5 py-2.5 font-medium">Nama</TableHead>
+            <TableHead className="px-5 py-2.5 font-medium">{t("Name")}</TableHead>
             <TableHead className="px-5 py-2.5 font-medium">Jabatan</TableHead>
             <TableHead className="px-5 py-2.5 font-medium">Departemen</TableHead>
             <TableHead className="px-5 py-2.5 font-medium">Email</TableHead>

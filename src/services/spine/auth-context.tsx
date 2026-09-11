@@ -16,6 +16,8 @@ export interface AuthUser {
   is_active?: boolean;
   /** Path relatif di disk public, mis. 'avatars/1_abc.jpg' → /storage/<path>. */
   avatar?: string | null;
+  /** Bahasa user (kolom users.locale): en|id|ko|ja|zh. */
+  locale?: string | null;
   /** roles + permissions (dari endpoint konsumen /api/v1/user). */
   access?: {
     roles: string[];

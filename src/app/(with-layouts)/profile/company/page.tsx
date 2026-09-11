@@ -25,6 +25,7 @@ import {
 } from "@/components/tailgrids/core/select";
 import { StatusBadge } from "@/components/spine/status-badge";
 import { useMyCompany, type CompanyEntity } from "../use-my-company";
+import { useT } from "@/services/i18n";
 
 /** Role admin entity yang berhak edit My Company (branch ataupun pusat). */
 const ADMIN_ROLES = [
@@ -89,6 +90,7 @@ function companyInfo(c: CompanyEntity, isBranch: boolean, parentCompany: { code:
 
 export default function MyCompanyPage() {
   const { data, isPending, error } = useMyCompany();
+  const t = useT();
   const { user, token } = useAuth();
   const qc = useQueryClient();
 
@@ -141,7 +143,7 @@ export default function MyCompanyPage() {
     enabled: Boolean(token) && open && Boolean(form.vatProvinceId),
   });
 
-  if (isPending) return <p className="text-sm text-text-tertiary">Memuat...</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
   if (error) return <p className="text-sm text-text-tertiary">{String(error)}</p>;
   if (!data || !data.company) {
     return (
@@ -311,7 +313,7 @@ export default function MyCompanyPage() {
         <form onSubmit={onSave}>
           <DialogBody className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
             <div>
-              <FieldLabel htmlFor="c-name">Nama</FieldLabel>
+              <FieldLabel htmlFor="c-name">{t("Name")}</FieldLabel>
               <Input id="c-name" name="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div>
@@ -466,7 +468,7 @@ export default function MyCompanyPage() {
           </DialogBody>
           <DialogFooter>
             <Button type="button" appearance="outline" onClick={() => setOpen(false)}>
-              Batal
+              {t("Cancel")}
             </Button>
             <Button type="submit" isDisabled={saving}>
               {saving ? "Menyimpan..." : "Simpan"}

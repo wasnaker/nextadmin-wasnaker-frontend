@@ -21,6 +21,7 @@ import {
 } from "@/components/tailgrids/core/dialog";
 import { Input } from "@/components/tailgrids/core/input";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
+import { useT } from "@/services/i18n";
 
 interface ConnectionParty {
   id: number;
@@ -55,6 +56,7 @@ function partyLabel(p: ConnectionParty | null | undefined): string {
  */
 export default function ConnectionsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -76,7 +78,7 @@ export default function ConnectionsPage() {
 
   const detailTabs: DetailTab[] = useMemo(
     () => [
-      { slug: "overview", label: "Detail", icon: "ℹ️", position: 0, api: "" },
+      { slug: "overview", label: t("Detail"), icon: "ℹ️", position: 0, api: "" },
     ],
     []
   );
@@ -123,7 +125,7 @@ export default function ConnectionsPage() {
     queryKey: ["spine", "connections", token],
     queryFn: async () => {
       const res = await api<{ data: ConnectionRow[] }>("/api/v1/connections");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -137,12 +139,12 @@ export default function ConnectionsPage() {
         method: "POST",
       });
       if (!res.ok) {
-        setError(res.error ?? "Gagal membuat link");
+        setError(res.error ?? t("Failed to create link"));
         return;
       }
       const token2 = (res.data as { token?: string }).token;
       if (!token2) {
-        setError("Respon tidak berisi token");
+        setError(t("Response contains no token"));
         return;
       }
       const origin = typeof window !== "undefined" ? window.location.origin : "";
@@ -150,19 +152,19 @@ export default function ConnectionsPage() {
       setCopied(false);
       await qc.invalidateQueries({ queryKey: ["spine", "connections"] });
     } catch {
-      setError("Gagal membuat link");
+      setError(t("Failed to create link"));
     } finally {
       setCreating(false);
     }
   }
 
   async function onCancel(item: ConnectionRow) {
-    if (!window.confirm("Batalkan link pending ini?")) return;
+    if (!window.confirm(t("Cancel this pending link?"))) return;
     const res = await api(`/api/v1/connections/${item.id}/cancel`, {
       method: "POST",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal membatalkan");
+      setError(res.error ?? t("Failed to cancel"));
       return;
     }
     await qc.invalidateQueries({ queryKey: ["spine", "connections"] });
@@ -183,7 +185,7 @@ export default function ConnectionsPage() {
     const all: SmallTableColumn<ConnectionRow>[] = [
         {
           key: "status",
-          label: "Status",
+          label: t("Status"),
           render: (it) => <StatusBadge status={it.status} />,
         },
         {
@@ -196,7 +198,7 @@ export default function ConnectionsPage() {
         },
         {
           key: "surveyor",
-          label: "Surveyor",
+          label: t("Surveyor"),
           primary: true,
           render: (it) => (
             <span className="text-text-primary">{partyLabel(it.surveyor)}</span>
@@ -204,7 +206,7 @@ export default function ConnectionsPage() {
         },
         {
           key: "created_at",
-          label: "Dibuat",
+          label: t("Created"),
           render: (it) => (
             <span className="text-text-tertiary">
               {it.created_at ? new Date(it.created_at).toLocaleString("id-ID") : "—"}
@@ -241,7 +243,7 @@ export default function ConnectionsPage() {
         </div>
         {canCreate && (
           <Button onClick={onGenerate} isDisabled={creating}>
-            {creating ? "Membuat..." : "Generate Link"}
+            {creating ? "Membuat..." : t("Generate Link")}
           </Button>
         )}
       </div>
@@ -249,7 +251,7 @@ export default function ConnectionsPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -298,7 +300,7 @@ export default function ConnectionsPage() {
               </Button>
             </>
           )}
-          emptyText="Belum ada connection."
+          emptyText={t("No connections yet.")}
         />
       )}
 
@@ -318,7 +320,7 @@ export default function ConnectionsPage() {
             <Button appearance="outline" onClick={() => setLinkUrl(null)}>
               Tutup
             </Button>
-            <Button onClick={onCopy}>{copied ? "Tersalin ✓" : "Salin Link"}</Button>
+            <Button onClick={onCopy}>{copied ? t("Copied ✓") : t("Copy Link")}</Button>
           </DialogFooter>
         </Dialog>
       )}

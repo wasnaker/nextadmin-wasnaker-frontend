@@ -23,6 +23,7 @@ import {
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
+import { useT } from "@/services/i18n";
 
 interface SpineUser {
   id: number;
@@ -42,6 +43,7 @@ const EMPTY_FORM = { name: "", email: "", password: "", is_active: true, roles: 
 
 export default function UsersPage() {
   const router = useRouter();
+  const t = useT();
   const { token, user: me, signIn } = useAuth();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
@@ -73,9 +75,9 @@ export default function UsersPage() {
     setError(null);
     try {
       const r = await startImpersonate(item.id, signIn, router.push);
-      if (!r.ok) setError(r.error ?? "Gagal impersonate");
+      if (!r.ok) setError(r.error ?? t("Failed to impersonate"));
     } catch {
-      setError("Gagal impersonate");
+      setError(t("Failed to impersonate"));
     } finally {
       setImpBusy(null);
     }
@@ -85,7 +87,7 @@ export default function UsersPage() {
     queryKey: ["spine", "users", token],
     queryFn: async () => {
       const res = await api<{ data: SpineUser[] }>("/api/v1/users");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -96,7 +98,7 @@ export default function UsersPage() {
     queryKey: ["spine", "roles", token],
     queryFn: async () => {
       const res = await api<{ data: SpineRole[] }>("/api/v1/roles");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat role");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load roles"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && (canView || canEdit),
@@ -111,19 +113,19 @@ export default function UsersPage() {
     },
     {
       key: "name",
-      label: "Name",
+      label: t("Name"),
       primary: true,
       render: (it) => <span className="font-medium text-text-primary">{it.name}</span>,
     },
     {
       key: "email",
-      label: "Email",
+      label: t("Email"),
       primary: true,
       render: (it) => <span className="text-text-secondary">{it.email}</span>,
     },
     {
       key: "roles",
-      label: "Roles",
+      label: t("Roles"),
       render: (it) => (
         <span className="flex flex-wrap gap-1">
           {it.roles.length === 0 && <span className="text-text-tertiary">—</span>}
@@ -140,7 +142,7 @@ export default function UsersPage() {
     },
     {
       key: "is_active",
-      label: "Status",
+      label: t("Status"),
       render: (it) => <StatusBadge status={it.is_active ? "active" : "inactive"} />,
     },
     ...(canImpersonate
@@ -167,7 +169,7 @@ export default function UsersPage() {
 
   // Panel detail tanpa modul: tab "overview" render data dari client (inline),
   // api dummy tidak pernah di-fetch (TabContent pakai inlineData).
-  const overviewTabs = [{ slug: "overview", label: "Overview", api: "", position: 0 }];
+  const overviewTabs = [{ slug: "overview", label: t("Overview"), api: "", position: 0 }];
   const detailCustom = {
     is_active: (v: unknown) => (
       <StatusBadge status={v ? "active" : "inactive"} />
@@ -229,7 +231,7 @@ export default function UsersPage() {
   async function onSave() {
     if (!form.name.trim() || !form.email.trim()) return;
     if (!editing && form.password.length < 8) {
-      setError("Password minimal 8 karakter");
+      setError(t("Password must be at least 8 characters"));
       return;
     }
     setSaving(true);
@@ -247,7 +249,7 @@ export default function UsersPage() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       const savedId = (res.data as SpineUser).id;
@@ -257,7 +259,7 @@ export default function UsersPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -274,7 +276,7 @@ export default function UsersPage() {
       }),
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal ubah status");
+      setError(res.error ?? t("Failed to change status"));
       return;
     }
     if (item.id === me?.id) {
@@ -288,7 +290,7 @@ export default function UsersPage() {
     if (!window.confirm(`Hapus user ${item.name} (${item.email})?`)) return;
     const res = await api(`/api/v1/users/${item.id}`, { method: "DELETE" });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -322,7 +324,7 @@ export default function UsersPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -352,7 +354,7 @@ export default function UsersPage() {
                     Edit
                   </Button>
                   <Button appearance="outline" onClick={() => onToggleActive(item)}>
-                    {item.is_active ? "Nonaktifkan" : "Aktifkan"}
+                    {item.is_active ? t("Deactivate") : t("Activate")}
                   </Button>
                 </>
               )}
@@ -401,7 +403,7 @@ export default function UsersPage() {
             </div>
             <div>
               <FieldLabel htmlFor="f-password">
-                {editing ? "Password baru (kosongkan = tetap)" : "Password"}
+                {editing ? t("New password (leave blank to keep)") : t("Password")}
               </FieldLabel>
               <Input
                 id="f-password"
@@ -415,7 +417,7 @@ export default function UsersPage() {
               <FieldLabel>Roles</FieldLabel>
               <div className="mt-1.5 space-y-1.5">
                 {roles.length === 0 && (
-                  <p className="text-sm text-text-tertiary">Belum ada role.</p>
+                  <p className="text-sm text-text-tertiary">{t("No roles yet.")}</p>
                 )}
                 {roles.map((r) => (
                   <Checkbox
@@ -446,10 +448,10 @@ export default function UsersPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

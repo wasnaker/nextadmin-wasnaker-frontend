@@ -21,6 +21,7 @@ import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface EquipmentGroup {
   id: number;
@@ -35,6 +36,7 @@ const EMPTY_FORM = { code: "", name: "", is_active: true };
 /** Equipment Groups — level tertinggi katalog. */
 export default function EquipmentGroupsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -58,7 +60,7 @@ export default function EquipmentGroupsPage() {
     queryKey: ["spine", "equipment-groups", token],
     queryFn: async () => {
       const res = await api<{ data: EquipmentGroup[] }>("/api/v1/equipment-groups");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -82,20 +84,20 @@ export default function EquipmentGroupsPage() {
     },
     {
       key: "name",
-      label: "Group Name",
+      label: t("Group Name"),
       primary: true,
       render: (it) => <span className="text-text-secondary">{it.name}</span>,
     },
     {
       key: "code",
-      label: "Group Code",
+      label: t("Group Code"),
       render: (it) => (
         <span className="font-mono text-sm text-text-primary">{it.code}</span>
       ),
     },
     {
       key: "is_active",
-      label: "Status",
+      label: t("Status"),
       render: (it) => (
         <StatusBadge status={it.is_active ? "active" : "inactive"} />
       ),
@@ -144,7 +146,7 @@ export default function EquipmentGroupsPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -154,7 +156,7 @@ export default function EquipmentGroupsPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -166,7 +168,7 @@ export default function EquipmentGroupsPage() {
       method: "DELETE",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -203,7 +205,7 @@ export default function EquipmentGroupsPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -250,7 +252,7 @@ export default function EquipmentGroupsPage() {
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>
-              {editing ? `Edit Group #${editing.id}` : "Add Group"}
+              {editing ? `Edit Group #${editing.id}` : t("Add Group")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
@@ -294,10 +296,10 @@ export default function EquipmentGroupsPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

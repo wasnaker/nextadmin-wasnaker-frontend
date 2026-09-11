@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/spine/api";
 import { can, useAuth } from "@/services/spine/auth-context";
 import { Button } from "@/components/tailgrids/core/button";
+import { useT } from "@/services/i18n";
 import {
   Select,
   SelectContent,
@@ -28,12 +29,13 @@ interface AssignedPengawas {
 }
 
 /**
- * PengawasTab — tab "Pengawas" di detail Customer/Branch.
+ * PengawasTab — tab t("Supervisor") di detail Customer/Branch.
  * Menampilkan pengawas ter-assign; role dengan pengawas:assign bisa
  * menambah/menghapus via multi-select (sync many-to-many).
  */
 export function PengawasTab({ customerId }: { customerId: number }) {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const canAssign = can(me, "pengawas:assign");
   const [pick, setPick] = useState<string>("");
@@ -46,7 +48,7 @@ export function PengawasTab({ customerId }: { customerId: number }) {
       const res = await api<{ data: AssignedPengawas[] }>(
         `/api/v1/customers/${customerId}/pengawas`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token),
@@ -59,7 +61,7 @@ export function PengawasTab({ customerId }: { customerId: number }) {
       const res = await api<{ data: PengawasOption[] }>(
         `/api/v1/agencies/pengawas/options?customer_id=${customerId}`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat opsi");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load options"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canAssign,
@@ -77,7 +79,7 @@ export function PengawasTab({ customerId }: { customerId: number }) {
         body: JSON.stringify({ pengawas_ids: nextIds }),
       });
       if (!res.ok) {
-        setErr(res.error ?? "Gagal menyimpan");
+        setErr(res.error ?? t("Failed to save"));
         return;
       }
       setPick("");
@@ -85,13 +87,13 @@ export function PengawasTab({ customerId }: { customerId: number }) {
         queryKey: ["spine", "customer-pengawas", customerId],
       });
     } catch {
-      setErr("Gagal menyimpan");
+      setErr(t("Failed to save"));
     } finally {
       setBusy(false);
     }
   }
 
-  if (isPending) return <p className="text-sm text-text-tertiary">Memuat...</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
 
   return (
     <div className="space-y-3">
@@ -137,7 +139,7 @@ export function PengawasTab({ customerId }: { customerId: number }) {
             </SelectTrigger>
             <SelectContent className="min-w-(--trigger-width)">
               {available.length === 0 ? (
-                <SelectItem id="none" textValue="Semua sudah ditambahkan">
+                <SelectItem id="none" textValue={t("All already added")}>
                   Semua sudah ditambahkan
                 </SelectItem>
               ) : (

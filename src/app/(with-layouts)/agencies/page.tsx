@@ -33,6 +33,7 @@ import { usePaginationLimit } from '@/services/spine/use-pagination-limit';
 import { useModuleExtensions } from '@/services/spine/module-extensions';
 import { JurisdictionTab } from '@/components/spine/jurisdiction-tab';
 import { CompaniesTab } from '@/components/spine/companies-tab';
+import { useT } from "@/services/i18n";
 
 interface Agency {
   id: number;
@@ -77,6 +78,7 @@ const EMPTY_FORM = {
 };
 
 export default function AgenciesPage() {
+  const t = useT();
   const { token, user: me } = useAuth();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
@@ -410,7 +412,7 @@ export default function AgenciesPage() {
       )}
 
       {isPending ? (
-        <p className='text-sm text-text-tertiary'>Memuat...</p>
+        <p className='text-sm text-text-tertiary'>{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -623,7 +625,7 @@ export default function AgenciesPage() {
                 onClick={() => setOpen(false)}
                 isDisabled={saving}
               >
-                Batal
+                {t("Cancel")}
               </Button>
               <Button onClick={onSave} isDisabled={saving}>
                 {saving ? 'Menyimpan...' : 'Simpan'}

@@ -32,6 +32,7 @@ import {
 } from "@/components/tailgrids/core/select";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface Customer {
   id: number;
@@ -84,6 +85,7 @@ const EMPTY_FORM = {
  */
 export default function CustomersPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -111,7 +113,7 @@ export default function CustomersPage() {
     queryKey: ["spine", "customers", token],
     queryFn: async () => {
       const res = await api<{ data: Customer[] }>("/api/v1/customers");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -131,7 +133,7 @@ export default function CustomersPage() {
     queryKey: ["region", "provinces", token],
     queryFn: async () => {
       const res = await api<{ data: ProvinceOption[] }>("/api/v1/provinces");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat provinsi");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load provinces"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && open,
@@ -143,7 +145,7 @@ export default function CustomersPage() {
       const res = await api<{ data: RegencyOption[] }>(
         `/api/v1/regencies?province_id=${form.province_id}`
       );
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat kabupaten");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load regencies"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && Boolean(form.province_id),
@@ -158,7 +160,7 @@ export default function CustomersPage() {
     },
     {
       key: "code",
-      label: "Code",
+      label: t("Code"),
       primary: true,
       render: (it) => (
         <span className="font-mono text-sm text-text-primary">{it.code}</span>
@@ -166,7 +168,7 @@ export default function CustomersPage() {
     },
     {
       key: "name",
-      label: "Name",
+      label: t("Name"),
       primary: true,
       render: (it) => (
         <span className="font-medium text-text-primary">{it.name}</span>
@@ -186,7 +188,7 @@ export default function CustomersPage() {
     },
     {
       key: "npwp",
-      label: "NPWP HO",
+      label: t("HO NPWP"),
       render: (it) =>
         it.vat ? (
           <span className="font-mono text-xs text-text-secondary">
@@ -198,7 +200,7 @@ export default function CustomersPage() {
     },
     {
       key: "is_active",
-      label: "Status",
+      label: t("Status"),
       render: (it) => (
         <StatusBadge status={it.is_active ? "active" : "inactive"} />
       ),
@@ -280,7 +282,7 @@ export default function CustomersPage() {
         queryKey: ["spine", "tab", url, refreshKey],
         queryFn: async () => {
           const res = await api<{ data?: unknown }>(url);
-          if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+          if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
           return res.data?.data ?? res.data;
         },
         staleTime: 30_000,
@@ -339,7 +341,7 @@ export default function CustomersPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -349,7 +351,7 @@ export default function CustomersPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -361,7 +363,7 @@ export default function CustomersPage() {
       method: "DELETE",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -399,7 +401,7 @@ export default function CustomersPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -458,7 +460,7 @@ export default function CustomersPage() {
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
             <DialogTitle>
-              {editing ? `Edit Customer #${editing.id}` : "Add Customer"}
+              {editing ? `Edit Customer #${editing.id}` : t("Add Customer")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
@@ -504,7 +506,7 @@ export default function CustomersPage() {
                     })
                   }
                   className="w-full"
-                  aria-label="Provinsi"
+                  aria-label={t("Province")}
                 >
                   <SelectLabel>Provinsi</SelectLabel>
                   <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
@@ -527,7 +529,7 @@ export default function CustomersPage() {
                     setForm({ ...form, regency_id: String(v ?? "") })
                   }
                   className="w-full"
-                  aria-label="Kabupaten/Kota"
+                  aria-label={t("Regency/City")}
                 >
                   <SelectLabel>Kabupaten/Kota</SelectLabel>
                   <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
@@ -588,7 +590,7 @@ export default function CustomersPage() {
                   setForm({ ...form, is_active: Boolean(v) })
                 }
               >
-                <span className="text-sm text-text-secondary">Aktif</span>
+                <span className="text-sm text-text-secondary">{t("Active")}</span>
               </Checkbox>
             </div>
             {error && <p className="text-sm text-text-tertiary">{error}</p>}
@@ -601,10 +603,10 @@ export default function CustomersPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

@@ -35,6 +35,7 @@ import {
 } from "@/components/tailgrids/core/select";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface Rfq {
   id: number;
@@ -111,6 +112,7 @@ function allowedTargets(status: string, actor: string): string[] {
 /** RFQs — dokumen RFQ (customer -> surveyor). */
 export default function RfqsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -154,7 +156,7 @@ export default function RfqsPage() {
     queryKey: ["spine", "rfqs", token],
     queryFn: async () => {
       const res = await api<{ data: Rfq[] }>("/api/v1/rfqs");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -215,7 +217,7 @@ export default function RfqsPage() {
   const columns: SmallTableColumn<Rfq>[] = [
     {
       key: "formatted_number",
-      label: "Nomor",
+      label: t("Number"),
       primary: true,
       render: (it) => (
         <span className="font-mono text-sm text-text-primary">
@@ -225,7 +227,7 @@ export default function RfqsPage() {
     },
     {
       key: "surveyor",
-      label: "Surveyor",
+      label: t("Surveyor"),
       primary: true,
       render: (it) =>
         it.surveyor ? (
@@ -236,7 +238,7 @@ export default function RfqsPage() {
     },
     {
       key: "status",
-      label: "Status",
+      label: t("Status"),
       primary: true,
       render: (it) => <StatusBadge status={it.status} />,
     },
@@ -252,14 +254,14 @@ export default function RfqsPage() {
     },
     {
       key: "date",
-      label: "Tanggal",
+      label: t("Date"),
       render: (it) => (
         <span className="font-mono text-sm text-text-secondary">{it.date}</span>
       ),
     },
     {
       key: "expirydate",
-      label: "Berlaku Hingga",
+      label: t("Valid Until"),
       render: (it) =>
         it.expirydate ? (
           <span className="font-mono text-sm text-text-secondary">
@@ -326,7 +328,7 @@ export default function RfqsPage() {
     if (!window.confirm(`Hapus ${item.formatted_number ?? item.id}?`)) return;
     const res = await api(`/api/v1/rfqs/${item.id}`, { method: "DELETE" });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -344,7 +346,7 @@ export default function RfqsPage() {
       body: JSON.stringify({ status }),
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal mengubah status");
+      setError(res.error ?? t("Failed to change status"));
       return;
     }
     await qc.invalidateQueries({ queryKey: ["spine", "rfqs"] });
@@ -372,7 +374,7 @@ export default function RfqsPage() {
 
   async function onSave() {
     if (!form.date || !form.surveyor_id || !items.length) {
-      setError("Tanggal, Surveyor dan minimal 1 equipment wajib diisi");
+      setError(t("Date, Surveyor and at least 1 equipment are required"));
       return;
     }
     if (!isCustomerEntity && !form.customer_id) {
@@ -405,7 +407,7 @@ export default function RfqsPage() {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       setOpen(false);
@@ -414,7 +416,7 @@ export default function RfqsPage() {
       selectItem((res.data as Rfq).id);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -446,7 +448,7 @@ export default function RfqsPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={rfqs}
@@ -557,13 +559,13 @@ export default function RfqsPage() {
             <DialogTitle>
               {editing
                 ? `Edit RFQ ${editing.formatted_number ?? editing.id}`
-                : "Buat RFQ"}
+                : t("Create RFQ")}
             </DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <FieldLabel htmlFor="f-date">Tanggal *</FieldLabel>
+                <FieldLabel htmlFor="f-date">{t("Date *")}</FieldLabel>
                 <Input
                   id="f-date"
                   type="date"
@@ -631,7 +633,7 @@ export default function RfqsPage() {
                   setForm({ ...form, surveyor_id: String(v ?? "") })
                 }
                 className="mt-1.5 w-full"
-                aria-label="Surveyor"
+                aria-label={t("Surveyor")}
               >
                 <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
                   <SelectValue />
@@ -639,7 +641,7 @@ export default function RfqsPage() {
                 </SelectTrigger>
                 <SelectContent className="min-w-(--trigger-width)">
                   {surveyorOptions.length === 0 ? (
-                    <SelectItem id="" textValue="Belum ada surveyor terhubung" isDisabled>
+                    <SelectItem id="" textValue={t("No connected surveyor")} isDisabled>
                       Belum ada surveyor terhubung
                     </SelectItem>
                   ) : (
@@ -654,7 +656,7 @@ export default function RfqsPage() {
             </div>
 
             <div>
-              <FieldLabel>Pilih Equipment</FieldLabel>
+              <FieldLabel>{t("Select Equipment")}</FieldLabel>
               <div className="mt-1.5 max-h-52 space-y-1 overflow-y-auto rounded-lg border border-border-secondary p-2">
                 {myEquipment.length === 0 ? (
                   <p className="px-2 py-1 text-sm text-text-tertiary">
@@ -746,10 +748,10 @@ export default function RfqsPage() {
               onClick={() => setOpen(false)}
               isDisabled={saving}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>

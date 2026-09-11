@@ -7,9 +7,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tabsItems } from "./data";
 import { useMyCompany } from "./use-my-company";
+import { useT } from "@/services/i18n";
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const t = useT();
   const { user } = useAuth();
   const { data: ext } = useModuleExtensions();
   const { data } = useMyCompany();
@@ -66,9 +68,9 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
                     {item.icon}
                   </div>
                   <div className="flex flex-col items-start gap-1">
-                    <span className="text-sm font-semibold text-text-primary">{item.title}</span>
+                    <span className="text-sm font-semibold text-text-primary">{t(item.title)}</span>
                     <span className="text-xs font-normal text-text-tertiary">
-                      {item.description}
+                      {t(item.description)}
                     </span>
                   </div>
                 </Link>

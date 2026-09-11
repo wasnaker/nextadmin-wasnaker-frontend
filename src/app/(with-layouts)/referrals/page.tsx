@@ -21,6 +21,7 @@ import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
 import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { useT } from "@/services/i18n";
 
 interface ReferralCode {
   id: number;
@@ -50,6 +51,7 @@ const EMPTY_TERMS = { accept_terms: false };
 
 export default function ReferralsPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -71,7 +73,7 @@ export default function ReferralsPage() {
     queryKey: ["spine", "referral-codes", token],
     queryFn: async () => {
       const res = await api<{ data: ReferralCode[] }>("/api/v1/referral-codes");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -90,7 +92,7 @@ export default function ReferralsPage() {
     queryKey: ["spine", "referrals", token],
     queryFn: async () => {
       const res = await api<{ data: ReferralRow[] }>("/api/v1/referrals");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -105,7 +107,7 @@ export default function ReferralsPage() {
     },
     {
       key: "code",
-      label: "Code",
+      label: t("Code"),
       primary: true,
       render: (it) => (
         <span className="font-mono text-sm font-semibold tracking-wider text-text-primary">
@@ -115,7 +117,7 @@ export default function ReferralsPage() {
     },
     {
       key: "user",
-      label: "Owner",
+      label: t("Owner"),
       render: (it) =>
         it.user ? (
           <span className="text-text-secondary">
@@ -127,7 +129,7 @@ export default function ReferralsPage() {
     },
     {
       key: "status",
-      label: "Status",
+      label: t("Status"),
       render: (it) => (
         <StatusBadge status={it.is_active ? "active" : "inactive"} />
       ),
@@ -149,7 +151,7 @@ export default function ReferralsPage() {
 
   async function onGenerate() {
     if (!terms.accept_terms) {
-      setError("Anda harus menyetujui syarat & ketentuan terlebih dahulu.");
+      setError(t("You must agree to the terms & conditions first."));
       return;
     }
     setSaving(true);
@@ -160,7 +162,7 @@ export default function ReferralsPage() {
         body: JSON.stringify({ accept_terms: true }),
       });
       if (!res.ok) {
-        setError(res.error ?? "Gagal membuat kode");
+        setError(res.error ?? t("Failed to create code"));
         return;
       }
       setOpen(false);
@@ -169,7 +171,7 @@ export default function ReferralsPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal membuat kode");
+      setError(t("Failed to create code"));
     } finally {
       setSaving(false);
     }
@@ -180,7 +182,7 @@ export default function ReferralsPage() {
       method: "PUT",
     });
     if (!res.ok) {
-      setError(res.error ?? "Gagal mengubah status");
+      setError(res.error ?? t("Failed to change status"));
       return;
     }
     await qc.invalidateQueries({ queryKey: ["spine", "referral-codes"] });
@@ -212,7 +214,7 @@ export default function ReferralsPage() {
         </div>
         {(canView || true) && (
           <Button onClick={openGenerate} isDisabled={Boolean(myCode)}>
-            {myCode ? "Kode sudah aktif" : "Buat Kode Referral"}
+            {myCode ? t("Code already active") : t("Create Referral Code")}
           </Button>
         )}
       </div>
@@ -220,7 +222,7 @@ export default function ReferralsPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={items}
@@ -253,7 +255,7 @@ export default function ReferralsPage() {
           toolbar={(item) => (
             <>
               <Button appearance="outline" onClick={() => onToggle(item)}>
-                {item.is_active ? "Nonaktifkan" : "Aktifkan"}
+                {item.is_active ? t("Deactivate") : t("Activate")}
               </Button>
               <Button
                 appearance="outline"
@@ -303,7 +305,7 @@ export default function ReferralsPage() {
       {open && (
         <Dialog isOpen={open} onOpenChange={setOpen}>
           <DialogHeader>
-            <DialogTitle>Buat Kode Referral</DialogTitle>
+            <DialogTitle>{t("Create Referral Code")}</DialogTitle>
           </DialogHeader>
           <DialogBody className="space-y-3">
             <p className="text-sm text-text-secondary">
@@ -329,10 +331,10 @@ export default function ReferralsPage() {
                 setOpen(false);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onGenerate} isDisabled={saving}>
-              {saving ? "Membuat..." : "Generate Kode"}
+              {saving ? t("Creating...") : t("Generate Code")}
             </Button>
           </DialogFooter>
         </Dialog>

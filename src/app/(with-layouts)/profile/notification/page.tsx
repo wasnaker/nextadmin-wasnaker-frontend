@@ -6,6 +6,7 @@ import { Button } from "@/components/tailgrids/core/button";
 import { cn } from "@/utils/cn";
 import Link from "next/link";
 import { useState } from "react";
+import { useT } from "@/services/i18n";
 
 /**
  * Notifikasi — halaman penuh (dari bell dropdown View All).
@@ -77,6 +78,7 @@ function NotificationBody({ notification }: { notification: NotificationData }) 
 
 export default function NotificationPage() {
   const qc = useQueryClient();
+  const t = useT();
   const [page, setPage] = useState(1);
 
   const { data, isPending } = useQuery({
@@ -112,7 +114,7 @@ export default function NotificationPage() {
       </div>
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : items.length === 0 ? (
         <p className="text-sm text-text-tertiary">Tidak ada notifikasi</p>
       ) : (

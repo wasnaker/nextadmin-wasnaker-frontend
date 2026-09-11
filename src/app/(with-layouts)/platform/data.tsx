@@ -14,12 +14,12 @@ export const tabsItems: {
     href: "/platform/staff",
     icon: <StaffIcon />,
     title: "Staff",
-    description: "Daftar staf platform",
+    description: "Platform staff list",
   },
   {
     href: "/platform/cuti",
     icon: <CutiIcon />,
-    title: "Cuti",
+    title: "Leave",
     description: "Pengajuan & saldo cuti",
   },
   {

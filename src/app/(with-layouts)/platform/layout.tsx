@@ -4,21 +4,23 @@ import { Breadcrumbs } from "@/components/tailgrids/core/breadcrumbs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tabsItems } from "./data";
+import { useT } from "@/services/i18n";
 
 export default function PlatformLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const t = useT();
 
   return (
     <div className="mt-6 space-y-5">
       {/* Header Section */}
       <div className="flex flex-col-reverse items-start justify-between gap-3 px-2 sm:flex-row sm:items-center lg:px-6">
-        <h1 className="mb-1 text-[28px] leading-8 font-medium text-text-primary">Platform</h1>
+        <h1 className="mb-1 text-[28px] leading-8 font-medium text-text-primary">{t("Platform")}</h1>
         <div>
           <Breadcrumbs
             dividerType="chevron"
             items={[
               { href: "/", label: "Home" },
-              { href: "/platform", label: "Platform" },
+              { href: "/platform", label: t("Platform") },
             ]}
           />
         </div>
@@ -42,9 +44,9 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
                     {item.icon}
                   </div>
                   <div className="flex flex-col items-start gap-1">
-                    <span className="text-sm font-semibold text-text-primary">{item.title}</span>
+                    <span className="text-sm font-semibold text-text-primary">t(item.title)</span>
                     <span className="text-xs font-normal text-text-tertiary">
-                      {item.description}
+                      t(item.description)
                     </span>
                   </div>
                 </Link>

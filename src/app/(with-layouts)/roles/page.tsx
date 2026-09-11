@@ -20,6 +20,7 @@ import {
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
 import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
+import { useT } from "@/services/i18n";
 
 interface SpineRole {
   id: number;
@@ -41,6 +42,7 @@ const PROTECTED_ROLE = "admin";
 
 export default function RolesPage() {
   const { token, user: me } = useAuth();
+  const t = useT();
   const qc = useQueryClient();
   const perPage = usePaginationLimit();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -68,7 +70,7 @@ export default function RolesPage() {
     queryKey: ["spine", "roles", token],
     queryFn: async () => {
       const res = await api<{ data: SpineRole[] }>("/api/v1/roles");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && canView,
@@ -78,7 +80,7 @@ export default function RolesPage() {
     queryKey: ["spine", "permissions", token],
     queryFn: async () => {
       const res = await api<{ data: string[] }>("/api/v1/permissions");
-      if (!res.ok) throw new Error(res.error ?? "Gagal memuat permission");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load permissions"));
       return res.data?.data ?? [];
     },
     enabled: Boolean(token) && (canView || canCreate || canEdit),
@@ -95,7 +97,7 @@ export default function RolesPage() {
     },
     {
       key: "name",
-      label: "Role",
+      label: t("Role"),
       primary: true,
       render: (it) => (
         <span className="font-medium text-text-primary">
@@ -110,14 +112,14 @@ export default function RolesPage() {
     },
     {
       key: "permissions",
-      label: "Permissions",
+      label: t("Permissions"),
       render: (it) => (
         <span className="text-text-secondary">{it.permissions.length}</span>
       ),
     },
   ];
 
-  const overviewTabs = [{ slug: "overview", label: "Overview", api: "", position: 0 }];
+  const overviewTabs = [{ slug: "overview", label: t("Overview"), api: "", position: 0 }];
   const detailCustom = {
     permissions: (v: unknown) => {
       const list = (v as string[]) ?? [];
@@ -184,7 +186,7 @@ export default function RolesPage() {
         }
       );
       if (!res.ok) {
-        setError(res.error ?? "Gagal menyimpan");
+        setError(res.error ?? t("Failed to save"));
         return;
       }
       const savedId = (res.data as SpineRole).id;
@@ -196,7 +198,7 @@ export default function RolesPage() {
       selectItem(savedId);
       setRefreshKey((k) => k + 1);
     } catch {
-      setError("Gagal menyimpan");
+      setError(t("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -206,7 +208,7 @@ export default function RolesPage() {
     if (!window.confirm(`Hapus role ${item.name}?`)) return;
     const res = await api(`/api/v1/roles/${item.id}`, { method: "DELETE" });
     if (!res.ok) {
-      setError(res.error ?? "Gagal menghapus");
+      setError(res.error ?? t("Failed to delete"));
       return;
     }
     if (selectedId === item.id) {
@@ -240,7 +242,7 @@ export default function RolesPage() {
       {error && <p className="text-sm text-text-tertiary">{error}</p>}
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">Memuat...</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : (
         <SmallTable
           items={roles}
@@ -306,7 +308,7 @@ export default function RolesPage() {
               <FieldLabel>Permissions</FieldLabel>
               <div className="mt-1.5 max-h-72 space-y-4 overflow-y-auto rounded-lg border border-card-border p-3">
                 {Object.keys(permissionGroups).length === 0 && (
-                  <p className="text-sm text-text-tertiary">Belum ada permission.</p>
+                  <p className="text-sm text-text-tertiary">{t("No permissions yet.")}</p>
                 )}
                 {Object.entries(permissionGroups).map(([feature, caps]) => (
                   <div key={feature}>
@@ -341,10 +343,10 @@ export default function RolesPage() {
                 setEditing(null);
               }}
             >
-              Batal
+              {t("Cancel")}
             </Button>
             <Button onClick={onSave} isDisabled={saving || !name.trim()}>
-              {saving ? "Menyimpan..." : "Simpan"}
+              {saving ? t("Saving...") : t("Save")}
             </Button>
           </DialogFooter>
         </Dialog>
