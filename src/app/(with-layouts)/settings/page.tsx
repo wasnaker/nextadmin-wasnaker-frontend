@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { useAuth, can } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { useAuth, can } from "@/core/auth/auth-context";
 import { Button } from "@/components/tailgrids/core/button";
 import { Card, CardContent } from "@/components/tailgrids/core/card";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";

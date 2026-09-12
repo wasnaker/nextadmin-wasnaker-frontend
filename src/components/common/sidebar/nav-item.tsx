@@ -10,7 +10,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { isPathActive } from "./utils";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 export interface NavItemProps {
   id?: string;

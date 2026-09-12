@@ -18,13 +18,13 @@ import {
 import { Label } from "@/components/tailgrids/core/label";
 import { Backdrop, OverlayWrapper } from "@/components/tailgrids/core/overlay";
 import { TextField } from "@/components/tailgrids/core/text-field";
-import { api } from "@/services/spine/api";
+import { api } from "@/lib/api/client";
 import { cn } from "@/utils/cn";
 import { Eye, EyeDisabled } from "@tailgrids/icons";
 import { useState } from "react";
 import { Form } from "react-aria-components";
 import { securityItems } from "./data";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 export default function SecurityTabContent() {
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
@@ -84,7 +84,7 @@ export default function SecurityTabContent() {
   return (
     <div>
       <h2 className="text-xl leading-7 font-semibold text-text-primary">
-        Security
+        {t("Security")}
       </h2>
 
       <div className="mt-6 space-y-2 divide-y divide-card-border">
@@ -100,10 +100,10 @@ export default function SecurityTabContent() {
 
               <div className="min-w-0">
                 <p className="text-sm leading-5 font-medium text-text-primary">
-                  {title}
+                  {t(title)}
                 </p>
                 <p className="mt-1 text-xs leading-4 text-text-tertiary">
-                  {description}
+                  {t(description)}
                 </p>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function SecurityTabContent() {
                 setOpenPasswordDialog(true);
               }}
             >
-              {actionLabel}
+              {t(actionLabel)}
             </Button>
           </div>
         ))}
@@ -130,16 +130,16 @@ export default function SecurityTabContent() {
             <Form onSubmit={onChangePassword}>
               <DialogHeader className="gap-1 border-b border-card-border py-4 pr-14 pl-5">
                 <DialogTitle className="text-xl leading-7">
-                  Update Password
+                  {t("Update Password")}
                 </DialogTitle>
                 <DialogDescription className="text-text-tertiary">
-                  Create a secure password to keep your account safe
+                  {t("Create a secure password to keep your account safe")}
                 </DialogDescription>
               </DialogHeader>
 
               <DialogBody className="space-y-4 px-5 py-4">
                 <TextField className="gap-1.5">
-                  <Label htmlFor="current-password">Current Password</Label>
+                  <Label htmlFor="current-password">{t("Current Password")}</Label>
                   <InputGroup>
                     <InputGroupInput
                       id="current-password"
@@ -165,7 +165,7 @@ export default function SecurityTabContent() {
                 </TextField>
 
                 <TextField className="gap-1.5">
-                  <Label htmlFor="new-password">New Password</Label>
+                  <Label htmlFor="new-password">{t("New Password")}</Label>
                   <InputGroup>
                     <InputGroupInput
                       id="new-password"
@@ -192,7 +192,7 @@ export default function SecurityTabContent() {
                 </TextField>
 
                 <TextField className="gap-1.5">
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Label htmlFor="confirm-password">{t("Confirm New Password")}</Label>
                   <InputGroup>
                     <InputGroupInput
                       id="confirm-password"
@@ -231,7 +231,7 @@ export default function SecurityTabContent() {
                     }),
                   )}
                 >
-                  Cancel
+                  {t("Cancel")}
                 </DialogClose>
                 <Button
                   type="submit"

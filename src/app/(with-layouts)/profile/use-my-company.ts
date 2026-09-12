@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { useAuth } from "@/core/auth/auth-context";
 
 /**
  * Data My Company / My Branch — GET /api/v1/user/company.

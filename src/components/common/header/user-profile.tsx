@@ -11,13 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/tailgrids/core/dropdown";
-import { useAuth } from "@/services/spine/auth-context";
-import { API_URL, api } from "@/services/spine/api";
+import { useAuth } from "@/core/auth/auth-context";
+import { API_URL, api } from "@/lib/api/client";
 import { AltArrowDownIcon } from "@/utils/icon";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 interface UserProfileMenuItem {
   href: string;

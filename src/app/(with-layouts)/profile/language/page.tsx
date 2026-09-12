@@ -1,10 +1,10 @@
 "use client";
 
-import { useAuth } from "@/services/spine/auth-context";
-import { api } from "@/services/spine/api";
+import { useAuth } from "@/core/auth/auth-context";
+import { api } from "@/lib/api/client";
 import { cn } from "@/utils/cn";
 import { useState } from "react";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 /** Label + kode locale — sama dengan picker di header. */
 const LANGUAGES: { code: string; label: string }[] = [

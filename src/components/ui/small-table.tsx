@@ -26,7 +26,7 @@ import {
 } from "@/components/tailgrids/core/table";
 import { Button } from "@/components/tailgrids/core/button";
 import { TabContent } from "./tab-content";
-import type { DetailTab } from "@/services/spine/module-extensions";
+import type { DetailTab } from "@/core/modules/module-extensions";
 
 /**
  * SmallTable — list + panel detail bertab (padanan nextjs-spine SmallTable,

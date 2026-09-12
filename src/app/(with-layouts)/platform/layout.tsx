@@ -4,7 +4,7 @@ import { Breadcrumbs } from "@/components/tailgrids/core/breadcrumbs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tabsItems } from "./data";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 export default function PlatformLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

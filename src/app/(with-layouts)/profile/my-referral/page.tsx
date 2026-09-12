@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { useAuth } from "@/core/auth/auth-context";
 import { Card } from "@/components/tailgrids/core/card";
-import { StatusBadge } from "@/components/spine/status-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@/components/tailgrids/core/table";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 /**
  * My Referral — tab Profile (self-service).
@@ -66,7 +66,7 @@ export default function MyReferralPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-xl font-semibold text-text-primary">My Referral</h2>
+        <h2 className="text-xl font-semibold text-text-primary">{t("My Referral")}</h2>
         {code && (
           <StatusBadge status={code.is_active ? "active" : "inactive"} />
         )}
@@ -74,20 +74,20 @@ export default function MyReferralPage() {
 
       {!code ? (
         <p className="text-sm text-text-tertiary">
-          Anda belum memiliki kode referral. Buat kode di menu{" "}
-          <span className="font-medium text-text-primary">Referrals</span> (setujui T&amp;C) untuk mulai mengajak.
+          {t("You don't have a referral code yet. Create one in the")}{" "}
+          <span className="font-medium text-text-primary">Referrals</span> {t("(accept T&C) to start inviting.")}
         </p>
       ) : (
         <Card className="p-5">
           <dl className="divide-y divide-border-primary">
-            <InfoRow label="Kode">
+            <InfoRow label={t("Code")}>
               <span className="font-mono">{code.code}</span>
             </InfoRow>
-            <InfoRow label="Status">
+            <InfoRow label={t("Status")}>
               <StatusBadge status={code.is_active ? "active" : "inactive"} />
             </InfoRow>
             {code.created_at && (
-              <InfoRow label="Dibuat">
+              <InfoRow label={t("Created")}>
                 {new Date(code.created_at).toLocaleString("id-ID")}
               </InfoRow>
             )}
@@ -96,11 +96,11 @@ export default function MyReferralPage() {
       )}
 
       <h3 className="text-lg font-semibold text-text-primary">
-        Yang Anda ajak ({data?.total ?? referrals.length})
+        {t("Invited by you")} ({data?.total ?? referrals.length})
       </h3>
       {referrals.length === 0 ? (
         <p className="text-sm text-text-tertiary">
-          Belum ada orang yang mendaftar lewat kode Anda.
+          {t("No one has signed up with your code yet.")}
         </p>
       ) : (
         <Card className="overflow-x-auto p-0">
@@ -108,9 +108,9 @@ export default function MyReferralPage() {
             <TableHeader className="border-b border-border-primary text-xs uppercase tracking-wider text-text-tertiary">
               <TableRow>
                 <TableHead className="px-4 py-3">{t("Name")}</TableHead>
-                <TableHead className="px-4 py-3">Email</TableHead>
+                <TableHead className="px-4 py-3">{t("Email")}</TableHead>
                 <TableHead className="px-4 py-3">{t("Status")}</TableHead>
-                <TableHead className="px-4 py-3">Terdaftar</TableHead>
+                <TableHead className="px-4 py-3">{t("Registered")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-border-primary">

@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
+import { api } from "@/lib/api/client";
 import { Button } from "@/components/tailgrids/core/button";
 import { cn } from "@/utils/cn";
 import Link from "next/link";
 import { useState } from "react";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 /**
  * Notifikasi — halaman penuh (dari bell dropdown View All).
@@ -107,16 +107,16 @@ export default function NotificationPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl leading-7 font-semibold text-text-primary">Notification</h2>
+        <h2 className="text-xl leading-7 font-semibold text-text-primary">{t("Notification")}</h2>
         <Button variant="primary" size="sm" className="bg-brand-500 py-1.5" onPress={markAllAsRead}>
-          Mark all as read
+          {t("Mark all as read")}
         </Button>
       </div>
 
       {isPending ? (
-        <p className="text-sm text-text-tertiary">{t(t("Loading..."))}</p>
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-text-tertiary">Tidak ada notifikasi</p>
+        <p className="text-sm text-text-tertiary">{t("No notifications")}</p>
       ) : (
         <ul className="divide-y divide-border-secondary-alt">
           {items.map((notification) => (
@@ -150,11 +150,15 @@ export default function NotificationPage() {
             isDisabled={page <= 1}
             onPress={() => setPage((p) => p - 1)}
           >
-            Prev
+            {t("Prev")}
           </Button>
           <span className="text-xs text-text-tertiary">
-            Page {data.meta.current_page} of {data.meta.last_page} ({data.meta.total} total,{" "}
-            {data.meta.unread_count} unread)
+            {t("Page {page} of {last} ({total} total, {unread} unread)", {
+              page: data.meta.current_page,
+              last: data.meta.last_page,
+              total: data.meta.total,
+              unread: data.meta.unread_count,
+            })}
           </span>
           <Button
             variant="ghost"
@@ -162,7 +166,7 @@ export default function NotificationPage() {
             isDisabled={page >= data.meta.last_page}
             onPress={() => setPage((p) => p + 1)}
           >
-            Next
+            {t("Next")}
           </Button>
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, getToken } from "./api";
+import { api, getToken } from "@/lib/api/client";
 
 /**
  * State dashboard per user — kontrak Spine:

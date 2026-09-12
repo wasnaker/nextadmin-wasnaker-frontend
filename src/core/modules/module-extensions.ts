@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api, getToken } from "./api";
+import { api, getToken } from "@/lib/api/client";
 
 /** Kontrak tab detail dari manifest modul (detail_tabs[]). */
 export interface DetailTab {

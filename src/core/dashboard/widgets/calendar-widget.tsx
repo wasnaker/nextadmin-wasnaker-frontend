@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { api, getToken } from "@/services/spine/api";
+import { api, getToken } from "@/lib/api/client";
 
 interface CalendarEvent {
   id: number;

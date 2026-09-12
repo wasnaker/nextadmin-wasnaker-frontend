@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { can, useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
 import {
   SmallTable,
   type SmallTableColumn,
-} from "@/components/spine/small-table";
+} from "@/components/ui/small-table";
 import { Button } from "@/components/tailgrids/core/button";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";
 import {
@@ -19,8 +19,8 @@ import {
 } from "@/components/tailgrids/core/dialog";
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
-import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
-import { useT } from "@/services/i18n";
+import { usePaginationLimit } from "@/hooks/use-pagination-limit";
+import { useT } from "@/core/i18n";
 
 interface SpineRole {
   id: number;

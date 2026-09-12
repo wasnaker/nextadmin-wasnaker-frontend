@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/react/sortable";
 import { Eye, EyeDisabled } from "@tailgrids/icons";
-import type { ModuleWidget } from "@/services/spine/module-extensions";
+import type { ModuleWidget } from "@/core/modules/module-extensions";
 import { WidgetBody } from "./widget-registry";
 import { cn } from "@/utils/cn";
 

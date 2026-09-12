@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { can, useAuth } from "@/services/spine/auth-context";
-import { StatusBadge } from "@/components/spine/status-badge";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 /**
  * SurveyorRegistrationsTab — tab "Surveyor Regs" di detail Disnaker.

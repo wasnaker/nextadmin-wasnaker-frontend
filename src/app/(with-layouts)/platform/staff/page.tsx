@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { useAuth } from "@/core/auth/auth-context";
 import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@/components/tailgrids/core/table";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 interface PlatformStaff {
   id: number;

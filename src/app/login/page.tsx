@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LoginCard } from "@/components/spine/login-card";
-import { useAuth } from "@/services/spine/auth-context";
+import { LoginCard } from "@/components/ui/login-card";
+import { useAuth } from "@/core/auth/auth-context";
 
 /** Halaman login — tanpa shell (root layout only). */
 export default function LoginPage() {

@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api, getToken } from "./api";
-import { can, useAuth } from "./auth-context";
+import { api, getToken } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
 
 /**
  * Setting `tables_pagination_limit` (default 10). 404/error = default.

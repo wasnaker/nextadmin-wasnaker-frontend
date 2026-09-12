@@ -8,7 +8,7 @@ for (const f of globSync(fe + "src/**/*.{ts,tsx}")) {
   const src = readFileSync(f, "utf8");
   for (const m of src.matchAll(/\bt\(\s*"((?:[^"\\]|\\\.)*)"\s*\)/g)) used.add(m[1]);
 }
-const dict = readFileSync(fe + "src/services/i18n/dict.ts", "utf8");
+const dict = readFileSync(fe + "src/core/i18n/dict.ts", "utf8");
 let fail = false;
 for (const loc of ["id", "ko", "ja", "zh"]) {
   const m = dict.match(new RegExp(`const ${loc}: Dict = \\{([\\s\\S]*?)\\n\\};`));

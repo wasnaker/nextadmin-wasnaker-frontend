@@ -7,14 +7,14 @@ import { DragDropProvider, DragOverlay, useDroppable } from "@dnd-kit/react";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/react";
 import { CollisionPriority } from "@dnd-kit/abstract";
 import { isSortable } from "@dnd-kit/react/sortable";
-import type { ModuleWidget } from "@/services/spine/module-extensions";
-import { useModuleExtensions } from "@/services/spine/module-extensions";
+import type { ModuleWidget } from "@/core/modules/module-extensions";
+import { useModuleExtensions } from "@/core/modules/module-extensions";
 import {
   useDashboardState,
   useSaveDashboardLayout,
   useSaveDashboardVisibility,
   useResetDashboard,
-} from "@/services/spine/dashboard-state";
+} from "@/core/dashboard/dashboard-state";
 import {
   resolveAreas,
   resolveDashboardLayout,

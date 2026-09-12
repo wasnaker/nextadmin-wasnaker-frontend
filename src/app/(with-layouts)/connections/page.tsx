@@ -2,15 +2,15 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { can, useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
 import {
   SmallTable,
   type SmallTableColumn,
   type SmallTableProps,
-} from "@/components/spine/small-table";
-import type { DetailTab } from "@/services/spine/module-extensions";
-import { StatusBadge } from "@/components/spine/status-badge";
+} from "@/components/ui/small-table";
+import type { DetailTab } from "@/core/modules/module-extensions";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
 import {
   Dialog,
@@ -20,8 +20,8 @@ import {
   DialogTitle,
 } from "@/components/tailgrids/core/dialog";
 import { Input } from "@/components/tailgrids/core/input";
-import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
-import { useT } from "@/services/i18n";
+import { usePaginationLimit } from "@/hooks/use-pagination-limit";
+import { useT } from "@/core/i18n";
 
 interface ConnectionParty {
   id: number;

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
+import { api } from "@/lib/api/client";
 import { Button } from "@/components/tailgrids/core/button";
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import {

@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/tailgrids/core/button";
-import { useAuth } from "@/services/spine/auth-context";
-import { api, getToken } from "@/services/spine/api";
+import { useAuth } from "@/core/auth/auth-context";
+import { api, getToken } from "@/lib/api/client";
 
 /** Key localStorage token asli (admin) saat sedang impersonate. */
 export const IMPERSONATE_ORIGIN_KEY = "spine_impersonate_origin";

@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuth } from "@/services/spine/auth-context";
-import { DashboardGrid } from "@/components/dashboard/dashboard-grid";
+import { useAuth } from "@/core/auth/auth-context";
+import { DashboardGrid } from "@/core/dashboard/dashboard-grid";
 
 /**
  * Halaman depan (butuh login — shell (with-layouts) sudah redirect ke /login).

@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api, getToken } from "@/services/spine/api";
-import { StatusBadge } from "@/components/spine/status-badge";
+import { api, getToken } from "@/lib/api/client";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 interface CustomerEquipmentRecord {
   id: number;

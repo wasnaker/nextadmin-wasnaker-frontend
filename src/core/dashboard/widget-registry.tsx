@@ -2,9 +2,9 @@
 
 import type { ComponentType } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api, getToken } from "@/services/spine/api";
-import type { ModuleWidget } from "@/services/spine/module-extensions";
-import { StatusBadge } from "@/components/spine/status-badge";
+import { api, getToken } from "@/lib/api/client";
+import type { ModuleWidget } from "@/core/modules/module-extensions";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { CalendarWidget } from "./widgets/calendar-widget";
 import { TodosWidget } from "./widgets/todos-widget";
 import { CustomerEquipmentsWidget } from "./widgets/customer-equipments-widget";

@@ -13,9 +13,9 @@ import { NAV_DATA } from './data';
 import { CloseIcon, SidebarExpandedIcon, ThreeDots } from './icon';
 import NavItem from './nav-item';
 import { findActiveGroupKey } from './utils';
-import { useAuth, can } from '@/services/spine/auth-context';
-import { useModuleExtensions } from '@/services/spine/module-extensions';
-import { useT } from '@/services/i18n';
+import { useAuth, can } from '@/core/auth/auth-context';
+import { useModuleExtensions } from '@/core/modules/module-extensions';
+import { useT } from '@/core/i18n';
 
 export default function Sidebar({
     isSidebarOpen,

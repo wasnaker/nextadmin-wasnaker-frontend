@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { api, getToken, setToken } from "./api";
+import { api, getToken, setToken } from "@/lib/api/client";
 
 export interface AuthUser {
   id: number;

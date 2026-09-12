@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
+import { api } from "@/lib/api/client";
 import { Skeleton } from "@/components/tailgrids/core/skeleton";
-import { StatusBadge } from "./status-badge";
-import { useModuleExtensions } from "@/services/spine/module-extensions";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { useModuleExtensions } from "@/core/modules/module-extensions";
 
 type Tab = {
   slug: string;

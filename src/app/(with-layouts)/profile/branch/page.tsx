@@ -8,9 +8,9 @@ import {
   TableRoot,
   TableRow,
 } from "@/components/tailgrids/core/table";
-import { StatusBadge } from "@/components/spine/status-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { useMyCompany } from "../use-my-company";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 export default function MyBranchPage() {
   const { data, isPending, error } = useMyCompany();
@@ -21,7 +21,7 @@ export default function MyBranchPage() {
   if (!data || !data.company) {
     return (
       <p className="text-sm text-text-tertiary">
-        Akun ini tidak terikat ke company (customer/surveyor) mana pun.
+        {t("This account is not linked to any company (customer/surveyor).")}
       </p>
     );
   }
@@ -30,11 +30,11 @@ export default function MyBranchPage() {
   if (data.entity?.type === "branch") {
     return (
       <p className="text-sm text-text-tertiary">
-        Anda terdaftar di cabang{" "}
+        {t("You are registered in branch")}{" "}
         <span className="font-medium text-text-primary">
           {data.entity.code} {data.entity.name}
         </span>
-        . Daftar cabang hanya tersedia untuk kantor pusat.
+        {t("Branch list is only available for head office.")}
       </p>
     );
   }
@@ -43,32 +43,32 @@ export default function MyBranchPage() {
 
   return (
     <div className="space-y-5">
-      <h2 className="text-xl font-semibold text-text-primary">My Branch</h2>
+      <h2 className="text-xl font-semibold text-text-primary">{t("My Branch")}</h2>
       <p className="text-sm text-text-tertiary">
-        Cabang dari{" "}
+        {t("Branches of")}{" "}
         <span className="font-medium text-text-primary">
           {data.company.code} {data.company.name}
         </span>
-        {` — total ${branches.length} cabang.`}
+        {t("— total {count} branches.", { count: branches.length })}
       </p>
 
       {branches.length === 0 ? (
-        <p className="text-sm text-text-tertiary">Belum ada cabang.</p>
+        <p className="text-sm text-text-tertiary">{t("No branches yet.")}</p>
       ) : (
         <TableRoot className="rounded-lg border border-border-primary">
           <TableHeader>
             <TableRow className="[&_th]:border-t">
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
-                Code
+                {t("Code")}
               </TableHead>
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
                 {t("Name")}
               </TableHead>
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
-                Wilayah
+                {t("Region")}
               </TableHead>
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
-                Admin
+                {t("Admin")}
               </TableHead>
               <TableHead className="px-4 py-2.5 text-xs font-semibold text-text-secondary">
                 {t("Status")}

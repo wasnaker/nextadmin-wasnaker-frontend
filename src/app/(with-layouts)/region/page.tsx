@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { can, useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
 import {
   SmallTable,
   type SmallTableColumn,
-} from "@/components/spine/small-table";
+} from "@/components/ui/small-table";
 import { Button } from "@/components/tailgrids/core/button";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 interface ProvinceRow {
   id: number;

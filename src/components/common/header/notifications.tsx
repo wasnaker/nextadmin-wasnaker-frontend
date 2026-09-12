@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
+import { api } from "@/lib/api/client";
 import { BellIcon, SettingIcon } from "@/components/common/header/icons";
 import { Button } from "@/components/tailgrids/core/button";
 import { OverlayWrapper } from "@/components/tailgrids/core/overlay";

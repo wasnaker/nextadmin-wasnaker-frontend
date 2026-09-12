@@ -10,8 +10,8 @@ import { persistQueryClient } from "@tanstack/react-query-persist-client";
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { useState } from "react";
 import { MantineProvider } from "@mantine/core";
-import { AuthProvider } from "@/services/spine/auth-context";
-import { I18nProvider } from "@/services/i18n";
+import { AuthProvider } from "@/core/auth/auth-context";
+import { I18nProvider } from "@/core/i18n";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   // useState ensures the client is created once per request

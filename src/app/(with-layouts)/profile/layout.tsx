@@ -1,13 +1,13 @@
 "use client";
 
 import { Breadcrumbs } from "@/components/tailgrids/core/breadcrumbs";
-import { useModuleExtensions } from "@/services/spine/module-extensions";
-import { can, useAuth } from "@/services/spine/auth-context";
+import { useModuleExtensions } from "@/core/modules/module-extensions";
+import { can, useAuth } from "@/core/auth/auth-context";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tabsItems } from "./data";
 import { useMyCompany } from "./use-my-company";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

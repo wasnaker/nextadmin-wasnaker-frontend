@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { api } from "@/services/spine/api";
+import { api } from "@/lib/api/client";
 import { Button } from "@/components/tailgrids/core/button";
 import {
   Card,

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, API_URL, getToken } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
+import { api, API_URL, getToken } from "@/lib/api/client";
+import { useAuth } from "@/core/auth/auth-context";
 import { Card } from "@/components/tailgrids/core/card";
 import { Button } from "@/components/tailgrids/core/button";
 import {
@@ -23,9 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/tailgrids/core/select";
-import { StatusBadge } from "@/components/spine/status-badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { useMyCompany, type CompanyEntity } from "../use-my-company";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 /** Role admin entity yang berhak edit My Company (branch ataupun pusat). */
 const ADMIN_ROLES = [
@@ -143,12 +143,12 @@ export default function MyCompanyPage() {
     enabled: Boolean(token) && open && Boolean(form.vatProvinceId),
   });
 
-  if (isPending) return <p className="text-sm text-text-tertiary">{t(t("Loading..."))}</p>;
+  if (isPending) return <p className="text-sm text-text-tertiary">{t("Loading...")}</p>;
   if (error) return <p className="text-sm text-text-tertiary">{String(error)}</p>;
   if (!data || !data.company) {
     return (
       <p className="text-sm text-text-tertiary">
-        Akun ini tidak terikat ke company (customer/surveyor) mana pun.
+        {t("This account is not linked to any company (customer/surveyor).")}
       </p>
     );
   }
@@ -290,16 +290,16 @@ export default function MyCompanyPage() {
         {canEdit && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button appearance="outline" onClick={openEdit}>
-              Edit
+              {t("Edit")}
             </Button>
             {vat && !isVatOwner && (
               <Button appearance="outline" onClick={onClaim} isDisabled={saving}>
-                Klaim Data NPWP
+                {t("Claim NPWP Data")}
               </Button>
             )}
             {vat && (
               <Button appearance="outline" onClick={onDownloadFile} isDisabled={saving}>
-                Lihat File NPWP
+                {t("View NPWP File")}
               </Button>
             )}
           </div>
@@ -317,19 +317,19 @@ export default function MyCompanyPage() {
               <Input id="c-name" name="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div>
-              <FieldLabel htmlFor="c-email">Email</FieldLabel>
+              <FieldLabel htmlFor="c-email">{t("Email")}</FieldLabel>
               <Input id="c-email" name="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div>
-              <FieldLabel htmlFor="c-phone">Telepon</FieldLabel>
+              <FieldLabel htmlFor="c-phone">{t("Phone")}</FieldLabel>
               <Input id="c-phone" name="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div>
-              <FieldLabel htmlFor="c-postal">Kode Pos</FieldLabel>
+              <FieldLabel htmlFor="c-postal">{t("Postal Code")}</FieldLabel>
               <Input id="c-postal" name="postal_code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} placeholder={t("e.g. 40286")} className="mt-1.5 w-full" />
             </div>
             <div className="sm:col-span-2">
-              <FieldLabel htmlFor="c-address">Alamat</FieldLabel>
+              <FieldLabel htmlFor="c-address">{t("Address")}</FieldLabel>
               <Input id="c-address" name="address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="mt-1.5 w-full" />
             </div>
             {!isBranch && (
@@ -339,7 +339,7 @@ export default function MyCompanyPage() {
               </div>
             )}
             <div>
-              <FieldLabel>Provinsi</FieldLabel>
+              <FieldLabel>{t("Province")}</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
                 placeholder={t("Select province")}
@@ -361,7 +361,7 @@ export default function MyCompanyPage() {
               </Select>
             </div>
             <div>
-              <FieldLabel>Kabupaten/Kota</FieldLabel>
+              <FieldLabel>{t("Regency / City")}</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
                 placeholder={form.province_id ? t("Select regency/city") : t("Select province first")}
@@ -384,27 +384,27 @@ export default function MyCompanyPage() {
             </div>
 
             <div className="border-t border-border-primary pt-4 sm:col-span-2">
-              <p className="mb-3 text-sm font-semibold text-text-primary">NPWP</p>
+              <p className="mb-3 text-sm font-semibold text-text-primary">{t("NPWP")}</p>
               {vat && !isVatOwner && (
                 <p className="mb-2 text-xs text-text-tertiary">
-                  Data NPWP dikelola pemilik lain. Klaim dulu untuk mengedit alamat NPWP.
+                  {t("NPWP data is managed by another owner. Claim it first to edit the NPWP address.")}
                 </p>
               )}
             </div>
             <div>
-              <FieldLabel htmlFor="c-npwp">NPWP</FieldLabel>
+              <FieldLabel htmlFor="c-npwp">{t("NPWP")}</FieldLabel>
               <Input id="c-npwp" name="npwp" value={form.npwp} onChange={(e) => setForm({ ...form, npwp: e.target.value })} placeholder={t("e.g. 00.000.000.0-000.000")} className="mt-1.5 w-full" />
             </div>
             <div>
-              <FieldLabel htmlFor="c-vatname">Nama NPWP</FieldLabel>
+              <FieldLabel htmlFor="c-vatname">{t("NPWP Name")}</FieldLabel>
               <Input id="c-vatname" name="vat_name" value={form.vatName} onChange={(e) => setForm({ ...form, vatName: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div className="sm:col-span-2">
-              <FieldLabel htmlFor="c-vataddress">Alamat NPWP</FieldLabel>
+              <FieldLabel htmlFor="c-vataddress">{t("NPWP Address")}</FieldLabel>
               <Input id="c-vataddress" name="vat_address" value={form.vatAddress} onChange={(e) => setForm({ ...form, vatAddress: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div>
-              <FieldLabel>Provinsi NPWP</FieldLabel>
+              <FieldLabel>{t("NPWP Province")}</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
                 placeholder={t("Select province")}
@@ -426,7 +426,7 @@ export default function MyCompanyPage() {
               </Select>
             </div>
             <div>
-              <FieldLabel>Kabupaten/Kota NPWP</FieldLabel>
+              <FieldLabel>{t("NPWP Regency / City")}</FieldLabel>
               <Select
                 className="mt-1.5 w-full"
                 placeholder={form.vatProvinceId ? t("Select regency/city") : t("Select province first")}
@@ -448,11 +448,11 @@ export default function MyCompanyPage() {
               </Select>
             </div>
             <div>
-              <FieldLabel htmlFor="c-vatpostal">Kode Pos NPWP</FieldLabel>
+              <FieldLabel htmlFor="c-vatpostal">{t("NPWP Postal Code")}</FieldLabel>
               <Input id="c-vatpostal" name="vat_postal_code" value={form.vatPostalCode} onChange={(e) => setForm({ ...form, vatPostalCode: e.target.value })} className="mt-1.5 w-full" />
             </div>
             <div>
-              <FieldLabel htmlFor="c-npwp-file">File NPWP (PDF/JPG/PNG, max 2MB)</FieldLabel>
+              <FieldLabel htmlFor="c-npwp-file">{t("NPWP File (PDF/JPG/PNG, max 2MB)")}</FieldLabel>
               <Input
                 id="c-npwp-file"
                 name="npwp_file"

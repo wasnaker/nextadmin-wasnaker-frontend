@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { can, useAuth } from "@/services/spine/auth-context";
-import { useT } from "@/services/i18n";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
+import { useT } from "@/core/i18n";
 import {
   TableBody,
   TableCell,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, getToken } from "@/services/spine/api";
+import { api, getToken } from "@/lib/api/client";
 import { cn } from "@/utils/cn";
 
 interface TodoItem {

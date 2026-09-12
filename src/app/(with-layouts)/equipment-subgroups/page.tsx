@@ -2,13 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/services/spine/api";
-import { can, useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
 import {
   SmallTable,
   type SmallTableColumn,
-} from "@/components/spine/small-table";
-import { StatusBadge } from "@/components/spine/status-badge";
+} from "@/components/ui/small-table";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
 import {
   Dialog,
@@ -28,9 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/tailgrids/core/select";
-import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
-import { useModuleExtensions } from "@/services/spine/module-extensions";
-import { useT } from "@/services/i18n";
+import { usePaginationLimit } from "@/hooks/use-pagination-limit";
+import { useModuleExtensions } from "@/core/modules/module-extensions";
+import { useT } from "@/core/i18n";
 
 interface EquipmentSubgroup {
   id: number;

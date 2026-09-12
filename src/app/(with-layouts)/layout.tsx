@@ -4,7 +4,7 @@ import Header from "@/components/common/header";
 import { ImpersonateBanner } from "@/components/common/impersonate-banner";
 import Sidebar from "@/components/common/sidebar";
 import { SheetContent, SheetOverlay, SheetTitle } from "@/components/tailgrids/core/sheet";
-import { useAuth } from "@/services/spine/auth-context";
+import { useAuth } from "@/core/auth/auth-context";
 import { cn } from "@/utils/cn";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";

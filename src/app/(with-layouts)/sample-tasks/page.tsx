@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, API_URL } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
-import { useModuleExtensions } from "@/services/spine/module-extensions";
-import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
+import { api, API_URL } from "@/lib/api/client";
+import { useAuth } from "@/core/auth/auth-context";
+import { useModuleExtensions } from "@/core/modules/module-extensions";
+import { usePaginationLimit } from "@/hooks/use-pagination-limit";
 import {
   SmallTable,
   type SmallTableColumn,
-} from "@/components/spine/small-table";
-import { StatusBadge } from "@/components/spine/status-badge";
+} from "@/components/ui/small-table";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
 import {
   Dialog,

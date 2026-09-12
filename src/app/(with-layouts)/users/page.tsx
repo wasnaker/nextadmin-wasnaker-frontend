@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { api } from "@/services/spine/api";
-import { can, useAuth } from "@/services/spine/auth-context";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
 import { startImpersonate } from "@/components/common/impersonate-banner";
 import {
   SmallTable,
   type SmallTableColumn,
-} from "@/components/spine/small-table";
-import { StatusBadge } from "@/components/spine/status-badge";
+} from "@/components/ui/small-table";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/tailgrids/core/button";
 import { Checkbox } from "@/components/tailgrids/core/checkbox";
 import {
@@ -22,8 +22,8 @@ import {
 } from "@/components/tailgrids/core/dialog";
 import { FieldLabel } from "@/components/tailgrids/core/field";
 import { Input } from "@/components/tailgrids/core/input";
-import { usePaginationLimit } from "@/services/spine/use-pagination-limit";
-import { useT } from "@/services/i18n";
+import { usePaginationLimit } from "@/hooks/use-pagination-limit";
+import { useT } from "@/core/i18n";
 
 interface SpineUser {
   id: number;

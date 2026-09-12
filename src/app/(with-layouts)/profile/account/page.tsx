@@ -11,10 +11,10 @@ import { Card } from "@/components/tailgrids/core/card";
 import { Input } from "@/components/tailgrids/core/input";
 import { Label } from "@/components/tailgrids/core/label";
 import { TextField } from "@/components/tailgrids/core/text-field";
-import { api, API_URL } from "@/services/spine/api";
-import { useAuth } from "@/services/spine/auth-context";
+import { api, API_URL } from "@/lib/api/client";
+import { useAuth } from "@/core/auth/auth-context";
 import { Form } from "react-aria-components";
-import { useT } from "@/services/i18n";
+import { useT } from "@/core/i18n";
 
 const AVATAR_MAX = 2 * 1024 * 1024; // 2MB — sama dengan validasi backend
 
