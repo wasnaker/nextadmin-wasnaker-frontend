@@ -1,7 +1,9 @@
 'use client';
 
 import { SearchIcon } from '@/components/common/header/icons';
-import { NAV_DATA } from '@/components/common/sidebar/data';
+import { useAuth } from '@/core/auth/auth-context';
+import { navSections } from '@/core/navigation/menu';
+import { useModuleExtensions } from '@/core/modules/module-extensions';
 import {
     InputGroup,
     InputGroupAddon,
@@ -23,6 +25,8 @@ interface SearchItem {
 export default function SearchBar() {
     const [open, setOpen] = useState(false);
     const router = useRouter();
+    const { user } = useAuth();
+    const { data: ext } = useModuleExtensions();
 
     // Keyboard shortcut listener (Cmd+K / Ctrl+K)
     useEffect(() => {
@@ -37,11 +41,16 @@ export default function SearchBar() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Parse NAV_DATA into searchable items grouped by section
+    // Nav yang sama dengan sidebar (platform + modul aktif) -> item pencarian.
     const { itemsBySection } = useMemo(() => {
         const sectionsMap: Record<string, SearchItem[]> = {};
 
-        NAV_DATA.forEach((section) => {
+        navSections(
+            user,
+            [...(ext?.menu ?? [])].sort(
+                (a, b) => (a.position ?? 999) - (b.position ?? 999),
+            ),
+        ).forEach((section) => {
             const sectionLabel = section.label || 'PAGES';
 
             section.items.forEach((item) => {
@@ -79,7 +88,7 @@ export default function SearchBar() {
         });
 
         return { itemsBySection: sectionsMap };
-    }, []);
+    }, [user, ext]);
 
     const handleSelect = (url: string) => {
         setOpen(false);

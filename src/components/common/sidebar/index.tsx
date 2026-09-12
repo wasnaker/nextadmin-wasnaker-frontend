@@ -9,11 +9,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import type { Key } from 'react-aria-components';
-import { NAV_DATA } from './data';
+import { navSections } from '@/core/navigation/menu';
 import { CloseIcon, SidebarExpandedIcon, ThreeDots } from './icon';
 import NavItem from './nav-item';
 import { findActiveGroupKey } from './utils';
-import { useAuth, can } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/auth/auth-context';
 import { useModuleExtensions } from '@/core/modules/module-extensions';
 import { useT } from '@/core/i18n';
 
@@ -31,26 +31,23 @@ export default function Sidebar({
     const pathname = usePathname();
     const { theme } = useTheme();
     const t = useT();
-    const { token, user } = useAuth();
+    const { user } = useAuth();
     const { data: ext } = useModuleExtensions();
-    const modules = [...(ext?.menu ?? [])].sort(
-        (a, b) => (a.position ?? 999) - (b.position ?? 999),
+    // Menu platform (core) + menu modul (manifest backend) -> satu model nav.
+    const sections = useMemo(
+        () =>
+            navSections(
+                user,
+                [...(ext?.menu ?? [])].sort(
+                    (a, b) => (a.position ?? 999) - (b.position ?? 999),
+                ),
+            ),
+        [user, ext],
     );
-    const visibleModules = modules.filter(
-        (m) => !m.permission || can(user, m.permission),
-    );
-
-    const canViewUsers = can(user, 'users:view');
-    const canViewRoles = can(user, 'roles:view');
-    const canViewSettings = can(user, 'settings:view');
-    const adminItems = [
-        canViewUsers && { key: 'users', label: t('Users'), href: '/users' },
-        canViewRoles && { key: 'roles', label: t('Roles & Permission'), href: '/roles' },
-    ].filter(Boolean) as { key: string; label: string; href: string }[];
 
     const activeGroupKey = useMemo(
-        () => findActiveGroupKey(pathname),
-        [pathname],
+        () => findActiveGroupKey(sections, pathname),
+        [sections, pathname],
     );
 
     const [expandedKeys, setExpandedKeys] = useState<Set<Key>>(
@@ -109,7 +106,7 @@ export default function Sidebar({
                     expandedKeys={expandedKeys}
                     onExpandedChange={setExpandedKeys}
                 >
-                    {NAV_DATA.map((section) => (
+                    {sections.map((section) => (
                         <div key={section.label}>
                             {isSidebarOpen ? (
                                 <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
@@ -136,7 +133,7 @@ export default function Sidebar({
                                         icon={item.icon}
                                         label={t(item.title)}
                                         href={item.url}
-                                        items={item.items}
+                                        items={item.items ?? []}
                                         collapsed={!isSidebarOpen}
                                         onItemClick={onItemClick}
                                     />
@@ -144,80 +141,6 @@ export default function Sidebar({
                             </div>
                         </div>
                     ))}
-
-                    {token && adminItems.length > 0 && (
-                        <div>
-                            {isSidebarOpen ? (
-                                <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
-                                    {t('Admin')}
-                                </p>
-                            ) : (
-                                <span className='flex items-center justify-center pt-6 pb-4 text-icon-secondary'>
-                                    <ThreeDots />
-                                </span>
-                            )}
-                            <div className={cn('space-y-1', !isSidebarOpen && 'space-y-1.5')}>
-                                {adminItems.map((item) => (
-                                    <NavItem
-                                        key={item.key}
-                                        id={item.label}
-                                        label={item.label}
-                                        href={item.href}
-                                        items={[]}
-                                        collapsed={!isSidebarOpen}
-                                        onItemClick={onItemClick}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {token && (
-                        <div>
-                            {visibleModules.length > 0 && (
-                                <>
-                                    {isSidebarOpen ? (
-                                        <p className='mt-6 mb-4 text-xs text-text-tertiary uppercase'>
-                                            {t('Modules')}
-                                        </p>
-                                    ) : (
-                                        <span className='flex items-center justify-center pt-6 pb-4 text-icon-secondary'>
-                                            <ThreeDots />
-                                        </span>
-                                    )}
-                                </>
-                            )}
-                            <div className={cn('space-y-1', !isSidebarOpen && 'space-y-1.5')}>
-                                {visibleModules.map((m) => (
-                                    <NavItem
-                                        key={m.slug}
-                                        id={m.label}
-                                        icon={
-                                            m.icon ? (
-                                                <span className='text-base'>{m.icon}</span>
-                                            ) : undefined
-                                        }
-                                        label={m.label}
-                                        href={m.href}
-                                        items={m.children ?? []}
-                                        collapsed={!isSidebarOpen}
-                                        onItemClick={onItemClick}
-                                    />
-                                ))}
-                                {canViewSettings && (
-                                    <NavItem
-                                        key='settings'
-                                        id='Settings'
-                                        label={t('Settings')}
-                                        href='/settings'
-                                        items={[]}
-                                        collapsed={!isSidebarOpen}
-                                        onItemClick={onItemClick}
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    )}
                 </CollapsibleGroup>
             </nav>
         </div>
