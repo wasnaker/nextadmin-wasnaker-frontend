@@ -32,7 +32,6 @@ interface MyReferralData {
 
 function useMyReferral() {
   const { token } = useAuth();
-  const t = useT();
   return useQuery({
     queryKey: ["spine", "my-referral", token],
     queryFn: async () => {
