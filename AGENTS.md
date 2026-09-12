@@ -66,6 +66,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Recharts are Client Components — wrap in Cards with `ChartContainer` and an explicit height; custom tooltips in `custom-tooltip.tsx`; unique gradient IDs per chart.
 - TanStack Table for sorting/filtering/pagination; keep types, columns, mappings, and skeletons in separate feature files; render cells via `flexRender`; Badges for statuses.
 
+## Arsitektur (target modular)
+
+- `app/` = routing saja; halaman bisnis wajib thin adapter: `export { XPage as default } from "@/modules/<mod>";`
+- `modules/<mod>/` = seluruh fitur bisnis (components, hooks, services, types, dashboard, permissions, module.ts)
+- `core/` = platform (auth, authorization, modules/registry, navigation, dashboard runtime, i18n); `lib/` = infrastruktur (http client)
+- `components/ui/` = UI reusable business-agnostic. Kode yang dipakai satu modul → taruh di modul itu.
+- Pagar: `node scripts/check-modules.mjs` (harus exit 0). Modul tidak import modul lain; core tidak import modules; app tidak import widget spesifik.
+
+## Arsitektur (target modular)
+
+- `app/` = routing saja; halaman bisnis wajib thin adapter: `export { XPage as default } from "@/modules/<mod>";`
+- `modules/<mod>/` = seluruh fitur bisnis (components, hooks, services, types, dashboard, permissions, module.ts)
+- `core/` = platform (auth, authorization, modules/registry, navigation, dashboard runtime, i18n); `lib/` = infrastruktur (http client)
+- `components/ui/` = UI reusable business-agnostic. Kode yang dipakai satu modul → taruh di modul itu.
+- Pagar: `node scripts/check-modules.mjs` (harus exit 0). Modul tidak import modul lain; core tidak import modules; app tidak import widget spesifik.
+
 ## Don'ts
 
 - Don't install new packages without asking the user.
