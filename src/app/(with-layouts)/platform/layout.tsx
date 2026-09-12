@@ -19,7 +19,7 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
           <Breadcrumbs
             dividerType="chevron"
             items={[
-              { href: "/", label: "Home" },
+              { href: "/", label: t("Home") },
               { href: "/platform", label: t("Platform") },
             ]}
           />

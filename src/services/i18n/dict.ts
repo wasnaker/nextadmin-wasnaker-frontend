@@ -97,7 +97,6 @@ const id: Dict = {
   "MAIN MENU": "MENU UTAMA",
   "Mail Success": "Email Berhasil",
   "Manage your personal data": "Kelola data pribadi Anda",
-  "Masuk": "Masuk",
   "Modules": "Modul",
   "My Branch": "Cabang Saya",
   "My Company": "Perusahaan Saya",
@@ -203,6 +202,14 @@ const id: Dict = {
   "Failed to load notifications": "Gagal memuat notifikasi",
   "Address": "Alamat",
   "Saving…": "Menyimpan…",
+  "Accepts PNG, JPEG, GIF; max size 2MB.": "Menerima PNG, JPEG, GIF; ukuran maksimal 2MB.",
+  "Account Details": "Detail Akun",
+  "Email address": "Alamat Email",
+  "Email cannot be changed by yourself — please contact admin.": "Email tidak bisa diubah sendiri — hubungi admin.",
+  "Full Name": "Nama Lengkap",
+  "Login": "Masuk",
+  "Remove": "Hapus",
+  "Home": "Beranda",
 };
 
 const ko: Dict = {
@@ -285,7 +292,6 @@ const ko: Dict = {
   "MAIN MENU": "메인 메뉴",
   "Mail Success": "메일 전송 완료",
   "Manage your personal data": "개인 정보 관리",
-  "Masuk": "로그인",
   "Modules": "모듈",
   "My Branch": "내 지사",
   "My Company": "내 회사",
@@ -391,6 +397,14 @@ const ko: Dict = {
   "Failed to load notifications": "알림 불러오기 실패",
   "Address": "주소",
   "Saving…": "저장 중…",
+  "Accepts PNG, JPEG, GIF; max size 2MB.": "PNG, JPEG, GIF 허용 (최대 2MB)",
+  "Account Details": "계정 세부정보",
+  "Email address": "이메일 주소",
+  "Email cannot be changed by yourself — please contact admin.": "이메일은 직접 변경할 수 없습니다 — 관리자에게 문의하세요.",
+  "Full Name": "전체 이름",
+  "Login": "로그인",
+  "Remove": "제거",
+  "Home": "홈",
 };
 
 const ja: Dict = {
@@ -473,7 +487,6 @@ const ja: Dict = {
   "MAIN MENU": "メインメニュー",
   "Mail Success": "メール送信完了",
   "Manage your personal data": "個人情報の管理",
-  "Masuk": "ログイン",
   "Modules": "モジュール",
   "My Branch": "支店",
   "My Company": "自社",
@@ -579,6 +592,14 @@ const ja: Dict = {
   "Failed to load notifications": "通知の読み込みに失敗しました",
   "Address": "住所",
   "Saving…": "保存中…",
+  "Accepts PNG, JPEG, GIF; max size 2MB.": "PNG、JPEG、GIF対応（最大2MB）",
+  "Account Details": "アカウント詳細",
+  "Email address": "メールアドレス",
+  "Email cannot be changed by yourself — please contact admin.": "メールアドレスは自分で変更できません — 管理者にお問い合わせください。",
+  "Full Name": "氏名",
+  "Login": "ログイン",
+  "Remove": "削除",
+  "Home": "ホーム",
 };
 
 const zh: Dict = {
@@ -661,7 +682,6 @@ const zh: Dict = {
   "MAIN MENU": "主菜单",
   "Mail Success": "邮件发送成功",
   "Manage your personal data": "管理您的个人数据",
-  "Masuk": "登录",
   "Modules": "模块",
   "My Branch": "我的分公司",
   "My Company": "我的公司",
@@ -767,6 +787,14 @@ const zh: Dict = {
   "Failed to load notifications": "加载通知失败",
   "Address": "地址",
   "Saving…": "保存中…",
+  "Accepts PNG, JPEG, GIF; max size 2MB.": "支持 PNG、JPEG、GIF 文件，大小不超过 2MB",
+  "Account Details": "账户详细信息",
+  "Email address": "电子邮件地址",
+  "Email cannot be changed by yourself — please contact admin.": "邮箱不能自行修改 — 请联系管理员。",
+  "Full Name": "姓名",
+  "Login": "登录",
+  "Remove": "删除",
+  "Home": "首页",
 };
 
 export const DICT: Record<Locale, Dict> = { en: {}, id, ko, ja, zh };

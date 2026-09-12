@@ -47,7 +47,7 @@ export function UserProfileButton() {
         href="/login"
         className="flex items-center gap-2.5 rounded-lg border border-card-border bg-card-background px-3.5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-primary-300"
       >
-        {t("Masuk")}
+        {t("Login")}
       </Link>
     );
   }
