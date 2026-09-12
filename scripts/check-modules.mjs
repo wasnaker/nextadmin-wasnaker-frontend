@@ -29,6 +29,13 @@ const MIGRATED = [
   "(dashboard)/(home)",
   "platform/staff",
   "agencies",
+  "profile/account",
+  "profile/branch",
+  "profile/company",
+  "profile/language",
+  "profile/my-referral",
+  "profile/notification",
+  "profile/security",
 ];
 const MAX_ADAPTER_LINES = 5;
 
