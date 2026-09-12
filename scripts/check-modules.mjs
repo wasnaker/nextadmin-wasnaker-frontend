@@ -6,7 +6,28 @@ const FE = new URL("..", import.meta.url).pathname;
 const ROOT = FE + "src/";
 
 // Route yang sudah dimigrasi: page.tsx-nya wajib tipis (adapter).
-const MIGRATED = ["customers"];
+const MIGRATED = [
+  "customers",
+  "referrals",
+  "equipment-subgroups",
+  "equipments",
+  "rfqs",
+  "equipment-groups",
+  "associations",
+  "workflows",
+  "settings",
+  "region",
+  "equipment-categories",
+  "plans",
+  "roles",
+  "connect/[token]",
+  "vats",
+  "connections",
+  "surveyors",
+  "users",
+  "my-equipment",
+  "(dashboard)/(home)",
+];
 const MAX_ADAPTER_LINES = 5;
 
 const files = globSync(ROOT + "**/*.{ts,tsx}");
