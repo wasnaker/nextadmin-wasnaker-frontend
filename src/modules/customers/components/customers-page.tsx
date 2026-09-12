@@ -1,0 +1,616 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api/client";
+import { can, useAuth } from "@/core/auth/auth-context";
+import {
+  SmallTable,
+  type SmallTableColumn,
+} from "@/components/ui/small-table";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { PengawasTab } from "./pengawas-tab";
+import { Button } from "@/components/tailgrids/core/button";
+import { Checkbox } from "@/components/tailgrids/core/checkbox";
+import {
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/tailgrids/core/dialog";
+import { FieldLabel } from "@/components/tailgrids/core/field";
+import { Input } from "@/components/tailgrids/core/input";
+import {
+  Select,
+  SelectContent,
+  SelectIndicator,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/tailgrids/core/select";
+import { usePaginationLimit } from "@/hooks/use-pagination-limit";
+import { useModuleExtensions } from "@/core/modules/module-extensions";
+import { useT } from "@/core/i18n";
+
+interface Customer {
+  id: number;
+  ulid?: string;
+  code: string;
+  name: string;
+  address?: string | null;
+  email: string | null;
+  phone: string | null;
+  vat?: { id: number; npwp: string; name: string | null } | null;
+  parent?: { id: number; code: string; name: string } | null;
+  province?: { id: number; code: string; name: string } | null;
+  regency?: { id: number; name: string } | null;
+  is_active: boolean;
+  created_at?: string;
+}
+
+interface ProvinceOption {
+  id: number;
+  code: string;
+  name: string;
+}
+
+interface RegencyOption {
+  id: number;
+  code: string;
+  name: string;
+}
+
+const EMPTY_FORM = {
+  code: "",
+  name: "",
+  address: "",
+  email: "",
+  phone: "",
+  npwp: "",
+  province_id: "",
+  regency_id: "",
+  is_active: true,
+};
+
+/**
+ * Customers — modul spine-customer.
+ * POLA: visibility panel detail (showDetail) dikontrol di parent page.
+ * Klik row panggil onSelectId + setShowDetail(true) (auto-expand).
+ * Tombol toggle ◀/▶ ada di toolbar prop (dipanggil oleh SmallTable).
+ *
+ * Gate: customer:view / customer:create / customer:edit / customer:delete.
+ * NPWP HO attach via field 'npwp' (string) — backend auto-create Vat row.
+ */
+export default function CustomersPage() {
+  const { token, user: me } = useAuth();
+  const t = useT();
+  const qc = useQueryClient();
+  const perPage = usePaginationLimit();
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Customer | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+
+  // POLA: state smallView di parent — bukan di SmallTable.
+  const [smallView, setSmallView] = useState(true);
+
+  const [selectedId, setSelectedId] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const h = Number(window.location.hash.replace("#", ""));
+    return h || null;
+  });
+
+  const canView = can(me, "customer:view|customer:view-connected");
+  const canCreate = can(me, "customer:create");
+  const canEdit = can(me, "customer:edit");
+  const canDelete = can(me, "customer:delete");
+
+  const { data: items = [], isPending } = useQuery({
+    queryKey: ["spine", "customers", token],
+    queryFn: async () => {
+      const res = await api<{ data: Customer[] }>("/api/v1/customers");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
+      return res.data?.data ?? [];
+    },
+    enabled: Boolean(token) && canView,
+  });
+
+  const { data: ext } = useModuleExtensions();
+  const tabs = useMemo(
+    () =>
+      (ext?.detail_tabs["customer"] ?? []).sort(
+        (a, b) => (a.position ?? 999) - (b.position ?? 999)
+      ),
+    [ext]
+  );
+
+  // Data referensi region (cascading: kabupaten mengikuti provinsi)
+  const { data: provinces = [] } = useQuery({
+    queryKey: ["region", "provinces", token],
+    queryFn: async () => {
+      const res = await api<{ data: ProvinceOption[] }>("/api/v1/provinces");
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load provinces"));
+      return res.data?.data ?? [];
+    },
+    enabled: Boolean(token) && open,
+  });
+
+  const { data: regencies = [] } = useQuery({
+    queryKey: ["region", "regencies", form.province_id, token],
+    queryFn: async () => {
+      const res = await api<{ data: RegencyOption[] }>(
+        `/api/v1/regencies?province_id=${form.province_id}`
+      );
+      if (!res.ok) throw new Error(res.error ?? t("Failed to load regencies"));
+      return res.data?.data ?? [];
+    },
+    enabled: Boolean(token) && Boolean(form.province_id),
+  });
+
+  const columns: SmallTableColumn<Customer>[] = [
+    {
+      key: "id",
+      label: "ID",
+      primary: true,
+      render: (it) => <span className="text-text-tertiary">#{it.id}</span>,
+    },
+    {
+      key: "code",
+      label: t("Code"),
+      primary: true,
+      render: (it) => (
+        <span className="font-mono text-sm text-text-primary">{it.code}</span>
+      ),
+    },
+    {
+      key: "name",
+      label: t("Name"),
+      primary: true,
+      render: (it) => (
+        <span className="font-medium text-text-primary">{it.name}</span>
+      ),
+    },
+    {
+      key: "ho",
+      label: "HO",
+      render: (it) =>
+        it.parent ? (
+          <span className="text-text-secondary">
+            {it.parent.code} {it.parent.name}
+          </span>
+        ) : (
+          <span className="text-text-tertiary">—</span>
+        ),
+    },
+    {
+      key: "npwp",
+      label: t("HO NPWP"),
+      render: (it) =>
+        it.vat ? (
+          <span className="font-mono text-xs text-text-secondary">
+            {it.vat.npwp}
+          </span>
+        ) : (
+          <span className="text-text-tertiary">—</span>
+        ),
+    },
+    {
+      key: "is_active",
+      label: t("Status"),
+      render: (it) => (
+        <StatusBadge status={it.is_active ? "active" : "inactive"} />
+      ),
+    },
+  ];
+
+  const detailCustom = {
+    is_active: (v: unknown) => (
+      <StatusBadge status={v ? "active" : "inactive"} />
+    ),
+    parent: (v: unknown) =>
+      v && typeof v === "object" ? (
+        <span className="text-text-primary">
+          {(v as { code?: string; name?: string }).code}{" "}
+          {(v as { name?: string }).name ?? "—"}
+        </span>
+      ) : (
+        <span className="text-text-tertiary">—</span>
+      ),
+    // Admin tampilkan realname (staff profile) — users.name hanya utk login.
+    admin: (v: unknown, row?: Record<string, unknown>) => {
+      const staff = row?.staff as { realname?: string } | null | undefined;
+      const name = staff?.realname ?? (v as { name?: string } | null)?.name;
+      return name ? (
+        <span className='text-text-primary'>{name}</span>
+      ) : (
+        <span className='text-text-tertiary'>—</span>
+      );
+    },
+    province: (v: unknown) =>
+      v && typeof v === 'object' ? (
+        <span className='text-text-secondary'>
+          {(v as { name?: string }).name ?? '—'}
+        </span>
+      ) : (
+        <span className='text-text-tertiary'>—</span>
+      ),
+    regency: (v: unknown) =>
+      v && typeof v === 'object' ? (
+        <span className='text-text-secondary'>
+          {(v as { name?: string }).name ?? '—'}
+        </span>
+      ) : (
+        <span className='text-text-tertiary'>—</span>
+      ),
+    vat: (v: unknown) => {
+      const vat = v as Customer['vat'];
+      return vat ? (
+        <span className='font-mono text-xs text-text-secondary'>
+          {vat.npwp}
+        </span>
+      ) : (
+        <span className='text-text-tertiary'>—</span>
+      );
+    },
+  };
+
+  // POLA: klik row → selectItem + setSmallView(true) (auto-expand).
+  function selectItem(id: number | string) {
+    const n = Number(id);
+    setSelectedId(n);
+    window.location.hash = String(n);
+    setSmallView(true);
+  }
+
+  // AJAX proaktif: panaskan cache tab branches record lain di daftar.
+  // Record tetangga (sebelum/sesudah yg dipilih) — hemat & tepat sasaran.
+  useEffect(() => {
+    if (selectedId == null || items.length === 0) return;
+    const branchTab = tabs.find((t) => t.api?.includes("/branches"));
+    if (!branchTab?.api) return;
+    const idx = items.findIndex((it) => it.id === Number(selectedId));
+    if (idx < 0) return;
+    for (const offset of [-1, 1]) {
+      const neighbour = items[idx + offset];
+      if (!neighbour) continue;
+      const url = branchTab.api.replace("{id}", String(neighbour.id));
+      void qc.prefetchQuery({
+        queryKey: ["spine", "tab", url, refreshKey],
+        queryFn: async () => {
+          const res = await api<{ data?: unknown }>(url);
+          if (!res.ok) throw new Error(res.error ?? t("Failed to load"));
+          return res.data?.data ?? res.data;
+        },
+        staleTime: 30_000,
+      });
+    }
+  }, [qc, items, tabs, selectedId, refreshKey]);
+
+  function openCreate() {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setError(null);
+    setOpen(true);
+  }
+
+  function openEdit(item: Customer) {
+    setEditing(item);
+    setForm({
+      code: item.code,
+      name: item.name,
+      address: item.address ?? "",
+      email: item.email ?? "",
+      phone: item.phone ?? "",
+      npwp: item.vat?.npwp ?? "",
+      province_id: String(item.province?.id ?? ""),
+      regency_id: String(item.regency?.id ?? ""),
+      is_active: item.is_active,
+    });
+    setError(null);
+    setOpen(true);
+  }
+
+  async function onSave() {
+    if (!form.code.trim() || !form.name.trim()) {
+      setError("Code dan Name wajib diisi");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const payload: Record<string, unknown> = {
+        code: form.code.trim(),
+        name: form.name.trim(),
+        address: form.address.trim() || null,
+        email: form.email.trim() || null,
+        phone: form.phone.trim() || null,
+        npwp: form.npwp.trim() || null,
+        province_id: form.province_id ? Number(form.province_id) : null,
+        regency_id: form.regency_id ? Number(form.regency_id) : null,
+        is_active: form.is_active,
+      };
+      const res = await api(
+        editing ? `/api/v1/customers/${editing.id}` : "/api/v1/customers",
+        {
+          method: editing ? "PUT" : "POST",
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!res.ok) {
+        setError(res.error ?? t("Failed to save"));
+        return;
+      }
+      setOpen(false);
+      setEditing(null);
+      await qc.invalidateQueries({ queryKey: ["spine", "customers"] });
+      const savedId = (res.data as Customer).id;
+      selectItem(savedId);
+      setRefreshKey((k) => k + 1);
+    } catch {
+      setError(t("Failed to save"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function onDelete(item: Customer) {
+    if (!window.confirm(`Hapus customer ${item.name} (${item.code})?`)) return;
+    const res = await api(`/api/v1/customers/${item.id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      setError(res.error ?? t("Failed to delete"));
+      return;
+    }
+    if (selectedId === item.id) {
+      setSelectedId(null);
+      window.location.hash = "";
+      setSmallView(false);
+    }
+    await qc.invalidateQueries({ queryKey: ["spine", "customers"] });
+    setRefreshKey((k) => k + 1);
+  }
+
+  if (!canView) {
+    return (
+      <p className="text-sm text-text-tertiary">
+        Anda tidak memiliki akses ke manajemen customer.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+            Customers
+          </h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            Data customer + NPWP HO. Branch per customer di tab Branches
+            (master-detail — coming soon).
+          </p>
+        </div>
+        {canCreate && <Button onClick={openCreate}>Add Customer</Button>}
+      </div>
+
+      {error && <p className="text-sm text-text-tertiary">{error}</p>}
+
+      {isPending ? (
+        <p className="text-sm text-text-tertiary">{t("Loading...")}</p>
+      ) : (
+        <SmallTable
+          items={items}
+          tabs={tabs}
+          columns={columns}
+          selectedId={selectedId}
+          onSelectId={selectItem}
+          getItemId={(it) => it.id}
+          // POLA: showDetail dikontrol dari parent state.
+          showDetail={smallView}
+          refreshKey={refreshKey}
+          perPage={perPage}
+          tabCustomValue={detailCustom}
+          customTabBody={{
+            pengawas: (item) => <PengawasTab customerId={item.id} />,
+          }}
+          getSearchText={(it) =>
+            `${it.code} ${it.name} ${it.email ?? ""} ${it.vat?.npwp ?? ""}`
+          }
+          tabHideKeys={["ulid", "id", "name", "vat_id", "properties", "created_at", "updated_at", "deleted_at", "province_id", "regency_id", "parent_id", "admin_id", "type", "user_id", "customer_id", "is_active", "staff"]}
+          renderHeader={(it) => (
+            <span className="flex items-center gap-2">
+              <StatusBadge status={it.is_active ? "active" : "inactive"} />
+              <span className="text-text-primary">{it.name}</span>
+              <span className="font-mono text-xs text-text-tertiary">
+                {it.code}
+              </span>
+            </span>
+          )}
+          // POLA: tombol toggle ◀/▶ ada di toolbar prop (dipanggil
+          // SmallTable di header detail panel).
+          toolbar={(item) => (
+            <>
+              {canEdit && (
+                <Button appearance="outline" onClick={() => openEdit(item)}>
+                  Edit
+                </Button>
+              )}
+              {canDelete && (
+                <Button appearance="outline" onClick={() => onDelete(item)}>
+                  Delete
+                </Button>
+              )}
+              <Button
+                appearance="outline"
+                onClick={() => setSmallView((v) => !v)}
+              >
+                {smallView ? "◀" : "▶"}
+              </Button>
+            </>
+          )}
+        />
+      )}
+
+      {open && (
+        <Dialog isOpen={open} onOpenChange={setOpen}>
+          <DialogHeader>
+            <DialogTitle>
+              {editing ? `Edit Customer #${editing.id}` : t("Add Customer")}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogBody className="space-y-3">
+            <div>
+              <FieldLabel htmlFor="f-code">Code</FieldLabel>
+              <Input
+                id="f-code"
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
+                placeholder="C001"
+                className="mt-1.5 w-full font-mono"
+              />
+            </div>
+            <div>
+              <FieldLabel htmlFor="f-name">Name</FieldLabel>
+              <Input
+                id="f-name"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="PT Nusantara"
+                className="mt-1.5 w-full"
+              />
+            </div>
+            <div>
+              <FieldLabel htmlFor="f-address">Alamat</FieldLabel>
+              <Input
+                id="f-address"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                placeholder="Jl. …"
+                className="mt-1.5 w-full"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Select
+                  value={form.province_id}
+                  onChange={(v) =>
+                    setForm({
+                      ...form,
+                      province_id: String(v ?? ""),
+                      regency_id: "",
+                    })
+                  }
+                  className="w-full"
+                  aria-label={t("Province")}
+                >
+                  <SelectLabel>Provinsi</SelectLabel>
+                  <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
+                    <SelectValue />
+                    <SelectIndicator />
+                  </SelectTrigger>
+                  <SelectContent className="min-w-(--trigger-width)">
+                    {provinces.map((p) => (
+                      <SelectItem key={p.id} id={String(p.id)} textValue={p.name}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Select
+                  value={form.regency_id}
+                  onChange={(v) =>
+                    setForm({ ...form, regency_id: String(v ?? "") })
+                  }
+                  className="w-full"
+                  aria-label={t("Regency/City")}
+                >
+                  <SelectLabel>Kabupaten/Kota</SelectLabel>
+                  <SelectTrigger className="w-full border-border-secondary bg-input-background py-2.5">
+                    <SelectValue />
+                    <SelectIndicator />
+                  </SelectTrigger>
+                  <SelectContent className="min-w-(--trigger-width)">
+                    {regencies.map((r) => (
+                      <SelectItem key={r.id} id={String(r.id)} textValue={r.name}>
+                        {r.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FieldLabel htmlFor="f-email">Email</FieldLabel>
+                <Input
+                  id="f-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) =>
+                    setForm({ ...form, email: e.target.value })
+                  }
+                  className="mt-1.5 w-full"
+                />
+              </div>
+              <div>
+                <FieldLabel htmlFor="f-phone">Phone</FieldLabel>
+                <Input
+                  id="f-phone"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="mt-1.5 w-full"
+                />
+              </div>
+            </div>
+            <div>
+              <FieldLabel htmlFor="f-npwp">NPWP HO (opsional)</FieldLabel>
+              <Input
+                id="f-npwp"
+                value={form.npwp}
+                onChange={(e) => setForm({ ...form, npwp: e.target.value })}
+                placeholder="01.234.567.8-901.000"
+                className="mt-1.5 w-full font-mono"
+              />
+              <p className="mt-1 text-xs text-text-tertiary">
+                Dikosongkan = tanpa NPWP. Kalau diisi, Vat row otomatis
+                dibuat/ditemukan (1 NPWP = 1 baris global).
+              </p>
+            </div>
+            <div>
+              <Checkbox
+                isSelected={form.is_active}
+                onChange={(v) =>
+                  setForm({ ...form, is_active: Boolean(v) })
+                }
+              >
+                <span className="text-sm text-text-secondary">{t("Active")}</span>
+              </Checkbox>
+            </div>
+            {error && <p className="text-sm text-text-tertiary">{error}</p>}
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              appearance="outline"
+              onClick={() => {
+                setOpen(false);
+                setEditing(null);
+              }}
+            >
+              {t("Cancel")}
+            </Button>
+            <Button onClick={onSave} isDisabled={saving}>
+              {saving ? t("Saving...") : t("Save")}
+            </Button>
+          </DialogFooter>
+        </Dialog>
+      )}
+    </div>
+  );
+}
