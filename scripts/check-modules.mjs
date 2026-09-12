@@ -27,6 +27,8 @@ const MIGRATED = [
   "users",
   "my-equipment",
   "(dashboard)/(home)",
+  "platform/staff",
+  "agencies",
 ];
 const MAX_ADAPTER_LINES = 5;
 
