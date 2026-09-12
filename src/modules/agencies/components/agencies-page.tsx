@@ -31,8 +31,8 @@ import {
 } from '@/components/tailgrids/core/select';
 import { usePaginationLimit } from '@/hooks/use-pagination-limit';
 import { useModuleExtensions } from '@/core/modules/module-extensions';
-import { JurisdictionTab } from '@/components/spine/jurisdiction-tab';
-import { CompaniesTab } from '@/components/spine/companies-tab';
+import { JurisdictionTab } from './jurisdiction-tab';
+import { CompaniesTab } from './companies-tab';
 import { useT } from "@/core/i18n";
 
 interface Agency {
