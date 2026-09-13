@@ -2,7 +2,16 @@
 
 import { createContext, useContext } from "react";
 import { useAuth } from "@/core/auth/auth-context";
-import { DICT, LOCALES, type Locale } from "./dict";
+import { LOCALES, type Locale } from "./locales";
+import en from "./core/en.json";
+import id from "./core/id.json";
+import ko from "./core/ko.json";
+import ja from "./core/ja.json";
+import zh from "./core/zh.json";
+
+// Kamus per locale (JSON, single-format dgn standar modul).
+// en.json sengaja {} kosong — key = teks Inggris, jadi fallback ke key itu sendiri.
+const DICT: Record<Locale, Record<string, string>> = { en, id, ko, ja, zh };
 
 /**
  * i18n minimal: t("Dashboard") pakai users.locale dari auth-context.
