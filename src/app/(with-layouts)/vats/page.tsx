@@ -1,1 +1,1 @@
-export { VatsPage as default } from "@/modules/vats";
+export { VatsPage as default } from "@wasnaker/vat-web/tailgrids";
