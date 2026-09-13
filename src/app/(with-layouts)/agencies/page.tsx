@@ -1,1 +1,1 @@
-export { AgenciesPage as default } from "@/modules/agencies";
+export { AgenciesPage as default } from "@wasnaker/agency-web/tailgrids";
