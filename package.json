@@ -49,7 +49,8 @@
         "tailwind-scrollbar": "^4.0.2",
         "@wasnaker/customers-web": "file:../../wasnaker-modules/customers",
         "@wasnaker/region-web": "file:../../wasnaker-modules/region",
-        "@wasnaker/vat-web": "file:../../wasnaker-modules/vats"
+        "@wasnaker/vat-web": "file:../../wasnaker-modules/vats",
+        "@wasnaker/surveyor-web": "file:../../wasnaker-modules/surveyor"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.11",

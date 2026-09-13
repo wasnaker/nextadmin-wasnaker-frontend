@@ -1,1 +1,1 @@
-export { SurveyorsPage as default } from "@/modules/surveyors";
+export { SurveyorsPage as default } from "@wasnaker/surveyor-web/tailgrids";
