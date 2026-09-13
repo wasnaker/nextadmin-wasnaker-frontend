@@ -29,6 +29,9 @@
       "@wasnaker/web-core": [
         "../../wasnaker-modules/core/src/index.ts"
       ],
+      "@wasnaker/next-ui": [
+        "./src/ui-shared.ts"
+      ],
       "react": [
         "./node_modules/@types/react"
       ],

@@ -1,1 +1,1 @@
-export { CustomersPage as default } from "@/modules/customers";
+export { CustomersPage as default } from "@wasnaker/customers-web";

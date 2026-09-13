@@ -3,8 +3,10 @@
     "version": "2.0.0",
     "private": true,
     "scripts": {
-        "dev": "next dev",
+        "prebuild": "node scripts/sync-packages.mjs",
         "build": "next build",
+        "predev": "node scripts/sync-packages.mjs",
+        "dev": "next dev",
         "start": "next start",
         "lint": "eslint"
     },
@@ -44,7 +46,8 @@
         "recharts": "^3.8.1",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.6.0",
-        "tailwind-scrollbar": "^4.0.2"
+        "tailwind-scrollbar": "^4.0.2",
+        "@wasnaker/customers-web": "file:../../wasnaker-modules/customers"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.11",
