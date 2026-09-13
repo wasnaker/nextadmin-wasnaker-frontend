@@ -9,6 +9,7 @@
         "lint": "eslint"
     },
     "dependencies": {
+        "@wasnaker/web-core": "file:../../wasnaker-modules/core",
         "@base-ui/react": "^1.6.0",
         "@dnd-kit/react": "^0.5.0",
         "@floating-ui/react": "^0.27.19",
