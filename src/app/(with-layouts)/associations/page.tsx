@@ -1,1 +1,1 @@
-export { AssociationsPage as default } from "@/modules/associations";
+export { AssociationsPage as default } from "@wasnaker/association-web/tailgrids";

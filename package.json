@@ -50,7 +50,8 @@
         "@wasnaker/customers-web": "file:../../wasnaker-modules/customers",
         "@wasnaker/region-web": "file:../../wasnaker-modules/region",
         "@wasnaker/vat-web": "file:../../wasnaker-modules/vats",
-        "@wasnaker/surveyor-web": "file:../../wasnaker-modules/surveyor"
+        "@wasnaker/surveyor-web": "file:../../wasnaker-modules/surveyor",
+        "@wasnaker/association-web": "file:../../wasnaker-modules/association"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.11",

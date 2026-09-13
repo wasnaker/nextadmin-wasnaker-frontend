@@ -11,6 +11,7 @@ const PKGS = {
   "@wasnaker/region-web": "../../wasnaker-modules/region",
   "@wasnaker/vat-web": "../../wasnaker-modules/vats",
   "@wasnaker/surveyor-web": "../../wasnaker-modules/surveyor",
+  "@wasnaker/association-web": "../../wasnaker-modules/association",
 };
 
 const TOP_FILES = new Set(["package.json", "tsconfig.json", "README.md"]);
