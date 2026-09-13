@@ -1,1 +1,1 @@
-export { RegionPage as default } from "@/modules/region";
+export { RegionPage as default } from "@wasnaker/region-web/tailgrids";
