@@ -1,1 +1,1 @@
-export { default } from "@/modules/profile/security/page";
+export { default } from "@wasnaker/profile-web/security";

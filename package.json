@@ -68,7 +68,8 @@
     "@wasnaker/settings-web": "file:../../wasnaker-modules/settings",
     "@wasnaker/users-web": "file:../../wasnaker-modules/users",
     "@wasnaker/workflows-web": "file:../../wasnaker-modules/workflows",
-    "@wasnaker/platform-web": "file:../../wasnaker-modules/platform"
+    "@wasnaker/platform-web": "file:../../wasnaker-modules/platform",
+    "@wasnaker/profile-web": "file:../../wasnaker-modules/profile"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",

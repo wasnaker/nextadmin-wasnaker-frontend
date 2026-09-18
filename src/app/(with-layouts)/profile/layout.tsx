@@ -1,1 +1,1 @@
-export { default } from "@/modules/profile/layout";
+export { default } from "@wasnaker/profile-web/layout";
