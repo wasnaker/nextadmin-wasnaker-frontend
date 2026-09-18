@@ -1,1 +1,1 @@
-export { EquipmentSubgroupsPage as default } from "@/modules/equipment-subgroups";
+export { EquipmentSubgroupsPage as default } from "@wasnaker/equipment-subgroups-web/tailgrids";

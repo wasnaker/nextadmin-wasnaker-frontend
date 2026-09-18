@@ -56,7 +56,18 @@
         "recharts": "^3.8.1",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.6.0",
-        "tailwind-scrollbar": "^4.0.2"
+        "tailwind-scrollbar": "^4.0.2",
+        "@wasnaker/equipment-groups-web": "file:../../wasnaker-modules/equipment-groups",
+        "@wasnaker/equipment-subgroups-web": "file:../../wasnaker-modules/equipment-subgroups",
+        "@wasnaker/equipments-web": "file:../../wasnaker-modules/equipments",
+        "@wasnaker/my-equipment-web": "file:../../wasnaker-modules/my-equipment",
+        "@wasnaker/plans-web": "file:../../wasnaker-modules/plans",
+        "@wasnaker/referrals-web": "file:../../wasnaker-modules/referrals",
+        "@wasnaker/rfqs-web": "file:../../wasnaker-modules/rfqs",
+        "@wasnaker/roles-web": "file:../../wasnaker-modules/roles",
+        "@wasnaker/settings-web": "file:../../wasnaker-modules/settings",
+        "@wasnaker/users-web": "file:../../wasnaker-modules/users",
+        "@wasnaker/workflows-web": "file:../../wasnaker-modules/workflows"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.11",

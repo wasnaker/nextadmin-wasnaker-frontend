@@ -1,1 +1,1 @@
-export { ReferralsPage as default } from "@/modules/referrals";
+export { ReferralsPage as default } from "@wasnaker/referrals-web/tailgrids";

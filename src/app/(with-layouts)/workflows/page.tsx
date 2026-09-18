@@ -1,1 +1,1 @@
-export { WorkflowsPage as default } from "@/modules/workflows";
+export { WorkflowsPage as default } from "@wasnaker/workflows-web/tailgrids";

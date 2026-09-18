@@ -16,6 +16,17 @@ const PKGS = {
   "@wasnaker/connections-web": "../../wasnaker-modules/connections",
   "@wasnaker/equipment-categories-web": "../../wasnaker-modules/equipment-categories",
   "@wasnaker/agency-web": "../../wasnaker-modules/agency",
+  "@wasnaker/workflows-web": "../../wasnaker-modules/workflows",
+  "@wasnaker/users-web": "../../wasnaker-modules/users",
+  "@wasnaker/settings-web": "../../wasnaker-modules/settings",
+  "@wasnaker/roles-web": "../../wasnaker-modules/roles",
+  "@wasnaker/rfqs-web": "../../wasnaker-modules/rfqs",
+  "@wasnaker/referrals-web": "../../wasnaker-modules/referrals",
+  "@wasnaker/plans-web": "../../wasnaker-modules/plans",
+  "@wasnaker/my-equipment-web": "../../wasnaker-modules/my-equipment",
+  "@wasnaker/equipments-web": "../../wasnaker-modules/equipments",
+  "@wasnaker/equipment-subgroups-web": "../../wasnaker-modules/equipment-subgroups",
+  "@wasnaker/equipment-groups-web": "../../wasnaker-modules/equipment-groups",
   "@wasnaker/home-web": "../../wasnaker-modules/home",
 };
 

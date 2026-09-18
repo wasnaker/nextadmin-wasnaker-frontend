@@ -3,6 +3,8 @@
 // mengimpor lewat alias ini, bukan lewat @/ (boundary modul ↔ host).
 /* eslint-disable */
 
+export { cn } from "./utils/cn";
+
 export * from "./components/tailgrids/core/accordion";
 export * from "./components/tailgrids/core/alert";
 export * from "./components/tailgrids/core/avatar";

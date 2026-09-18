@@ -1,1 +1,1 @@
-export { EquipmentsPage as default } from "@/modules/equipments";
+export { EquipmentsPage as default } from "@wasnaker/equipments-web/tailgrids";

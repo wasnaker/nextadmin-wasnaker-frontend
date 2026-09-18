@@ -1,1 +1,1 @@
-export { RfqsPage as default } from "@/modules/rfqs";
+export { RfqsPage as default } from "@wasnaker/rfqs-web/tailgrids";

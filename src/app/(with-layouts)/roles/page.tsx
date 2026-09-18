@@ -1,1 +1,1 @@
-export { RolesPage as default } from "@/modules/roles";
+export { RolesPage as default } from "@wasnaker/roles-web/tailgrids";
