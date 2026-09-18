@@ -1,1 +1,1 @@
-export { EquipmentCategoriesPage as default } from "@/modules/equipment-categories";
+export { EquipmentCategoriesPage as default } from "@wasnaker/equipment-categories-web/tailgrids";

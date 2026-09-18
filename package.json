@@ -33,6 +33,7 @@
         "@wasnaker/connect-web": "file:../../wasnaker-modules/connect",
         "@wasnaker/connections-web": "file:../../wasnaker-modules/connections",
         "@wasnaker/customers-web": "file:../../wasnaker-modules/customers",
+        "@wasnaker/equipment-categories-web": "file:../../wasnaker-modules/equipment-categories",
         "@wasnaker/home-web": "file:../../wasnaker-modules/home",
         "@wasnaker/region-web": "file:../../wasnaker-modules/region",
         "@wasnaker/surveyor-web": "file:../../wasnaker-modules/surveyor",
