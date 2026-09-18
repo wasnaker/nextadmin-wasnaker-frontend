@@ -40,3 +40,6 @@ next-env.d.ts
 
 graphify-out/
 .hermes/
+
+# lokal ops knowledge (kredensial/ip internal)
+/AGENTS.md
