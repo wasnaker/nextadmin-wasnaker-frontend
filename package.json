@@ -31,6 +31,7 @@
         "@wasnaker/agency-web": "file:../../wasnaker-modules/agency",
         "@wasnaker/association-web": "file:../../wasnaker-modules/association",
         "@wasnaker/connect-web": "file:../../wasnaker-modules/connect",
+        "@wasnaker/connections-web": "file:../../wasnaker-modules/connections",
         "@wasnaker/customers-web": "file:../../wasnaker-modules/customers",
         "@wasnaker/home-web": "file:../../wasnaker-modules/home",
         "@wasnaker/region-web": "file:../../wasnaker-modules/region",

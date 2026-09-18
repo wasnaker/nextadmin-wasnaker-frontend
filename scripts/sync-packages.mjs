@@ -13,6 +13,7 @@ const PKGS = {
   "@wasnaker/surveyor-web": "../../wasnaker-modules/surveyor",
   "@wasnaker/association-web": "../../wasnaker-modules/association",
   "@wasnaker/connect-web": "../../wasnaker-modules/connect",
+  "@wasnaker/connections-web": "../../wasnaker-modules/connections",
   "@wasnaker/agency-web": "../../wasnaker-modules/agency",
   "@wasnaker/home-web": "../../wasnaker-modules/home",
 };

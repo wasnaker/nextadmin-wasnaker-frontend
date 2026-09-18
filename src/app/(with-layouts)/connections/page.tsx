@@ -1,1 +1,1 @@
-export { ConnectionsPage as default } from "@/modules/connections";
+export { ConnectionsPage as default } from "@wasnaker/connections-web/tailgrids";
