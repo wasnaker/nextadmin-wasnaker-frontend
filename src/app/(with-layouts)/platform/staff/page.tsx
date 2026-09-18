@@ -1,1 +1,1 @@
-export { PlatformStaffPage as default } from "@/modules/platform";
+export { PlatformStaffPage as default } from "@wasnaker/platform-web/tailgrids";

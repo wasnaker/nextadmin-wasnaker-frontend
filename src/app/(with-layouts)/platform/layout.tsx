@@ -1,1 +1,1 @@
-export { PlatformLayout as default } from "@/modules/platform";
+export { PlatformLayout as default } from "@wasnaker/platform-web";

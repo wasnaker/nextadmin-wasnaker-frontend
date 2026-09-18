@@ -27,6 +27,7 @@ const PKGS = {
   "@wasnaker/equipments-web": "../../wasnaker-modules/equipments",
   "@wasnaker/equipment-subgroups-web": "../../wasnaker-modules/equipment-subgroups",
   "@wasnaker/equipment-groups-web": "../../wasnaker-modules/equipment-groups",
+  "@wasnaker/platform-web": "../../wasnaker-modules/platform",
   "@wasnaker/home-web": "../../wasnaker-modules/home",
 };
 
