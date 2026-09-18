@@ -1,1 +1,1 @@
-export { ConnectApprovePage as default } from "@/modules/connect";
+export { ConnectApprovePage as default } from "@wasnaker/connect-web/tailgrids";
