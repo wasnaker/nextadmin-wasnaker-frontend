@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/tailgrids/core/button";
 import { TabContent } from "./tab-content";
 import type { DetailTab } from "@/core/modules/module-extensions";
+import { useT } from "@/core/i18n";
 
 /**
  * SmallTable — list + panel detail bertab (padanan nextjs-spine SmallTable,
@@ -117,6 +118,7 @@ export function SmallTable<T>({
   tabEmptyText = "Tidak ada data.",
   customTabBody,
 }: SmallTableProps<T>) {
+  const t = useT();
   const sortedTabs = useMemo(
     () => [...tabs].sort((a, b) => (a.position ?? 999) - (b.position ?? 999)),
     [tabs]
@@ -376,13 +378,13 @@ export function SmallTable<T>({
 
             {sortedTabs.length > 0 && (
               <nav className="small-table-tabs flex flex-wrap gap-1 border-b border-border-primary px-3 py-2">
-                {sortedTabs.map((t) => {
-                  const isActive = t.slug === activeTab;
+                {sortedTabs.map((tab) => {
+                  const isActive = tab.slug === activeTab;
                   return (
                     <button
-                      key={t.slug}
+                      key={tab.slug}
                       type="button"
-                      onClick={() => setActiveTab(t.slug)}
+                      onClick={() => setActiveTab(tab.slug)}
                       className={cn(
                         "small-table-tab flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors",
                         isActive
@@ -390,8 +392,8 @@ export function SmallTable<T>({
                           : "text-text-secondary hover:bg-card-surface-area hover:text-text-primary"
                       )}
                     >
-                      {t.icon && <span className="text-xs">{t.icon}</span>}
-                      {t.label}
+                      {tab.icon && <span className="text-xs">{tab.icon}</span>}
+                      {t(tab.label)}
                     </button>
                   );
                 })}

@@ -1,4 +1,5 @@
 /**
- * Modul home — kepemilikan kode domain home (manifest/modul backend terpisah).
+ * Modul Home — dua wajah: Mantine (pages/) default, Next (tailgrids/).
  */
-export { default as Home } from "./components/home-page";
+export { HomePage } from './pages/home-page';
+export { homeModule } from './module';

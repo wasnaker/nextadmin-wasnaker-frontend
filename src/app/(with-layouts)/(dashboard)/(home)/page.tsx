@@ -1,1 +1,1 @@
-export { Home as default } from "@/modules/home";
+export { HomePage as default } from "@wasnaker/home-web/tailgrids";

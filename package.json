@@ -11,7 +11,6 @@
         "lint": "eslint"
     },
     "dependencies": {
-        "@wasnaker/web-core": "file:../../wasnaker-modules/core",
         "@base-ui/react": "^1.6.0",
         "@dnd-kit/react": "^0.5.0",
         "@floating-ui/react": "^0.27.19",
@@ -29,6 +28,14 @@
         "@tanstack/react-query": "^5.101.2",
         "@tanstack/react-query-persist-client": "^5.102.8",
         "@tanstack/react-table": "^8.21.3",
+        "@wasnaker/agency-web": "file:../../wasnaker-modules/agency",
+        "@wasnaker/association-web": "file:../../wasnaker-modules/association",
+        "@wasnaker/customers-web": "file:../../wasnaker-modules/customers",
+        "@wasnaker/home-web": "file:../../wasnaker-modules/home",
+        "@wasnaker/region-web": "file:../../wasnaker-modules/region",
+        "@wasnaker/surveyor-web": "file:../../wasnaker-modules/surveyor",
+        "@wasnaker/vat-web": "file:../../wasnaker-modules/vats",
+        "@wasnaker/web-core": "file:../../wasnaker-modules/core",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
@@ -36,7 +43,7 @@
         "embla-carousel-autoplay": "^8.6.0",
         "embla-carousel-react": "^8.6.0",
         "leaflet": "^1.9.4",
-        "next": "16.2.7",
+        "next": "^16.2.7",
         "next-themes": "^0.4.6",
         "react": "19.2.4",
         "react-aria-components": "^1.19.0",
@@ -46,13 +53,7 @@
         "recharts": "^3.8.1",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.6.0",
-        "tailwind-scrollbar": "^4.0.2",
-        "@wasnaker/customers-web": "file:../../wasnaker-modules/customers",
-        "@wasnaker/region-web": "file:../../wasnaker-modules/region",
-        "@wasnaker/vat-web": "file:../../wasnaker-modules/vats",
-        "@wasnaker/surveyor-web": "file:../../wasnaker-modules/surveyor",
-        "@wasnaker/association-web": "file:../../wasnaker-modules/association",
-        "@wasnaker/agency-web": "file:../../wasnaker-modules/agency"
+        "tailwind-scrollbar": "^4.0.2"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.11",

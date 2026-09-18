@@ -1,1 +1,1 @@
-export { CustomersPage as default } from "@wasnaker/customers-web";
+export { CustomersPage as default } from "@wasnaker/customers-web/tailgrids";

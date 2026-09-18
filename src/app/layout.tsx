@@ -10,6 +10,7 @@ import "./globals.css";
 const geistInter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap", // Suppress preload warning — font loaded async
 });
 
 export const metadata: Metadata = {

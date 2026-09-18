@@ -12,6 +12,7 @@ import { useState } from "react";
 import { MantineProvider } from "@mantine/core";
 import { AuthProvider } from "@/core/auth/auth-context";
 import { I18nProvider } from "@/core/i18n";
+import { MODULE_I18N } from "@/core/modules/module-registry";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   // useState ensures the client is created once per request
@@ -57,7 +58,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <MantineProvider defaultColorScheme="light">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <I18nProvider>{children}</I18nProvider>
+          <I18nProvider modules={MODULE_I18N}>{children}</I18nProvider>
         </AuthProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
