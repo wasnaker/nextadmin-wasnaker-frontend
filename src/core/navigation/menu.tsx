@@ -36,6 +36,7 @@ const PLATFORM_SECTIONS: NavSection[] = [
     items: [
       { title: "Users", url: "/users", permission: "users:view" },
       { title: "Roles & Permission", url: "/roles", permission: "roles:view" },
+      { title: "Modules", url: "/modules", permission: "modules:view" },
     ],
   },
 ];
