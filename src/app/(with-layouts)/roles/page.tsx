@@ -1,1 +1,1 @@
-export { RolesPage as default } from "@wasnaker/roles-web/tailgrids";
+export { RolesPage as default } from "@/core/roles";

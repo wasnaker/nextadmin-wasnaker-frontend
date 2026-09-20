@@ -1,1 +1,1 @@
-export { default } from "@wasnaker/profile-web/branch";
+export { default } from "@/core/profile/branch/page";

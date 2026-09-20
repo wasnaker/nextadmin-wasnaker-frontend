@@ -2,6 +2,8 @@
 @plugin "@tailwindcss/forms";
 @plugin "tailwind-scrollbar";
 
+@source "../../node_modules/@wasnaker";
+
 @import "./css/default.css";
 @import "./css/dark.css";
 

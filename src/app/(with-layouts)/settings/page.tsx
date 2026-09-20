@@ -1,1 +1,1 @@
-export { SettingsPage as default } from "@wasnaker/settings-web/tailgrids";
+export { SettingsPage as default } from "@/core/settings";

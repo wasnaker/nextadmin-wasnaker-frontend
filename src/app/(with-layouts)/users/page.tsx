@@ -1,1 +1,1 @@
-export { UsersPage as default } from "@wasnaker/users-web/tailgrids";
+export { UsersPage as default } from "@/core/users";

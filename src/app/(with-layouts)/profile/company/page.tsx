@@ -1,1 +1,1 @@
-export { default } from "@wasnaker/profile-web/company";
+export { default } from "@/core/profile/company/page";

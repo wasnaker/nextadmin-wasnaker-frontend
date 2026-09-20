@@ -1,1 +1,1 @@
-export { default } from "@wasnaker/profile-web/my-referral";
+export { default } from "@/core/profile/my-referral/page";

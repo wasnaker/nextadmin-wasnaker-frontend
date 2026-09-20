@@ -1,1 +1,1 @@
-export { default } from "@wasnaker/profile-web/language";
+export { default } from "@/core/profile/language/page";

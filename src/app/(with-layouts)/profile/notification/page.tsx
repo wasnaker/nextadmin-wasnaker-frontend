@@ -1,1 +1,1 @@
-export { default } from "@wasnaker/profile-web/notification";
+export { default } from "@/core/profile/notification/page";

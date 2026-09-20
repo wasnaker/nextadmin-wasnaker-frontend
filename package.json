@@ -64,12 +64,8 @@
     "@wasnaker/plans-web": "file:../../wasnaker-modules/plans",
     "@wasnaker/referrals-web": "file:../../wasnaker-modules/referrals",
     "@wasnaker/rfqs-web": "file:../../wasnaker-modules/rfqs",
-    "@wasnaker/roles-web": "file:../../wasnaker-modules/roles",
-    "@wasnaker/settings-web": "file:../../wasnaker-modules/settings",
-    "@wasnaker/users-web": "file:../../wasnaker-modules/users",
     "@wasnaker/workflows-web": "file:../../wasnaker-modules/workflows",
-    "@wasnaker/platform-web": "file:../../wasnaker-modules/platform",
-    "@wasnaker/profile-web": "file:../../wasnaker-modules/profile"
+    "@wasnaker/platform-web": "file:../../wasnaker-modules/platform"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
